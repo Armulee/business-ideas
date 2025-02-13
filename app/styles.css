@@ -1,0 +1,62 @@
+.fade-animation {
+    animation: fadeInOut 6s ease-in-out infinite;
+}
+
+.swiper-wrapper {
+    -webkit-transition-timing-function: linear !important;
+    -o-transition-timing-function: linear !important;
+    transition-timing-function: linear !important;
+}
+
+.swiper-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    /* Ensure slides fill the container height */
+    max-height: 300px;
+    /* Set the max height of the slides */
+    overflow: hidden;
+    /* Prevent the slide content from overflowing */
+}
+
+/* Handle overflow for text or paragraphs inside the slides */
+.swiper-slide .content {
+    height: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+.swiper-scrollbar {
+    background: #0000003a !important;
+}
+
+.swiper-scrollbar-drag {
+    background: white !important;
+}
+
+.glassmorphism {
+    @apply bg-neutral-200 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 border border-gray-100
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
