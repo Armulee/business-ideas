@@ -9,7 +9,7 @@ export default async function UserProfilePage({
         const { id, slug } = await params
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/profile/${id}/${slug}`,
+            `${process.env.API_URL}/profile/${id}/${slug}`,
             {
                 cache: "no-store", // Ensure fresh data on each request
             }
