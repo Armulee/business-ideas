@@ -1,4 +1,3 @@
-import Typewriter, { Options } from "typewriter-effect"
 import { motion } from "framer-motion"
 import { ArrowUp, Compass, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
@@ -6,6 +5,7 @@ import Link from "next/link"
 import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useTypewriter } from "react-simple-typewriter"
 
 export default function Hero() {
     const router = useRouter()
@@ -26,6 +26,21 @@ export default function Hero() {
             router.push("/new-post/new-ideas")
         }
     }
+
+    // Here headline
+    const [text] = useTypewriter({
+        words: [
+            "Every Billion-Dollar Business Starts With an Idea",
+            "Have an Idea? Share, Validate, and Improve!",
+            "Discover What People Really Think of Your Business Idea",
+            "Turn Your Idea into the Business People Actually Want",
+            "Every Great Business Begins with Audience Feedback",
+        ],
+        loop: true,
+        typeSpeed: 50,
+        deleteSpeed: 50,
+        delaySpeed: 4000, // pause between each word
+    })
 
     return (
         <motion.div
@@ -48,25 +63,7 @@ export default function Hero() {
                 </motion.div>
 
                 <h2 className='text-4xl sm:text-5xl md:text-6xl font-extrabold text-white min-h-[180px] flex justify-center items-center mb-6 leading-tight'>
-                    <Typewriter
-                        options={{
-                            strings: [
-                                "Every Billion-Dollar Business Starts With an Idea",
-                                "Have an Idea? Share, Validate, and Improve!",
-                                "Discover What People Really Think of Your Business Idea",
-                                "Turn Your Idea into the Business People Actually Want",
-                                "Every Great Business Begins with Audience Feedback",
-                            ],
-                            cursor: "",
-                            autoStart: true,
-                            loop: true,
-                            delay: 50,
-                            deleteSpeed: 50,
-                            ...({
-                                pauseFor: 4000,
-                            } as Partial<Options>),
-                        }}
-                    />
+                    {text}
                 </h2>
 
                 <motion.p
