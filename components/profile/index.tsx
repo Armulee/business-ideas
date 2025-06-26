@@ -1,8 +1,7 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Loading from "../loading"
 import ProfileHeader from "./profile-header"
 import ProfileStats from "./profile-stats"
 import { ProfileData } from "./types"
@@ -35,17 +34,15 @@ const Profile = ({ data, error, correctSlug }: PostProps) => {
 
     if (data) {
         return (
-            <Suspense fallback={<Loading />}>
-                <ProfileProvider data={data}>
-                    <div className='container mx-auto px-4 pt-20 pb-28'>
-                        <div className='flex flex-col md:flex-row gap-2 items-center'>
-                            <ProfileHeader />
-                            <ProfileStats />
-                        </div>
-                        <ProfileTabs />
+            <ProfileProvider data={data}>
+                <div className='container mx-auto px-4 pt-20 pb-28'>
+                    <div className='flex flex-col md:flex-row gap-2 items-center'>
+                        <ProfileHeader />
+                        <ProfileStats />
                     </div>
-                </ProfileProvider>
-            </Suspense>
+                    <ProfileTabs />
+                </div>
+            </ProfileProvider>
         )
     }
 }

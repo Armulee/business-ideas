@@ -19,6 +19,7 @@ import Main from "@/components/main"
 
 import { Toaster } from "@/components/ui/sonner"
 import Loading from "@/components/loading"
+import { Suspense } from "react"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -49,9 +50,10 @@ export default function RootLayout({
             >
                 <div className='moving-gradient'>
                     <Provider session={session}>
-                        <Loading />
-                        <Navbar />
-                        <Main>{children}</Main>
+                        <Suspense fallback={<Loading />}>
+                            <Navbar />
+                            <Main>{children}</Main>
+                        </Suspense>
                         <Toaster className='bg-black' />
                     </Provider>
                 </div>
