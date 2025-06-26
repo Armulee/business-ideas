@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Loading from "../loading"
 import ProfileHeader from "./profile-header"
@@ -25,15 +25,6 @@ const Profile = ({ data, error, correctSlug }: PostProps) => {
         }
     }, [correctSlug, router])
 
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        if (data && !correctSlug) {
-            const delay = setTimeout(() => setLoading(false), 100)
-            return () => clearTimeout(delay)
-        }
-    }, [data, correctSlug])
-
     if (error) {
         return (
             <div className='flex flex-col items-center justify-center min-h-screen'>
@@ -42,21 +33,19 @@ const Profile = ({ data, error, correctSlug }: PostProps) => {
         )
     }
 
-    if (loading || !data) {
-        return <Loading />
-    }
-
     if (data) {
         return (
-            <ProfileProvider data={data}>
-                <div className='container mx-auto px-4 pt-20 pb-28'>
-                    <div className='flex flex-col md:flex-row gap-2 items-center'>
-                        <ProfileHeader />
-                        <ProfileStats />
+            <Suspense fallback={<Loading />}>
+                <ProfileProvider data={data}>
+                    <div className='container mx-auto px-4 pt-20 pb-28'>
+                        <div className='flex flex-col md:flex-row gap-2 items-center'>
+                            <ProfileHeader />
+                            <ProfileStats />
+                        </div>
+                        <ProfileTabs />
                     </div>
-                    <ProfileTabs />
-                </div>
-            </ProfileProvider>
+                </ProfileProvider>
+            </Suspense>
         )
     }
 }

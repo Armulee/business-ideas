@@ -11,6 +11,7 @@ export default async function PostId({
     try {
         const { id, slug } = await params // No need to await
 
+        console.log(process.env.NEXT_PUBLIC_API_URL)
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/post/${id}/${slug}`,
             {

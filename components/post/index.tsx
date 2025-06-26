@@ -1,6 +1,12 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from "react"
+import React, {
+    createContext,
+    Suspense,
+    useContext,
+    useEffect,
+    useState,
+} from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import CommentSection from "./comments"
@@ -86,7 +92,6 @@ const Post = ({
         }
     }, [correctSlug, router])
 
-    const [loading, setLoading] = useState(true)
     // update view count on page load
     useEffect(() => {
         if (data && !correctSlug) {
@@ -95,7 +100,6 @@ const Post = ({
             }
 
             const delay = setTimeout(() => {
-                setLoading(false)
                 updateView()
             }, 100)
             return () => clearTimeout(delay)
@@ -158,51 +162,49 @@ const Post = ({
     if (engagementError)
         console.error("Engagements load failed", engagementError)
 
-    if (loading) {
-        return <Loading />
-    }
-
     return (
-        <PostData.Provider value={value}>
-            <section className='min-h-screen pt-20 pb-32 px-4 max-w-7xl mx-auto'>
-                <div className='flex flex-col md:flex-row gap-4'>
-                    {/* Main content - left side on desktop, top on mobile */}
-                    <main className='flex-1'>
-                        <PostTitle />
-                        <PostContent />
+        <Suspense fallback={<Loading />}>
+            <PostData.Provider value={value}>
+                <section className='min-h-screen pt-20 pb-32 px-4 max-w-7xl mx-auto'>
+                    <div className='flex flex-col md:flex-row gap-4'>
+                        {/* Main content - left side on desktop, top on mobile */}
+                        <main className='flex-1'>
+                            <PostTitle />
+                            <PostContent />
 
-                        {/* only on mobile, above comments */}
-                        <div className='my-6 md:hidden'>
-                            {/* <Author /> */}
-                            <Widgets />
-                        </div>
-
-                        <CommentSection />
-
-                        <div className='mt-6 md:hidden'>
-                            <RelatedPosts />
-                        </div>
-                    </main>
-
-                    {/* Sidebar - right side on desktop, hidden on mobile */}
-                    <aside className='hidden md:block w-72'>
-                        <div className='sticky top-20'>
-                            <div className='h-screen pb-28 overflow-y-scroll'>
+                            {/* only on mobile, above comments */}
+                            <div className='my-6 md:hidden'>
                                 {/* <Author /> */}
                                 <Widgets />
+                            </div>
+
+                            <CommentSection />
+
+                            <div className='mt-6 md:hidden'>
                                 <RelatedPosts />
                             </div>
-                        </div>
-                    </aside>
-                    {/* <div className='hidden md:block w-72 h-[calc(100vh-80px)] relative'>
+                        </main>
+
+                        {/* Sidebar - right side on desktop, hidden on mobile */}
+                        <aside className='hidden md:block w-72'>
+                            <div className='sticky top-20'>
+                                <div className='h-screen pb-28 overflow-y-scroll'>
+                                    {/* <Author /> */}
+                                    <Widgets />
+                                    <RelatedPosts />
+                                </div>
+                            </div>
+                        </aside>
+                        {/* <div className='hidden md:block w-72 h-[calc(100vh-80px)] relative'>
                         <div className='fixed top-20 right-4 w-72 h-[calc(100vh-80px)] pb-32 overflow-y-scroll'>
                             <Widgets />
                             <RelatedPosts />
                         </div>
                     </div> */}
-                </div>
-            </section>
-        </PostData.Provider>
+                    </div>
+                </section>
+            </PostData.Provider>
+        </Suspense>
     )
 }
 
