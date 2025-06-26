@@ -6,13 +6,17 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
 } from "@/components/ui/form"
 import { Camera, X } from "lucide-react"
-import { Control } from "react-hook-form"
+import { Control, UseFormSetError } from "react-hook-form"
 import { ProfileFormValues } from "../types"
-import { useState } from "react"
+import { useRef, useState } from "react"
+
+const MAXIMUM_AVATAR_SIZE_MB = 2
 
 interface AvatarFormFieldProps {
+    formError: UseFormSetError<ProfileFormValues>
     control: Control<ProfileFormValues>
     defaultAvatar: string | undefined
     defaultName: string | undefined
@@ -20,21 +24,27 @@ interface AvatarFormFieldProps {
 
 /* Avatar Upload */
 const EditAvatar = ({
+    formError,
     control,
     defaultAvatar,
     defaultName,
 }: AvatarFormFieldProps) => {
-    const [avatarFile, setAvatarFile] = useState<File | null>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
+    const [avatarName, setAvatarName] = useState<string>("")
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
     // Handle avatar file selection
     const handleAvatarChange = (
         e: React.ChangeEvent<HTMLInputElement>,
-        onChange: (value: any) => void
+        onChange: (value: File | undefined) => void
     ) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0]
-            setAvatarFile(file)
+            if (file.size > MAXIMUM_AVATAR_SIZE_MB * 1024 * 1024) {
+                formError("avatar", { message: "Maximum 2 MB" })
+            }
+            setAvatarName(file.name)
+            // setAvatarFile(file)
 
             // Create a preview URL
             const reader = new FileReader()
@@ -50,8 +60,8 @@ const EditAvatar = ({
     }
 
     // Remove selected avatar
-    const removeAvatar = (onChange: (value: any) => void) => {
-        setAvatarFile(null)
+    const removeAvatar = (onChange: (value: File | undefined) => void) => {
+        setAvatarName("")
         setAvatarPreview(null)
         onChange(undefined)
         // form.setValue("avatar", undefined)
@@ -87,9 +97,22 @@ const EditAvatar = ({
                             )}
                         </div>
                         <div className='flex flex-col gap-2'>
-                            <FormLabel className='text-white'>
+                            <FormLabel className='text-white flex items-center min-w-0'>
                                 Profile Picture
                             </FormLabel>
+                            {avatarName && (
+                                <p className='text-xs text-white line-clamp-1'>
+                                    Image name:{" "}
+                                    <span
+                                        onClick={() =>
+                                            inputRef.current?.click()
+                                        }
+                                        className='font-bold underline underline-offset-2 cursor-pointer hover:text-blue-200 transition duration-300'
+                                    >
+                                        {avatarName}
+                                    </span>
+                                </p>
+                            )}
                             <FormControl>
                                 <Button
                                     type='button'
@@ -98,10 +121,11 @@ const EditAvatar = ({
                                     className='text-white'
                                     asChild
                                 >
-                                    <label className='bg-white/20'>
+                                    <label className='input'>
                                         <Camera className='h-4 w-4 mr-2' />
                                         Change
                                         <input
+                                            ref={inputRef}
                                             type='file'
                                             accept='image/*'
                                             className='hidden'
@@ -115,10 +139,11 @@ const EditAvatar = ({
                                     </label>
                                 </Button>
                             </FormControl>
-                            <FormDescription className='text-gray-300 text-sm'>
+                            <FormDescription className='text-gray-300 text-xs'>
                                 Recommended: Square JPG or PNG, at least 500x500
-                                pixels.
+                                pixels and maximum 2 MB.
                             </FormDescription>
+                            <FormMessage />
                         </div>
                     </div>
                 </FormItem>

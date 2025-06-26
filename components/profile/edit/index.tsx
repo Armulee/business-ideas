@@ -8,33 +8,37 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import EditForm from "./form"
-import { useEffect, useState } from "react"
-import { IProfilePopulated } from "@/database/Profile"
 import axios from "axios"
 import Loading from "@/components/loading"
 import { useSession } from "next-auth/react"
+import useSWR from "swr"
+
+export interface ProfileData {
+    name: string | undefined
+    avatar: string | undefined
+    bio: string | undefined
+    profileId: number
+    location: string | undefined
+    website: string | undefined
+    socialMedias: {
+        facebook: string | undefined
+        instagram: string | undefined
+        x: string | undefined
+        linkedin: string | undefined
+    }
+}
+
+const fetcher = (url: string) => axios.get(url).then((res) => res.data)
 
 export default function EditProfile({ id }: { id: string }) {
-    const [profileData, setProfileData] = useState<
-        IProfilePopulated | null | undefined
-    >(null)
-    useEffect(() => {
-        async function setupProfileData() {
-            const { data, status } = await axios.get(`/api/profile/full/${id}`)
-            if (status === 200) {
-                setProfileData(data)
-            } else {
-                setProfileData(undefined)
-            }
-        }
-
-        setupProfileData()
-    }, [id])
-
+    const { data: profileData } = useSWR(`/api/profile/full/${id}`, fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+    })
     const { data: session, status } = useSession()
-    if (status !== "loading" && session?.user.profile !== parseInt(id)) {
+
+    if (status !== "loading" && session?.user.profile !== Number(id)) {
         return (
             <div className='w-full h-screen flex items-center justify-center'>
                 Unauthorized, you have no permission to enter this link
@@ -49,7 +53,7 @@ export default function EditProfile({ id }: { id: string }) {
                     Edit Profile
                 </h1> */}
                 <div className='mx-auto'>
-                    <Card className='bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg shadow-xl'>
+                    <Card className='glassmorphism bg-transparent'>
                         <CardHeader>
                             <CardTitle className='text-white text-xl'>
                                 Edit Your Profile
@@ -60,21 +64,7 @@ export default function EditProfile({ id }: { id: string }) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Tabs defaultValue='basic' className='w-full'>
-                                <TabsList className='grid w-full grid-cols-2 mb-8 text-white bg-white/30'>
-                                    <TabsTrigger value='basic'>
-                                        Basic Information
-                                    </TabsTrigger>
-                                    <TabsTrigger value='social'>
-                                        Social Links
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <EditForm
-                                    profileData={profileData}
-                                    setProfileData={setProfileData}
-                                />
-                            </Tabs>
+                            <EditForm profileData={profileData} />
                         </CardContent>
                     </Card>
                 </div>

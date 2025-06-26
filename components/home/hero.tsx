@@ -31,7 +31,7 @@ export default function Hero() {
     const [text] = useTypewriter({
         words: [
             "Every Billion-Dollar Business Starts With an Idea",
-            "Have an Idea? Share, Validate, and Improve!",
+            "Have an Idea? Share, Validate, and Refine!",
             "Discover What People Really Think of Your Business Idea",
             "Turn Your Idea into the Business People Actually Want",
             "Every Great Business Begins with Audience Feedback",

@@ -10,11 +10,6 @@ export default async function EditProfilePage({
 
         return <EditProfile id={id} />
     } catch (err) {
-        return (
-            <div>
-                Sorry, something went wrong. <br />
-                Reason: {(err as Error).message}
-            </div>
-        )
+        return <div>{(err as Error).message || "Something went wrong"}</div>
     }
 }

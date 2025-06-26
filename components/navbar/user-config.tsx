@@ -43,9 +43,9 @@ export default function UserConfig() {
                     <DropdownMenuItem>View Profile</DropdownMenuItem>
                 </Link>
 
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
 
-                <DropdownMenuItem>Give us feedback</DropdownMenuItem>
+                {/* <DropdownMenuItem>Give us feedback</DropdownMenuItem> */}
 
                 <DropdownMenuItem
                     className='bg-red-500 hover:bg-red-600 hover:text-red-100'

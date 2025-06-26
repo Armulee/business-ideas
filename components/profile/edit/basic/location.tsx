@@ -100,53 +100,70 @@ const EditLocation = ({
             render={({ field }) => (
                 <FormItem>
                     <FormLabel className='text-white'>Location</FormLabel>
-                    <FormControl>
-                        <Select
-                            value={countryCode} // Default selected value for country
-                            onValueChange={(value) => onCountry(value, field)}
-                        >
-                            <SelectTrigger className='bg-white bg-opacity-5 text-white border-white/50 focus:border-blue-500'>
-                                <SelectValue placeholder='Select a country' />
-                            </SelectTrigger>
-                            <SelectContent className='bg-white text-black max-h-60 overflow-y-auto'>
-                                {countries.map(
-                                    ({
-                                        name,
-                                        shortName,
-                                    }: {
-                                        name: string
-                                        shortName: string
-                                    }) => (
-                                        <SelectItem
-                                            key={name}
-                                            value={shortName}
-                                        >
-                                            {name}
+                    <div className='flex items-end gap-2'>
+                        <div className='min-w-60'>
+                            <FormControl>
+                                <Select
+                                    value={countryCode} // Default selected value for country
+                                    onValueChange={(value) =>
+                                        onCountry(value, field)
+                                    }
+                                >
+                                    <SelectTrigger className='select'>
+                                        <SelectValue placeholder='Select a country' />
+                                    </SelectTrigger>
+                                    <SelectContent className='bg-white text-black max-h-60 overflow-y-auto'>
+                                        <SelectItem value='none'>
+                                            None
                                         </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </FormControl>
-                    {states.length ? (
-                        <FormControl>
-                            <Select
-                                value={state} // Default selected value for state
-                                onValueChange={(value) => onState(value, field)}
-                            >
-                                <SelectTrigger className='bg-white bg-opacity-5 text-white border-white/50 focus:border-blue-500'>
-                                    <SelectValue placeholder='Select a city' />
-                                </SelectTrigger>
-                                <SelectContent className='bg-white text-black max-h-60 overflow-y-auto'>
-                                    {states.map((state) => (
-                                        <SelectItem key={state} value={state}>
-                                            {state}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                    ) : null}
+                                        {countries.map(
+                                            ({
+                                                name,
+                                                shortName,
+                                            }: {
+                                                name: string
+                                                shortName: string
+                                            }) => (
+                                                <SelectItem
+                                                    key={name}
+                                                    value={shortName}
+                                                >
+                                                    {name}
+                                                </SelectItem>
+                                            )
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                        </div>
+
+                        {states && states.length ? (
+                            <div className='min-w-60'>
+                                <FormControl>
+                                    <Select
+                                        value={state} // Default selected value for state
+                                        onValueChange={(value) =>
+                                            onState(value, field)
+                                        }
+                                    >
+                                        <SelectTrigger className='select'>
+                                            <SelectValue placeholder='Select a city' />
+                                        </SelectTrigger>
+                                        <SelectContent className='bg-white text-black max-h-60 overflow-y-auto'>
+                                            {states.map((state) => (
+                                                <SelectItem
+                                                    key={state}
+                                                    value={state}
+                                                >
+                                                    {state}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                            </div>
+                        ) : null}
+                    </div>
                     <FormDescription className='text-gray-300'>
                         Where you&apos;re based (optional).
                     </FormDescription>

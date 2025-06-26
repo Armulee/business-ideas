@@ -22,7 +22,7 @@ const EditName = ({ control }: { control: Control<ProfileFormValues> }) => {
                         <Input
                             placeholder='Your name'
                             {...field}
-                            className='bg-white bg-opacity-5 text-white border-white/50 focus:border-blue-500 placeholder:text-white/50'
+                            className='input text-white'
                         />
                     </FormControl>
                     <FormDescription className='text-gray-300'>

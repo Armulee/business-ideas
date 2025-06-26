@@ -6,10 +6,10 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Textarea } from "@/components/ui/textarea"
 import { Control, ControllerRenderProps } from "react-hook-form"
 import { ProfileFormValues } from "../types"
 import { useState } from "react"
+import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 
 const EditBio = ({
     defaultBio,
@@ -46,16 +46,16 @@ const EditBio = ({
                 <FormItem>
                     <FormLabel className='text-white'>Bio</FormLabel>
                     <FormControl>
-                        <Textarea
-                            placeholder='Tell us about yourself'
+                        <AutoHeightTextarea
                             {...field}
+                            className={`text-white ${
+                                error && "border !border-red-400 !bg-red-400/50"
+                            }`}
                             onChange={(e) => handleBioChange(e, field)}
-                            className={`bg-white bg-opacity-5 text-white ${
-                                error ? "border-red-500" : "border-white/50"
-                            } placeholder:text-white/50 resize-none h-24`}
+                            placeholder='Tell us about yourself'
                         />
                     </FormControl>
-                    <FormDescription className='text-gray-300'>
+                    <FormDescription className='text-white/70'>
                         Brief description for your profile.{" "}
                         <span className={error ? "text-red-500" : ""}>
                             Max {charCount} / 250 characters.
