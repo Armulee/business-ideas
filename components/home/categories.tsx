@@ -23,7 +23,8 @@ const Categories = () => {
                 Search from the categories
             </h3>
             <p className='text-sm mb-8'>
-                Not sure where to start? Browse by category and get inspired!
+                Not sure where to start? <br /> Browse by category and get
+                inspired!
             </p>
             {categories !== undefined && categories.length && (
                 <ul className='grid grid-cols-2 gap-2 pb-6 w-[85%] mx-auto'>
@@ -32,7 +33,7 @@ const Categories = () => {
                             href={`/category?id=${id}`}
                             key={`category-${id}`}
                         >
-                            <li className='glassmorphism text-sm p-2 transition duration-300 hover:bg-white hover:text-blue-700'>
+                            <li className='glassmorphism text-xs p-2 transition duration-300 hover:bg-white hover:text-blue-700'>
                                 {name}
                             </li>
                         </Link>

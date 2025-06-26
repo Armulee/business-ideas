@@ -1,3 +1,46 @@
+body {
+    color: #ffffff;
+    overscroll-behavior-x: none;
+}
+
+.button {
+   @apply glassmorphism bg-transparent hover:bg-blue-600 text-white font-medium p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500
+}
+
+.cta-button {
+    @apply bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-500
+}
+
+.input {
+    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60
+}
+
+.select {
+    @apply text-white/80 glassmorphism bg-transparent transition duration-500 data-[state=open]:bg-blue-600/50
+}
+
+.description ol {
+    list-style-type: decimal;
+    padding-left: 20px;
+}
+
+.description ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.description p {
+    width: 100%;
+    /* Or a fixed width like 300px */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* .description ul {
+    list-style-type: decimal;
+    padding-left: 30px;
+} */
+
 .fade-animation {
     animation: fadeInOut 6s ease-in-out infinite;
 }
@@ -39,8 +82,157 @@
     background: white !important;
 }
 
+.ql-container {
+    background: transparent !important;
+    /* Change text color */
+    font-size: 14px;
+    color: white !important;
+    /* Adjust font size */
+    border: none !important;
+    /* Remove border */
+}
+
+.ql-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 3px;
+    background: rgb(230, 235, 249) !important;
+    /* Semi-transparent toolbar */
+    border: none !important;
+}
+
+.ql-editor {
+    min-height: 150px;
+    padding: 10px;
+    font-size: 14px;
+    /* Ensure text is visible */
+}
+
+/* Customize buttons/icons */
+.ql-toolbar button {
+    color: white !important;
+}
+
+.ql-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* .glassmorphism {
+    @apply bg-neutral-200 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 
+} */
+
 .glassmorphism {
-    @apply bg-neutral-200 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 border border-gray-100
+    @apply bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 rounded-xl shadow-lg
+}
+
+.gradient-section {
+    @apply bg-gradient-to-b from-blue-500 to-blue-700 pb-8 text-white
+}
+
+.reverse-gradient-section {
+    @apply bg-gradient-to-b from-blue-700 to-blue-500 pb-8 text-white
+}
+
+/* Animation for the blob background */
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.moving-gradient {
+    background: linear-gradient(
+        /* #1E40AF, #1E3A8A, #3B82F6*/
+        90deg,
+        #1E40AF,
+        /* Darkest Blue */
+        #2a3f6f
+        /* Medium Blue */
+    );
+    background-size: 300% 300%;
+    animation: gradientMove 20s ease infinite;
+    /* filter: blur(20px); */
+}
+
+@keyframes moveInCircle {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes moveVertical {
+    0% {
+        transform: translateY(-50%);
+    }
+
+    50% {
+        transform: translateY(50%);
+    }
+
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes moveHorizontal {
+    0% {
+        transform: translateX(-50%) translateY(-10%);
+    }
+
+    50% {
+        transform: translateX(50%) translateY(50%);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-50%);
+    }
 }
 
 @keyframes fadeInOut {
@@ -59,4 +251,29 @@
     100% {
         opacity: 0;
     }
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    color: rgba(255, 255, 255, 0.5);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none; }
+
+.tiptap ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.tiptap ol {
+    list-style: decimal;
+    padding-left: 20px;
+}
+
+.tiptap a {
+    color: rgb(178, 201, 245);
+    text-decoration: underline;
+}
+.ProseMirror-focused {
+    outline: none;
 }

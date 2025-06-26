@@ -1,59 +1,77 @@
 "use client"
 
-import About from "./about"
-import Categories from "./categories"
-// import { useMediaQuery } from "usehooks-ts"
-// import { Idea, ideas } from "./Ideas"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import Posts from "./posts"
+import Loading from "../loading"
+import type { IPostPopulated } from "@/database/Post"
+import AnimatedBackground from "./animated-background"
 import Hero from "./hero"
-// import { useEffect, useMemo, useState } from "react"
+import About from "./about"
+import WhyJoinUs from "./why-join-us"
+import HowItWorks from "./how-it-works"
+import CTA from "./cta"
 
-const Homepage = () => {
-    // const shuffleArray = (array: Idea[]) => {
-    //     return (
-    //         [...array]
-    //             .map((item) => ({ ...item, sort: Math.random() }))
-    //             .sort((a, b) => a.sort - b.sort)
-    //             //eslint-disable-next-line
-    //             .map(({ sort, ...item }) => item)
-    //     )
-    // }
+const Home = () => {
+    const [loading, setLoading] = useState<boolean>(true)
+    const [latestPosts, setLatestPosts] = useState<IPostPopulated[]>([])
+    const [topVotedPosts, setTopVotedPosts] = useState<IPostPopulated[]>([])
 
-    // Trending Ideas
-    // const sortedIdeas = useMemo(
-    //     () => [...ideas].sort((a, b) => b.upvotes - a.upvotes),
-    //     []
-    // )
-    // const trendingIdeas = sortedIdeas.slice(0, 6)
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const { data } = await axios.get("/api/posts/new-ideas")
+                setLatestPosts(data.latestPosts)
+                setTopVotedPosts(data.topVotedPosts)
+                setLoading(false)
+            } catch (err) {
+                throw new Error(
+                    `Failed to load top posts: ${(err as Error).message}`
+                )
+            }
+        }
 
-    // Featured Ideas
-    // const [featuredIdeas, setFeaturedIdeas] = useState<Ideas>([])
-    // const [randomCategories, setRandomCategories] = useState<string[]>([])
-    // const matches = useMediaQuery("(min-width: 768px)")
-    // useEffect(() => {
-    //     const remainingIdeas = sortedIdeas.slice(6)
-    //     const shuffleIdeas = shuffleArray(remainingIdeas)
-    //     // setFeaturedIdeas(shuffleIdeas.slice(0, 6))
-    //     setRandomCategories([
-    //         ...new Set(shuffleIdeas.map((idea) => idea.category)),
-    //     ])
-    // }, [sortedIdeas])
+        fetchPosts()
+    }, [])
 
-    // AI Ideas
-    // const aiIdeas = ideas.slice(0, 6)
+    if (loading) return <Loading />
+
     return (
-        <>
-            <section className='bg-gradient-to-b from-blue-500 to-blue-700 pb-8 text-white'>
+        <div className='pb-28'>
+            {/* Hero Section with Animated Background */}
+            <section className='relative pt-28 pb-16 overflow-hidden'>
+                {/* Animated background elements */}
+                <AnimatedBackground />
                 <Hero />
-                <div className='w-full h-[2px] bg-white/20 my-6' />
+            </section>
+
+            {/* Posts Section */}
+            <section className='relative z-10 py-12 '>
+                <Posts
+                    latestPosts={latestPosts}
+                    topVotedPosts={topVotedPosts}
+                />
+            </section>
+
+            {/* Features Section */}
+            <section className='relative py-16'>
                 <About />
-                {/* <IdeaList title='Trending Ideas' ideas={trendingIdeas} /> */}
-                {/* <IdeaList title='AI Ideas' ideas={aiIdeas} /> */}
             </section>
-            <section className='bg-gradient-to-b from-blue-700 to-blue-500 pb-8 text-white'>
-                <Categories />
+
+            {/* Why Join Us Section */}
+            <section className='py-16 relative'>
+                <div className='max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12'>
+                    <WhyJoinUs />
+                    <HowItWorks />
+                </div>
             </section>
-        </>
+
+            {/* CTA Section */}
+            <section className='py-16 relative'>
+                <CTA />
+            </section>
+        </div>
     )
 }
 
-export default Homepage
+export default Home

@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import Post from "./Post"
 
 const MONGODB_URI =
     process.env.MONGODB_URI ||
@@ -7,11 +8,22 @@ const MONGODB_URI =
 const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI, { dbName: "business_ideas" })
-        console.log("✅ MongoDB Connected Successfully!")
     } catch (error) {
         console.error("❌ MongoDB Connection Error:", error)
         process.exit(1) // Exit process if connection fails
     }
+}
+
+export async function fetchPostById(id: number) {
+    await connectDB()
+
+    const post = await Post.findOne({ postId: id }).populate(
+        "author",
+        "_id name image",
+        "User"
+    )
+
+    return post ? post.toObject() : null
 }
 
 export default connectDB
