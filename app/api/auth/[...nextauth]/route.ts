@@ -16,7 +16,7 @@ import { generateRandomWord, generateUsername } from "@/hooks/helper-function"
 
 const limiter = new RateLimiterMemory({ points: 6, duration: 900 })
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_ID as string,
