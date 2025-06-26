@@ -93,8 +93,8 @@ export default function ResetPassword({ token }: { token: string }) {
     const onSubmit = async (values: FormData) => {
         try {
             const res = await axios.post<ApiResponse>(
-                `/api/auth/forget-password/${token}`,
-                { password: values.password }
+                `/api/auth/forget-password`,
+                { password: values.password, token }
             )
             if (res.data.code === "PASSWORD_RESET_SUCCESS") {
                 setPhase("success")

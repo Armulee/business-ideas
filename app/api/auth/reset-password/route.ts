@@ -64,12 +64,8 @@ export async function GET(
     }
 }
 
-export async function POST(
-    request: Request,
-    { params }: { params: { token: string } }
-) {
-    const { token } = params
-    const { password } = await request.json()
+export async function POST(request: Request) {
+    const { password, token } = await request.json()
     try {
         await connectDB()
 
