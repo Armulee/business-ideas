@@ -31,9 +31,9 @@ export default function ProfileWidget({
     useEffect(() => {
         if (profile) {
             setStats([
-                { title: "Posts", amount: profile.posts.length },
-                { title: "Followers", amount: profile.followers.length },
-                { title: "Following", amount: profile.following.length },
+                { title: "Posts", amount: profile.postCount },
+                { title: "Followers", amount: profile.followerCount },
+                { title: "Following", amount: profile.followingCount },
             ])
         }
     }, [profile])
