@@ -16,7 +16,7 @@ import Editor from "./editor"
 import { ReplyTo } from "../../comments/comment"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Engagements from "../../engagements"
-import { clearParams } from "@/hooks/helper-function"
+import clearParams from "@/lib/clear-params"
 
 interface ReplyProps {
     replyId: string

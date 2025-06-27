@@ -7,7 +7,7 @@ import { ReplyTo } from "../comments/comment"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { clearParams } from "../../../hooks/helper-function"
+import clearParams from "@/lib/clear-params"
 
 interface ReplySectionProps {
     commentId: string
