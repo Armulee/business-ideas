@@ -6,15 +6,11 @@ import { useSession } from "next-auth/react"
 import CommentSection from "./comments"
 import PostTitle from "./title"
 import PostContent from "./content"
-import { IPostPopulated } from "@/database/Post"
-import { ICommentPopulated } from "@/database/Comment"
-import { IReplyPopulated } from "@/database/Reply"
 import RelatedPosts from "./related-posts"
 import axios from "axios"
 import Widgets from "./widgets"
-import { Widget } from "@/database/Widget"
-import { IProfile } from "@/database/Profile"
 import { EngagementMap } from "./engagements"
+import { PostData } from "@/app/post/[id]/[slug]/page"
 import useSWR from "swr"
 
 type Engagements = {
@@ -39,38 +35,28 @@ const fetchEngagements = (
         })
         .then((res) => res.data)
 
-interface IPostDataType {
-    post: IPostPopulated | undefined
-    comments: ICommentPopulated[] | undefined
-    replies: { [commentId: string]: IReplyPopulated[] } | undefined
-    widgets: Widget[] | undefined
+interface IPostDataContext extends PostData {
     engagements: Engagements
-    profile: IProfile | undefined
     isEditing: boolean
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
     showButton: boolean
     setShowButton: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const PostData = createContext<IPostDataType | null>(null)
+const PostDataContext = createContext<IPostDataContext | null>(null)
 
-export const usePostData = () => useContext(PostData) as IPostDataType
+export const usePostData = () => useContext(PostDataContext) as IPostDataContext
 
 const Post = ({
     data,
     error,
     correctSlug,
 }: {
-    data?: {
-        post: IPostPopulated
-        comments: ICommentPopulated[]
-        replies: { [commentId: string]: IReplyPopulated[] }
-        widgets: Widget[] | undefined
-        profile: IProfile | undefined
-    }
+    data?: PostData
     error?: string
     correctSlug?: string
 }) => {
+    console.log(data)
     const router = useRouter()
     const { post, comments, replies, widgets, profile } = data || {}
     const { data: session, status } = useSession()
@@ -156,7 +142,7 @@ const Post = ({
         console.error("Engagements load failed", engagementError)
 
     return (
-        <PostData.Provider value={value}>
+        <PostDataContext.Provider value={value}>
             <section className='min-h-screen pt-20 pb-32 px-4 max-w-7xl mx-auto'>
                 <div className='flex flex-col md:flex-row gap-4'>
                     {/* Main content - left side on desktop, top on mobile */}
@@ -195,7 +181,7 @@ const Post = ({
                     </div> */}
                 </div>
             </section>
-        </PostData.Provider>
+        </PostDataContext.Provider>
     )
 }
 

@@ -41,7 +41,7 @@ export default function CommentSection() {
 
             {/* ALL COMMENTS */}
             <div className='mb-6'>
-                {comments!.map((comment, index) => (
+                {comments?.map((comment, index) => (
                     <Comment
                         commentId={`comment-${index}`}
                         key={`comment-${index}`}

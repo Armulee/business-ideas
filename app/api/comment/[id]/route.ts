@@ -91,7 +91,7 @@ export async function DELETE(
         await Promise.all(
             Object.entries(replyAuthorCounts).map(([authorId, cnt]) =>
                 Profile.findByIdAndUpdate(authorId, {
-                    $inc: { repliesCount: -cnt },
+                    $inc: { replyCount: -cnt },
                 })
             )
         )

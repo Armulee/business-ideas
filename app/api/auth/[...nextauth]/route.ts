@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth"
+import NextAuth, { type NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 // import AppleProvider from "next-auth/providers/apple"
 // import FacebookProvider from "next-auth/providers/facebook"
@@ -16,7 +16,7 @@ import { generateRandomWord, generateUsername } from "@/hooks/helper-function"
 
 const limiter = new RateLimiterMemory({ points: 6, duration: 900 })
 
-const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_ID as string,

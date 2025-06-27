@@ -40,6 +40,7 @@ const SSO = ({
         } else {
             formattedProvider = provider
         }
+        
         if (!form.getValues("consent")) {
             setSelectedProvider(formattedProvider)
             setShowDialog(true)
