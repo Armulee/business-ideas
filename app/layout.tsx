@@ -51,6 +51,7 @@ export default function RootLayout({
                 <div className='moving-gradient'>
                     <Provider session={session}>
                         <Suspense fallback={<Loading />}>
+                            {/* <Loading /> */}
                             <Navbar />
                             <Main>{children}</Main>
                         </Suspense>

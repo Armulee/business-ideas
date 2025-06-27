@@ -50,39 +50,3 @@ const Profile = ({ data, error, correctSlug }: PostProps) => {
 }
 
 export default Profile
-
-// export type CommentsInteractions = {
-//     _id: Schema.Types.ObjectId
-//     type: "comment" | "reply"
-//     content: string
-//     post: {
-//         postId: string
-//         title: string
-//         slug: string
-//     }
-//     comment?: {
-//         author: {
-//             name: string
-//             avatar: string
-//         }
-//         content: string
-//     }
-//     createdAt: Date
-// }
-
-// export type VoteInteraction = {
-//     _id: Schema.Types.ObjectId
-//     type: "post" | "comment" | "reply"
-//     content: string
-//     author: {
-//         _id: Schema.Types.ObjectId
-//         name?: string
-//         avatar?: string
-//     }
-//     comment?: ICommentPopulated
-//     post: IPostPopulated
-//     createdAt: Date
-//     postId?: string
-//     slug: string
-//     title: string
-// }
