@@ -11,9 +11,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
-import { clearParams } from "../../hooks/helper-function"
+
 import Engagements, { EngagementMap } from "./engagements"
 import SubmitCancelButton from "./submit-cancel-button"
+import clearParams from "@/lib/clear-params"
 
 const PostContent = () => {
     const { post, engagements, isEditing, setIsEditing } = usePostData()
