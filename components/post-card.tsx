@@ -175,7 +175,7 @@ export default function PostCard({
     )
 }
 
-function PostCardSkeleton({ className = "" }: { className?: string }) {
+export function PostCardSkeleton({ className = "" }: { className?: string }) {
     return (
         <Card
             className={`${className} border-0 glassmorphism bg-transparent max-w-full text-white shadow-lg relative`}

@@ -14,6 +14,7 @@ import MobileSidebar from "../sidebar/mobile"
 import Notification from "./notification"
 import NewPostButton from "./new-post-button"
 import { Logo } from "../logo"
+import { Skeleton } from "../ui/skeleton"
 
 export default function Navbar() {
     const { isMobile } = useSidebar()
@@ -94,7 +95,9 @@ export default function Navbar() {
                                             Log in
                                         </Link>
                                     </Button>
-                                ) : null}
+                                ) : (
+                                    <Skeleton className='rounded-full w-[100px] h-[35px] glassmorphism' />
+                                )}
                             </div>
                         </nav>
                     </header>

@@ -1,15 +1,8 @@
 "use client"
 
 import axios from "axios"
-import {
-    Suspense,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react"
-import PostCard from "../post-card"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import PostCard, { PostCardSkeleton } from "../post-card"
 import FeedsSidebar from "./sidebar"
 import type { IPostPopulated } from "@/database/Post"
 import Filter from "./sidebar/filter"
@@ -47,6 +40,7 @@ const Feeds = () => {
     // const [filteredPosts, setFilteredPosts] = useState<IPostPopulated[]>([])
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
+    const [loading, setLoading] = useState(true)
 
     const [searchKeyword, setSearchKeyword] = useState<string>("")
     // debounce the keyword so we only hit the API once the user pauses
@@ -54,6 +48,12 @@ const Feeds = () => {
 
     const [sortBy, setSortBy] = useState<SortBy>("recent")
     const [category, setCategory] = useState<string>("")
+
+    // Initial loading for beautiful ui loading
+    const [initialLoading, setInitialLoading] = useState(true)
+    useEffect(() => {
+        setTimeout(() => setInitialLoading(false), 1000)
+    }, [])
 
     // Handle head text change
     const headText = useMemo(() => {
@@ -101,6 +101,7 @@ const Feeds = () => {
     // otherwise fall back to /api/posts
     const fetchData = useCallback(
         async (pageNum: number) => {
+            setLoading(true)
             const params = new URLSearchParams({
                 query: debouncedKeyword,
                 category: category || "All",
@@ -118,6 +119,8 @@ const Feeds = () => {
                 else setPosts((prev) => [...prev, ...data])
             } catch (err) {
                 console.error("Failed to load posts:", err)
+            } finally {
+                setLoading(false)
             }
         },
         [debouncedKeyword, category, sortBy]
@@ -189,104 +192,114 @@ const Feeds = () => {
     }
 
     return (
-        <Suspense fallback={<Loading />}>
-            <div className='min-h-screen pt-24 pb-36 relative'>
-                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-                    <div className='flex gap-4'>
-                        {/* Main Content */}
-                        <main className='flex-1 relative'>
-                            <section>
-                                {/* RESULT */}
-                                <div className='mb-3'>
-                                    <h2 className='text-2xl font-bold text-white mb-2'>
-                                        {headText}
-                                    </h2>
-                                    <p className='text-white/80'>
-                                        {subHeadText}
-                                    </p>
-                                </div>
-                                {/* SEACRH */}
-                                <div className='w-full mb-10 glassmorphism p-4'>
-                                    <Input
-                                        ref={searchRef}
-                                        onBlur={handleBlur}
-                                        onChange={(e) =>
-                                            setSearchKeyword(e.target.value)
-                                        }
-                                        className='input'
-                                        placeholder='Enter searching keywords...'
-                                    />
-                                    <Filter
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
-                                        category={category}
-                                        setCategory={setCategory}
-                                    />
-                                </div>
-
-                                {/* POSTS */}
-                                <div className='space-y-4'>
-                                    {posts.map((post) => (
-                                        <PostCard
-                                            key={post._id.toString()}
-                                            post={post}
+        <>
+            {!initialLoading ? (
+                <div className='min-h-screen pt-24 pb-36 relative'>
+                    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+                        <div className='flex gap-4'>
+                            {/* Main Content */}
+                            <main className='flex-1 relative'>
+                                <section>
+                                    {/* RESULT */}
+                                    <div className='mb-3'>
+                                        <h2 className='text-2xl font-bold text-white mb-2'>
+                                            {headText}
+                                        </h2>
+                                        <p className='text-white/80'>
+                                            {subHeadText}
+                                        </p>
+                                    </div>
+                                    {/* SEACRH */}
+                                    <div className='w-full mb-10 glassmorphism p-4'>
+                                        <Input
+                                            ref={searchRef}
+                                            onBlur={handleBlur}
+                                            onChange={(e) =>
+                                                setSearchKeyword(e.target.value)
+                                            }
+                                            className='input'
+                                            placeholder='Enter searching keywords...'
                                         />
-                                    ))}
-                                </div>
-
-                                {!posts.length ? null : (
-                                    <div className='flex justify-around items-center mt-6'>
-                                        <ChevronLeft
-                                            className={`cursor-pointer ${
-                                                page === 1
-                                                    ? "opacity-20 pointer-events-none"
-                                                    : ""
-                                            }`}
-                                            onClick={goBack}
-                                        />
-
-                                        <Button className='button'>
-                                            {page}
-                                        </Button>
-
-                                        <ChevronRight
-                                            className={`cursor-pointer ${
-                                                !hasMore
-                                                    ? "opacity-20 pointer-events-none"
-                                                    : ""
-                                            }`}
-                                            onClick={loadMore}
+                                        <Filter
+                                            sortBy={sortBy}
+                                            setSortBy={setSortBy}
+                                            category={category}
+                                            setCategory={setCategory}
                                         />
                                     </div>
-                                )}
-                            </section>
 
-                            {/* Mobile Sidebar */}
-                            <div className='block md:hidden space-y-4 mt-6'>
-                                <Tags popularTags={popularTags} />
-                                <Contributors
-                                    topContributors={topContributors}
-                                />
-                                <Announcements hidden={hiddenAnnoucement} />
-                            </div>
-                        </main>
+                                    {/* POSTS */}
+                                    {!loading ? (
+                                        <div className='space-y-4'>
+                                            {posts.map((post) => (
+                                                <PostCard
+                                                    key={post._id.toString()}
+                                                    post={post}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <PostCardSkeleton />
+                                    )}
 
-                        {/* Desktop Sidebar */}
-                        <aside className='hidden md:block w-80'>
-                            <div className='sticky top-24'>
-                                <div className='h-screen space-y-4 overflow-y-scroll pb-32'>
-                                    <FeedsSidebar
-                                        popularTags={popularTags}
+                                    {!posts.length ? null : (
+                                        <div className='flex justify-around items-center mt-6'>
+                                            <ChevronLeft
+                                                className={`cursor-pointer ${
+                                                    page === 1
+                                                        ? "opacity-20 pointer-events-none"
+                                                        : ""
+                                                }`}
+                                                onClick={goBack}
+                                            />
+
+                                            <Button className='button'>
+                                                {page}
+                                            </Button>
+
+                                            <ChevronRight
+                                                className={`cursor-pointer ${
+                                                    !hasMore
+                                                        ? "opacity-20 pointer-events-none"
+                                                        : ""
+                                                }`}
+                                                onClick={loadMore}
+                                            />
+                                        </div>
+                                    )}
+                                </section>
+
+                                {/* Mobile Sidebar */}
+                                <div className='block md:hidden space-y-4 mt-6'>
+                                    <Tags popularTags={popularTags} />
+                                    <Contributors
                                         topContributors={topContributors}
-                                        hiddenAnnoucement={hiddenAnnoucement}
                                     />
+                                    <Announcements hidden={hiddenAnnoucement} />
                                 </div>
-                            </div>
-                        </aside>
+                            </main>
+
+                            {/* Desktop Sidebar */}
+                            <aside className='hidden md:block w-80'>
+                                <div className='sticky top-24'>
+                                    <div className='h-screen space-y-4 overflow-y-scroll pb-32'>
+                                        <FeedsSidebar
+                                            popularTags={popularTags}
+                                            topContributors={topContributors}
+                                            hiddenAnnoucement={
+                                                hiddenAnnoucement
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </Suspense>
+            ) : (
+                <Loading />
+            )}
+        </>
     )
 }
 

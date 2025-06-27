@@ -1,7 +1,7 @@
 import { IPostPopulated } from "@/database/Post"
 import FlowCarousel from "../ui/flow-carousel"
 import { SwiperSlide } from "swiper/react"
-import PostCard from "../post-card"
+import PostCard, { PostCardSkeleton } from "../post-card"
 
 const Posts = ({
     // title,
@@ -49,7 +49,10 @@ const Posts = ({
                         </SwiperSlide>
                     ))}
                 </FlowCarousel>
-            ) : null}
+            ) : (
+                <PostCardSkeleton className='w-[90%] mx-auto' />
+            )}
+
             {/* Recent Posts */}
             <div className='mt-6 mb-2 text-2xl font-bold w-[80%] mx-auto'>
                 Latest Posts
@@ -78,7 +81,9 @@ const Posts = ({
                         </SwiperSlide>
                     ))}
                 </FlowCarousel>
-            ) : null}
+            ) : (
+                <PostCardSkeleton className='w-[90%] mx-auto' />
+            )}
         </>
     )
 }

@@ -4,6 +4,7 @@ import { Award } from "lucide-react"
 import { TopContributors } from ".."
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Contributors({
     topContributors,
@@ -12,7 +13,7 @@ export default function Contributors({
 }) {
     return (
         <>
-            {topContributors && topContributors.length ? (
+            {topContributors.length ? (
                 <Card className='glassmorphism bg-transparent'>
                     <CardHeader className='pb-3'>
                         <CardTitle className='text-white text-sm font-medium flex items-center'>
@@ -27,7 +28,9 @@ export default function Contributors({
                                     <Link
                                         href={`/profile/${
                                             profile.profileId
-                                        }/${profile.name.toLowerCase()}`}
+                                        }/${encodeURIComponent(
+                                            profile.name.toLowerCase()
+                                        )}`}
                                         key={profile.name}
                                         className='flex items-center space-x-3 group'
                                     >
@@ -62,7 +65,41 @@ export default function Contributors({
                         </div>
                     </CardContent>
                 </Card>
-            ) : null}
+            ) : (
+                <ContributorsSkeleton />
+            )}
         </>
+    )
+}
+
+function ContributorsSkeleton() {
+    return (
+        <Card className='glassmorphism bg-transparent animate-pulse'>
+            <CardHeader className='pb-3'>
+                <CardTitle className='text-white text-sm font-medium flex items-center'>
+                    <Award className='w-4 h-4 mr-2 opacity-50' />
+                    Top Contributors
+                </CardTitle>
+            </CardHeader>
+            <CardContent className='pt-0'>
+                <div className='space-y-3'>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className='flex items-center space-x-3'>
+                            {/* avatar placeholder */}
+                            <Skeleton className='glassmorphism w-8 h-8 rounded-full' />
+
+                            {/* name + count placeholders */}
+                            <div className='flex-1 space-y-1'>
+                                <Skeleton className='glassmorphism h-3 w-24' />
+                                <Skeleton className='glassmorphism h-2 w-16' />
+                            </div>
+
+                            {/* badge placeholder */}
+                            <Skeleton className='glassmorphism h-4 w-6 rounded' />
+                        </div>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
     )
 }
