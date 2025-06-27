@@ -9,9 +9,9 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { ReplyTo } from "../comments/comment"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { clearParams } from "../../../hooks/helper-function"
 import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 import SubmitCancelButton from "../submit-cancel-button"
+import clearParams from "@/lib/clear-params"
 
 interface ReplyBoxProps {
     isReply: boolean
