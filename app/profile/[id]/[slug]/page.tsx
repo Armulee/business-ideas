@@ -1,6 +1,7 @@
 import Profile from "@/components/profile"
+import getProfile from "@/lib/get-profile"
 
-export default async function UserProfilePage({
+export default async function ProfilePage({
     params,
 }: {
     params: Promise<{ id: string; slug: string }>
@@ -8,22 +9,15 @@ export default async function UserProfilePage({
     try {
         const { id, slug } = await params
 
-        const response = await fetch(
-            `${process.env.API_URL}/profile/${id}/${slug}`,
-            {
-                cache: "no-store", // Ensure fresh data on each request
-            }
-        )
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch post data: ${response.statusText}`)
-        }
-
-        const data = await response.json()
+        const data = await getProfile(id)
 
         // If the slug is outdated, Next.js should handle redirection
-        const encodedName = encodeURIComponent(data.profile.name?.toLowerCase())
-        if (data && slug !== encodedName) {
+        const encodedName = encodeURIComponent(
+            data.profile.name?.toLowerCase() ?? ""
+        )
+
+        // If the slug is outdated, Next.js should handle redirection
+        if (data.profile && slug !== encodedName) {
             return <Profile correctSlug={`/profile/${id}/${encodedName}`} />
         }
 

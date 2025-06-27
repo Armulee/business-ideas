@@ -8,7 +8,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
 import UsersListContent from "./user-list"
-import { useProfile } from "../provider"
+import { useProfile } from ".."
 
 const DialogShowFollowMenu = () => {
     const { followers, followings } = useProfile()

@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation"
 import axios from "axios"
 import DialogShowFollowMenu from "./dialog-menu"
 import { useAlert } from "@/components/provider/alert"
-import { useProfile } from "../provider"
+import { useProfile } from ".."
 
 export default function ProfileHeader() {
     const { profile, followers } = useProfile()

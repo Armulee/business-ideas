@@ -1,16 +1,9 @@
-import Comment, { ICommentPopulated } from "@/database/Comment"
-import { IPostPopulated, default as PostModel } from "@/database/Post"
+import { PostData } from "@/components/post/types"
+import Comment from "@/database/Comment"
+import { default as PostModel } from "@/database/Post"
 import Profile, { IProfile } from "@/database/Profile"
-import Reply, { IReplyPopulated } from "@/database/Reply"
-import Widget, { IWidgets, Widget as WidgetType } from "@/database/Widget"
-
-export interface PostData {
-    post: IPostPopulated | undefined
-    comments: ICommentPopulated[] | undefined
-    replies: Record<string, IReplyPopulated[]> | undefined
-    widgets: WidgetType[] | undefined
-    profile?: IProfile | undefined
-}
+import Reply from "@/database/Reply"
+import Widget, { IWidgets } from "@/database/Widget"
 
 // helper function for getting all post data in the post server component
 export default async function getPostData(id: string) {

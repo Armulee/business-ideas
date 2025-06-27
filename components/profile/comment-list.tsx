@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Clock, CornerLeftUp, MessageSquare } from "lucide-react"
 import { formatDate } from "@/utils/format-date"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useProfile } from "./provider"
+import { useProfile } from "."
 
 export default function CommentList() {
     const { activities } = useProfile()

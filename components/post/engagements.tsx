@@ -12,15 +12,9 @@ import { useAlert } from "../provider/alert"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 import { Schema } from "mongoose"
+import { EngagementMap } from "./types"
 
 type Interaction = "upvote" | "downvote" | "bookmark" | "repost"
-
-export interface EngagementMap {
-    upvote: boolean
-    downvote: boolean
-    bookmark?: boolean
-    repost?: boolean
-}
 
 interface EngagementsProps {
     target: Schema.Types.ObjectId | undefined

@@ -9,15 +9,8 @@ import PostContent from "./content"
 import RelatedPosts from "./related-posts"
 import axios from "axios"
 import Widgets from "./widgets"
-import { EngagementMap } from "./engagements"
 import useSWR from "swr"
-import { PostData } from "@/lib/get-post"
-
-type Engagements = {
-    post: EngagementMap
-    comments: Record<string, EngagementMap>
-    replies: Record<string, EngagementMap>
-} | null
+import { PostData, PostDataContextType } from "./types"
 
 const fetchEngagements = (
     url: string,
@@ -35,17 +28,9 @@ const fetchEngagements = (
         })
         .then((res) => res.data)
 
-interface IPostDataContext extends PostData {
-    engagements: Engagements
-    isEditing: boolean
-    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
-    showButton: boolean
-    setShowButton: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const PostDataContext = createContext<IPostDataContext | null>(null)
-
-export const usePostData = () => useContext(PostDataContext) as IPostDataContext
+const PostDataContext = createContext<PostDataContextType | null>(null)
+export const usePostData = () =>
+    useContext(PostDataContext) as PostDataContextType
 
 const Post = ({
     data,
@@ -56,7 +41,6 @@ const Post = ({
     error?: string
     correctSlug?: string
 }) => {
-    console.log(data)
     const router = useRouter()
     const { post, comments, replies, widgets, profile } = data || {}
     const { data: session, status } = useSession()

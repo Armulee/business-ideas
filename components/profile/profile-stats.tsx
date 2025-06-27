@@ -1,7 +1,7 @@
 "use client"
 
 import { MessageSquare, Eye, StickyNote, ArrowBigUp } from "lucide-react"
-import { useProfile } from "./provider"
+import { useProfile } from "."
 
 export default function ProfileStats() {
     const { profile } = useProfile()

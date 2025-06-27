@@ -3,17 +3,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PostsList from "./posts-list"
 import { useEffect, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import CommentList from "./comment-list"
 import VoteList from "./vote-list"
-import { useProfile } from "./provider"
+import { useProfile } from "."
 
 export default function ProfileTabs() {
     const { profile } = useProfile()
     const searchParams = useSearchParams()
-    const router = useRouter()
-    const pathname = usePathname()
     const { data: session } = useSession()
 
     // Get current tab from URL, fallback to "posts"
@@ -29,11 +27,10 @@ export default function ProfileTabs() {
     const handleTabChange = (value: string) => {
         setActiveTab(value)
 
-        // Update URL query parameters
-        const params = new URLSearchParams(searchParams)
-        params.set("tab", value)
-
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+        // Update the URL bar without navigating
+        const url = new URL(window.location.href)
+        url.searchParams.set("tab", value)
+        window.history.replaceState(null, "", url.toString())
     }
 
     return (

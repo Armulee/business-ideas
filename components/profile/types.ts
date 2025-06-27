@@ -2,6 +2,13 @@ import { IPostPopulated } from "@/database/Post"
 import { IProfile } from "@/database/Profile"
 import { Types } from "mongoose"
 
+export type ProfileData = {
+    profile: IProfile
+    followings: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
+    followers: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
+    activities: Activities
+}
+
 export type Interaction = {
     _id: string
     targetType: "Post" | "Comment" | "Reply"
@@ -43,11 +50,4 @@ export type Activities = {
     upvotes: Interaction[]
     downvotes: Interaction[]
     bookmarks: IPostPopulated[]
-}
-
-export type ProfileData = {
-    profile: IProfile
-    followings: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
-    followers: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
-    activities: Activities
 }

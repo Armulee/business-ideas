@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import PostCard from "../post-card"
-import { useProfile } from "./provider"
+import { useProfile } from "."
 
 export default function PostsList({
     type,

@@ -4,7 +4,7 @@ import { Clock, CornerLeftUp, FileText, MessageSquare } from "lucide-react"
 import { formatDate } from "@/utils/format-date"
 import Link from "next/link"
 import { PiArrowFatDownFill, PiArrowFatUpFill } from "react-icons/pi"
-import { useProfile } from "./provider"
+import { useProfile } from "."
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 export default function VoteList({ type }: { type: "upvotes" | "downvotes" }) {

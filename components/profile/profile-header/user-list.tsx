@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs"
-import { useProfile } from "../provider"
+import { useProfile } from ".."
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useSession } from "next-auth/react"
