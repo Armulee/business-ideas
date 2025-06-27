@@ -16,7 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { TbMessageCircle } from "react-icons/tb"
 import Engagements from "../../engagements"
-import { clearParams } from "@/hooks/helper-function"
+import clearParams from "@/lib/clear-params"
 
 interface CommentProps {
     commentId: string

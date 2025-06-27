@@ -6,11 +6,10 @@ import User from "@/database/User"
 import bcrypt from "bcrypt"
 import Profile from "@/database/Profile"
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible"
-import { generateRandomWord, generateUsername } from "@/hooks/helper-function"
+import { generateRandomWord, generateUsername } from "./generate-random-name"
 import { NextAuthOptions } from "next-auth"
 
 const limiter = new RateLimiterMemory({ points: 6, duration: 900 })
-
 const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({

@@ -9,10 +9,10 @@ import axios from "axios"
 import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { clearParams } from "../../../hooks/helper-function"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 import SubmitCancelButton from "../submit-cancel-button"
+import clearParams from "@/lib/clear-params"
 
 interface AddNewCommentProps {
     isComment: boolean

@@ -10,8 +10,8 @@ import RelatedPosts from "./related-posts"
 import axios from "axios"
 import Widgets from "./widgets"
 import { EngagementMap } from "./engagements"
-import { PostData } from "@/app/post/[id]/[slug]/page"
 import useSWR from "swr"
+import { PostData } from "@/lib/get-post"
 
 type Engagements = {
     post: EngagementMap
