@@ -1,9 +1,11 @@
+import connectDB from "@/database"
 import Post from "@/database/Post"
 import mongoose from "mongoose"
 import { NextResponse } from "next/server"
 
 export async function GET() {
     try {
+        await connectDB()
         const [popularTags, topContributors] = await Promise.all([
             getPopularTags(8),
             getTopContributors(5),
