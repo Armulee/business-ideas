@@ -21,6 +21,7 @@ const authOptions: NextAuthOptions = {
             clientSecret: process.env.TWITTER_SECRET as string,
             version: "2.0",
         }),
+
         // AppleProvider({
         //     clientId: process.env.APPLE_ID as string,
         //     clientSecret: process.env.APPLE_SECRET as string,
