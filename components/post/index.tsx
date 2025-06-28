@@ -10,7 +10,6 @@ import axios from "axios"
 import Widgets from "./widgets"
 import useSWR from "swr"
 import { PostData, PostDataContextType } from "./types"
-import { PostSkeleton } from "../skeletons"
 
 const fetchEngagements = (
     url: string,
@@ -135,11 +134,6 @@ const Post = ({
         setIsEditing,
         showButton,
         setShowButton,
-    }
-
-    // Show skeleton while loading initial data
-    if (!initialData && !error) {
-        return <PostSkeleton />
     }
 
     // handle post not found

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
-// import Loading from "./loading"
+import Loading from "./loading"
 
 const LoadingContext = createContext<{
     isLoading: boolean
@@ -41,8 +41,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
-            {/* {isLoading ? <Loading /> : children} */}
-            {children}
+            {isLoading ? <Loading /> : children}
         </LoadingContext.Provider>
     )
 }
