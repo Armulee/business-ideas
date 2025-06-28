@@ -6,7 +6,6 @@ import {
 } from "../ui/sheet"
 import { ChevronDown } from "lucide-react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import {
     Collapsible,
@@ -20,6 +19,7 @@ import React from "react"
 import { menus, useCollapsibleMenus } from "./menus"
 import { ScrollArea } from "../ui/scroll-area"
 import { Logo } from "../logo"
+import { LoadingLink } from "../loading-link"
 
 const MobileSidebar = ({
     setOpen,
@@ -71,10 +71,10 @@ const MobileSidebar = ({
                                     }`}
                                     onClick={() => setOpen(false)}
                                 >
-                                    <Link href={item.href}>
+                                    <LoadingLink href={item.href}>
                                         <item.icon className='mr-2 h-4 w-4' />
                                         {item.name}
-                                    </Link>
+                                    </LoadingLink>
                                 </Button>
                             </li>
                         ))}
@@ -117,10 +117,12 @@ const MobileSidebar = ({
                                                             setOpen(false)
                                                         }
                                                     >
-                                                        <Link href={item.href}>
+                                                        <LoadingLink
+                                                            href={item.href}
+                                                        >
                                                             <item.icon className='mr-2 h-4 w-4' />
                                                             {item.name}
-                                                        </Link>
+                                                        </LoadingLink>
                                                     </Button>
                                                 </li>
                                             ))}

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import axios from "axios"
 import { PostCardSkeleton } from "./post/skeletons"
+import { LoadingLink } from "./loading-link"
 
 export default function PostCard({
     post,
@@ -63,114 +64,115 @@ export default function PostCard({
         }
     }
     return (
-        <Card
-            onClick={() => router.push(post.postLink)}
-            className={`${className} border-0 glassmorphism bg-transparent max-w-full text-white shadow-lg hover:bg-blue-900 cursor-pointer transition duration-500 relative`}
-        >
-            <CardHeader className='border-0 border-b border-white/10 pb-2 mb-2 h-[100px]'>
-                <div className='flex justify-between items-center mb-2'>
-                    <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
-                        {post.category}
-                    </Badge>
-                    <div className='flex items-center gap-2'>
-                        <span
-                            className={`text-xs text-white/50 ${
-                                permission && showMoreButton
-                                    ? "mr-[1.5rem]"
-                                    : ""
-                            }`}
-                        >
-                            {post.viewCount} Views
-                        </span>
+        <LoadingLink href={post.postLink}>
+            <Card
+                className={`${className} border-0 glassmorphism bg-transparent max-w-full text-white shadow-lg hover:bg-blue-900 cursor-pointer transition duration-500 relative`}
+            >
+                <CardHeader className='border-0 border-b border-white/10 pb-2 mb-2 h-[100px]'>
+                    <div className='flex justify-between items-center mb-2'>
+                        <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                            {post.category}
+                        </Badge>
+                        <div className='flex items-center gap-2'>
+                            <span
+                                className={`text-xs text-white/50 ${
+                                    permission && showMoreButton
+                                        ? "mr-[1.5rem]"
+                                        : ""
+                                }`}
+                            >
+                                {post.viewCount} Views
+                            </span>
 
-                        {permission && showMoreButton ? (
-                            <Popover>
-                                <PopoverTrigger
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                    }}
-                                    asChild
-                                    className='bg-transparent rounded-full absolute top-5 right-3 border-0 hover:bg-white/20 hover:text-white transition duration-500'
-                                >
-                                    <Button
-                                        type='button'
-                                        size={"icon"}
-                                        variant='outline'
+                            {permission && showMoreButton ? (
+                                <Popover>
+                                    <PopoverTrigger
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                        }}
+                                        asChild
+                                        className='bg-transparent rounded-full absolute top-5 right-3 border-0 hover:bg-white/20 hover:text-white transition duration-500'
                                     >
-                                        <Ellipsis />
-                                    </Button>
-                                </PopoverTrigger>
-
-                                <PopoverContent className='w-52 glassmorphism bg-black/20 p-2 border !border-white/50'>
-                                    <ul className='grid gap-1'>
-                                        <li
-                                            className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
-                                            onClick={handleEdit}
+                                        <Button
+                                            type='button'
+                                            size={"icon"}
+                                            variant='outline'
                                         >
-                                            <span>Edit</span>
-                                            <Edit size={18} />
-                                        </li>
-                                        <li
-                                            className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
-                                            onClick={handleDelete}
-                                        >
-                                            <span>Delete</span>
-                                            <Trash size={18} />
-                                        </li>
-                                    </ul>
-                                </PopoverContent>
-                            </Popover>
-                        ) : null}
-                    </div>
-                </div>
+                                            <Ellipsis />
+                                        </Button>
+                                    </PopoverTrigger>
 
-                <CardTitle className='text-xl flex items-center h-[28px] line-clamp-1'>
-                    {post.title}
-                </CardTitle>
-            </CardHeader>
-
-            <CardContent className='pt-2 h-[85px]'>
-                <div className='text-sm description line-clamp-3'>
-                    {parse(post.content ?? "")}
-                </div>
-            </CardContent>
-
-            <CardFooter className='flex justify-between items-center'>
-                <div className='flex gap-3 items-center mb-2'>
-                    <Avatar className='h-10 w-10'>
-                        <AvatarImage
-                            src={post.author.avatar}
-                            alt={post.author.name}
-                        />
-                        <AvatarFallback>
-                            {post.author.name?.charAt(0)}
-                        </AvatarFallback>
-                    </Avatar>
-
-                    <div className='flex flex-col justify-center items-start'>
-                        <span className='text-sm text-white font-bold'>
-                            {post.author.name}
-                        </span>
-                        <span className='text-xs text-white/70'>
-                            {formatDate(post.createdAt)}
-                        </span>
+                                    <PopoverContent className='w-52 glassmorphism bg-black/20 p-2 border !border-white/50'>
+                                        <ul className='grid gap-1'>
+                                            <li
+                                                className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
+                                                onClick={handleEdit}
+                                            >
+                                                <span>Edit</span>
+                                                <Edit size={18} />
+                                            </li>
+                                            <li
+                                                className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
+                                                onClick={handleDelete}
+                                            >
+                                                <span>Delete</span>
+                                                <Trash size={18} />
+                                            </li>
+                                        </ul>
+                                    </PopoverContent>
+                                </Popover>
+                            ) : null}
+                        </div>
                     </div>
-                </div>
-                <div className='flex items-center gap-4'>
-                    <div className='flex items-center gap-2 text-sm'>
-                        <MessageSquare className='w-4 h-4' />
-                        <span>{post.commentCount}</span>
+
+                    <CardTitle className='text-xl flex items-center h-[28px] line-clamp-1'>
+                        {post.title}
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent className='pt-2 h-[85px]'>
+                    <div className='text-sm description line-clamp-3'>
+                        {parse(post.content ?? "")}
                     </div>
-                    <div className='flex items-center gap-2 text-sm'>
-                        {votes >= 0 ? (
-                            <PiArrowFatUp className='h-4 w-4' />
-                        ) : (
-                            <PiArrowFatDown className='h-4 w-4' />
-                        )}
-                        <span>{votes}</span>
+                </CardContent>
+
+                <CardFooter className='flex justify-between items-center'>
+                    <div className='flex gap-3 items-center mb-2'>
+                        <Avatar className='h-10 w-10'>
+                            <AvatarImage
+                                src={post.author.avatar}
+                                alt={post.author.name}
+                            />
+                            <AvatarFallback>
+                                {post.author.name?.charAt(0)}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className='flex flex-col justify-center items-start'>
+                            <span className='text-sm text-white font-bold'>
+                                {post.author.name}
+                            </span>
+                            <span className='text-xs text-white/70'>
+                                {formatDate(post.createdAt)}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </CardFooter>
-        </Card>
+                    <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-2 text-sm'>
+                            <MessageSquare className='w-4 h-4' />
+                            <span>{post.commentCount}</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-sm'>
+                            {votes >= 0 ? (
+                                <PiArrowFatUp className='h-4 w-4' />
+                            ) : (
+                                <PiArrowFatDown className='h-4 w-4' />
+                            )}
+                            <span>{votes}</span>
+                        </div>
+                    </div>
+                </CardFooter>
+            </Card>
+        </LoadingLink>
     )
 }

@@ -33,7 +33,9 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
     // Clear loading when route changes (only after initialization)
     useEffect(() => {
         if (isInitialized) {
-            setIsLoading(false)
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 800)
         }
     }, [pathname, isInitialized])
 
