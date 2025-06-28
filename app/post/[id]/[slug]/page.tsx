@@ -23,7 +23,14 @@ export default async function PostId({
             return <Post correctSlug={`/post/${id}/${post.slug}`} />
         }
 
-        return <Post initialData={{ post, widgets: widgets?.widgets, profile }} postId={id} />
+        console.log({ post, widgets: widgets?.widgets, profile })
+
+        return (
+            <Post
+                initialData={{ post, widgets: widgets?.widgets, profile }}
+                postId={id}
+            />
+        )
     } catch {
         return (
             <Post error='Sorry! We cannot find this post, it may be not existed or deleted.' />
