@@ -11,7 +11,7 @@ import axios from "axios"
 import Widgets from "./widgets"
 import useSWR from "swr"
 import { PostData, PostDataContextType } from "./types"
-import { PostSkeleton } from "./skeletons"
+import { PostSkeleton } from "../skeletons"
 
 const fetchEngagements = (
     url: string,
@@ -34,19 +34,16 @@ export const usePostData = () =>
     useContext(PostDataContext) as PostDataContextType
 
 const Post = ({
-    data,
     initialData,
     postId,
     error,
     correctSlug,
 }: {
-    data?: PostData
     initialData?: Partial<PostData>
     postId?: string
     error?: string
     correctSlug?: string
 }) => {
-    console.log(data, initialData, correctSlug, error)
     const router = useRouter()
     const [commentsLoaded, setCommentsLoaded] = useState(false)
     const [commentsData, setCommentsData] = useState<{
@@ -58,7 +55,7 @@ const Post = ({
     const [showButton, setShowButton] = useState<boolean>(true)
 
     // Use initial data if provided, otherwise fall back to full data
-    const { post, comments, replies, widgets, profile } = data || {
+    const { post, comments, replies, widgets, profile } = {
         ...initialData,
         ...commentsData,
     }
@@ -91,7 +88,7 @@ const Post = ({
 
     // update view count on page load
     useEffect(() => {
-        if (data && !correctSlug) {
+        if (!correctSlug) {
             async function updateView() {
                 await axios.patch("/api/post/views", { postId: post?._id })
             }
@@ -101,7 +98,7 @@ const Post = ({
             }, 100)
             return () => clearTimeout(delay)
         }
-    }, [data, correctSlug, post])
+    }, [correctSlug, post])
 
     // Fetch engagements using SWR (only fetch once you’re authenticated and have a post)
     const commentIds = comments?.map((c) => c._id.toString()) ?? []

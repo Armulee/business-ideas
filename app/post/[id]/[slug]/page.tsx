@@ -23,8 +23,6 @@ export default async function PostId({
             return <Post correctSlug={`/post/${id}/${post.slug}`} />
         }
 
-        console.log({ post, widgets: widgets?.widgets, profile })
-
         return (
             <Post
                 initialData={{ post, widgets: widgets?.widgets, profile }}

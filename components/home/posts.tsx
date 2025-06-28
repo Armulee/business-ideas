@@ -88,7 +88,7 @@ import { IPostPopulated } from "@/database/Post"
 import FlowCarousel from "../ui/flow-carousel"
 import { SwiperSlide } from "swiper/react"
 import PostCard from "../post-card"
-import { PostCardSkeleton } from "../post/skeletons"
+import { PostCardSkeleton } from "../skeletons"
 import { useEffect, useState } from "react"
 
 // Responsive skeleton component that matches FlowCarousel breakpoints

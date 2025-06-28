@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import axios from "axios"
-import { PostCardSkeleton } from "./post/skeletons"
+import { PostCardSkeleton } from "./skeletons"
 import { LoadingLink } from "./loading-link"
 
 export default function PostCard({

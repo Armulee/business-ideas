@@ -16,7 +16,7 @@ import { Input } from "../ui/input"
 import { useDebounce } from "use-debounce"
 import { useSearchParams } from "next/navigation"
 import Loading from "../loading"
-import { PostCardSkeleton } from "../post/skeletons"
+import { PostCardSkeleton } from "../skeletons"
 
 export type PopularTags = {
     tag: string
