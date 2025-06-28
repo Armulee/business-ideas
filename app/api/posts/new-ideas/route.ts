@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import Post from "@/database/Post"
 import connectDB from "@/database"
-import { IProfile } from "@/database/Profile"
 
 export async function GET() {
     try {
@@ -9,7 +8,7 @@ export async function GET() {
 
         // Fetch the latest 6 posts of type 'new-ideas'
         const latestPosts = await Post.find({ community: "new-ideas" })
-            .populate<{ author: IProfile }>("author", "name avatar profileId")
+            .populate("author", "name avatar profileId")
             .sort({ createdAt: -1 }) // Sort by newest
             .limit(6)
 
