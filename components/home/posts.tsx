@@ -1,7 +1,8 @@
 import { IPostPopulated } from "@/database/Post"
 import FlowCarousel from "../ui/flow-carousel"
 import { SwiperSlide } from "swiper/react"
-import PostCard, { PostCardSkeleton } from "../post-card"
+import PostCard from "../post-card"
+import { PostCardSkeleton } from "../post/skeletons"
 
 const Posts = ({
     // title,

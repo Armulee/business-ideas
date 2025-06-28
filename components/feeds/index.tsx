@@ -2,7 +2,7 @@
 
 import axios from "axios"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import PostCard, { PostCardSkeleton } from "../post-card"
+import PostCard from "../post-card"
 import FeedsSidebar from "./sidebar"
 import type { IPostPopulated } from "@/database/Post"
 import Filter from "./sidebar/filter"
@@ -16,6 +16,7 @@ import { Input } from "../ui/input"
 import { useDebounce } from "use-debounce"
 import { useSearchParams } from "next/navigation"
 import Loading from "../loading"
+import { PostCardSkeleton } from "../post/skeletons"
 
 export type PopularTags = {
     tag: string

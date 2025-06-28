@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 // Get the individual comment by post id
 export async function GET(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
@@ -39,7 +39,7 @@ export async function GET(
 
 // Delete comment
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {

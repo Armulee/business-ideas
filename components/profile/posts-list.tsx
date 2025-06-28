@@ -4,16 +4,34 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import PostCard from "../post-card"
 import { useProfile } from "."
+import { IPostPopulated } from "@/database/Post"
+import { PostCardSkeleton } from "../post/skeletons"
 
 export default function PostsList({
     type,
 }: {
     type: "reposts" | "bookmarks" | "posts"
 }) {
-    const { activities } = useProfile()
-    const { bookmarks, reposts, posts } = activities
+    const { activities, activitiesLoaded } = useProfile()
+    const { bookmarks, reposts, posts } = activities || {}
 
     const router = useRouter()
+
+    // Use the proper loading state from context
+    const isLoading = !activitiesLoaded
+
+    // Show skeleton while loading
+    if (isLoading) {
+        return (
+            <div className='space-y-6 mb-6'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <PostCardSkeleton key={i} />
+                ))}
+            </div>
+        )
+    }
+
+    // Show empty state only after loading is complete and no posts exist
     if (
         (type === "posts" && !posts?.length) ||
         (type === "reposts" && !reposts?.length) ||
@@ -44,7 +62,12 @@ export default function PostsList({
 
     return (
         <div className='space-y-6 mb-6'>
-            {posts?.map((post) => (
+            {(type === "posts"
+                ? posts
+                : type === "reposts"
+                ? reposts
+                : bookmarks
+            )?.map((post: IPostPopulated) => (
                 <PostCard key={post._id.toString()} post={post} />
             ))}
         </div>

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import Comment from "./comment"
 import { usePostData } from ".."
 import AddNewComment from "./add-new-comment"
+import { CommentsSkeleton } from "../skeletons"
 
 export default function CommentSection() {
     const { comments } = usePostData()
@@ -41,13 +42,17 @@ export default function CommentSection() {
 
             {/* ALL COMMENTS */}
             <div className='mb-6'>
-                {comments?.map((comment, index) => (
-                    <Comment
-                        commentId={`comment-${index}`}
-                        key={`comment-${index}`}
-                        comment={comment}
-                    />
-                ))}
+                {comments == undefined ? (
+                    <CommentsSkeleton />
+                ) : (
+                    comments?.map((comment, index) => (
+                        <Comment
+                            commentId={`comment-${index}`}
+                            key={`comment-${index}`}
+                            comment={comment}
+                        />
+                    ))
+                )}
             </div>
         </>
     )

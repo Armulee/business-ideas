@@ -9,7 +9,7 @@ import Reply from "@/database/Reply"
 import { NextResponse } from "next/server"
 
 export async function GET(
-    req: Request,
+    _req: Request,
     { params }: { params: Promise<{ id: string; slug: string }> }
 ) {
     const { id } = await params

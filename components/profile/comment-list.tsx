@@ -8,7 +8,7 @@ import { useProfile } from "."
 
 export default function CommentList() {
     const { activities } = useProfile()
-    const { comments, replies } = activities.discusses
+    const { comments, replies } = activities?.discusses || { comments: [], replies: [] }
 
     // Merge comments + replies with a type tag
     const items = [

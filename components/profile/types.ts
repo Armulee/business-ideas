@@ -2,11 +2,21 @@ import { IPostPopulated } from "@/database/Post"
 import { IProfile } from "@/database/Profile"
 import { Types } from "mongoose"
 
+export type ProfileStats = {
+    postCount: number
+    commentCount: number
+    replyCount: number
+    totalContent: number
+}
+
 export type ProfileData = {
     profile: IProfile
     followings: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
     followers: Pick<IProfile, "name" | "profileId" | "avatar" | "_id">[]
-    activities: Activities
+    stats?: ProfileStats
+    activities?: Activities
+    activitiesLoaded?: boolean
+    statsLoaded?: boolean
 }
 
 export type Interaction = {

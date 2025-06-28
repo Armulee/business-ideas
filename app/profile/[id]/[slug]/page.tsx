@@ -1,5 +1,5 @@
 import Profile from "@/components/profile"
-import getProfile from "@/lib/get-profile"
+import { getProfileHeader } from "@/lib/get-profile"
 
 export default async function ProfilePage({
     params,
@@ -9,7 +9,8 @@ export default async function ProfilePage({
     try {
         const { id, slug } = await params
 
-        const data = await getProfile(id)
+        // Get only profile header data for immediate rendering
+        const data = await getProfileHeader(id)
 
         // If the slug is outdated, Next.js should handle redirection
         const encodedName = encodeURIComponent(
@@ -21,7 +22,7 @@ export default async function ProfilePage({
             return <Profile correctSlug={`/profile/${id}/${encodedName}`} />
         }
 
-        return <Profile data={data} />
+        return <Profile initialData={data} profileId={id} />
     } catch (err) {
         return (
             <Profile

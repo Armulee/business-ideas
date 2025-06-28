@@ -16,6 +16,7 @@ import Provider from "@/components/provider"
 import { Session } from "next-auth"
 import Navbar from "@/components/navbar"
 import Main from "@/components/main"
+import { LoadingProvider } from "@/components/loading-provider"
 
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
@@ -49,12 +50,13 @@ export default function RootLayout({
             >
                 <div className='moving-gradient'>
                     <Provider session={session}>
-                        <Suspense>
-                            {/* <Loading /> */}
-                            <Navbar />
-                            <Main>{children}</Main>
-                        </Suspense>
-                        <Toaster className='bg-black' />
+                        <LoadingProvider>
+                            <Suspense>
+                                <Navbar />
+                                <Main>{children}</Main>
+                            </Suspense>
+                            <Toaster className='bg-black' />
+                        </LoadingProvider>
                     </Provider>
                 </div>
             </body>

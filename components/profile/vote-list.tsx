@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 export default function VoteList({ type }: { type: "upvotes" | "downvotes" }) {
     const { activities } = useProfile()
 
-    if (!activities[type].length) {
+    if (!activities?.[type]?.length) {
         return (
             <div className='text-center py-12 text-gray-300'>
                 <p className='text-xl'>No {type} to display</p>
@@ -20,7 +20,7 @@ export default function VoteList({ type }: { type: "upvotes" | "downvotes" }) {
 
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
-            {activities[type]?.map((interaction) => {
+            {activities?.[type]?.map((interaction) => {
                 // Determine styling based on interaction type
                 let iconColor, bgColor, icon
 

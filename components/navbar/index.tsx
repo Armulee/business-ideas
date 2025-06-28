@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Menu, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { LoadingLink as Link } from "@/components/loading-link"
 import { useSession } from "next-auth/react"
 import UserConfig from "@/components/navbar/user-config"
 import { usePathname } from "next/navigation"

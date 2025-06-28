@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { usePostData } from "."
 import axios from "axios"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { LoadingLink as Link } from "@/components/loading-link"
 import { Badge } from "../ui/badge"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
@@ -75,7 +75,11 @@ const PostTitle = () => {
 
             <div className='flex items-center'>
                 <Link
-                    href={`/profile/${post?.author.profileId}/${post?.author.name}`}
+                    href={`/profile/${
+                        post?.author.profileId
+                    }/${encodeURIComponent(
+                        post?.author.name?.toLowerCase() ?? ""
+                    )}`}
                 >
                     <Avatar className='h-10 w-10 mr-4'>
                         <AvatarImage
@@ -89,7 +93,11 @@ const PostTitle = () => {
                 </Link>
                 <div className='flex flex-col'>
                     <Link
-                        href={`/profile/${post?.author.profileId}/${post?.author.name}`}
+                        href={`/profile/${
+                            post?.author.profileId
+                        }/${encodeURIComponent(
+                            post?.author.name?.toLowerCase() ?? ""
+                        )}`}
                     >
                         <span className='text-white'>{post?.author.name}</span>
                     </Link>
