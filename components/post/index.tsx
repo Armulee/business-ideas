@@ -1,7 +1,6 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import CommentSection from "./comments"
 import PostTitle from "./title"
@@ -44,7 +43,6 @@ const Post = ({
     error?: string
     correctSlug?: string
 }) => {
-    const router = useRouter()
     const [commentsLoaded, setCommentsLoaded] = useState(false)
     const [commentsData, setCommentsData] = useState<{
         comments?: PostData["comments"]
@@ -59,6 +57,13 @@ const Post = ({
         ...initialData,
         ...commentsData,
     }
+
+    // Redirect if the slug is incorrect
+    useEffect(() => {
+        if (correctSlug) {
+            window.history.replaceState(null, "", correctSlug)
+        }
+    }, [correctSlug])
 
     // Load comments and replies separately if we have initial data but no comments
     useEffect(() => {
@@ -79,26 +84,17 @@ const Post = ({
         }
     }, [post, postId, commentsLoaded, comments])
 
-    // Redirect if the slug is incorrect
-    useEffect(() => {
-        if (correctSlug) {
-            router.replace(correctSlug)
-        }
-    }, [correctSlug, router])
-
     // update view count on page load
     useEffect(() => {
-        if (!correctSlug) {
-            async function updateView() {
-                await axios.patch("/api/post/views", { postId: post?._id })
-            }
-
-            const delay = setTimeout(() => {
-                updateView()
-            }, 100)
-            return () => clearTimeout(delay)
+        async function updateView() {
+            await axios.patch("/api/post/views", { postId: post?._id })
         }
-    }, [correctSlug, post])
+
+        const delay = setTimeout(() => {
+            updateView()
+        }, 100)
+        return () => clearTimeout(delay)
+    }, [post])
 
     // Fetch engagements using SWR (only fetch once you’re authenticated and have a post)
     const commentIds = comments?.map((c) => c._id.toString()) ?? []
@@ -142,14 +138,8 @@ const Post = ({
     }
 
     // Show skeleton while loading initial data
-    if (!post && !error && !correctSlug) {
+    if (!initialData && !error) {
         return <PostSkeleton />
-    }
-
-    // Redirect if the slug is incorrect
-    if (correctSlug) {
-        router.replace(correctSlug)
-        return null
     }
 
     // handle post not found

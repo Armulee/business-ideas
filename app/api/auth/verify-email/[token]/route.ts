@@ -60,6 +60,7 @@ export async function GET(
             name: user.name,
         },
         secret: process.env.NEXTAUTH_SECRET,
+        maxAge: 60 * 60 * 24 * 30, // 30 days
     })
     const cookie = serialize("next-auth.session-token", jwt, {
         httpOnly: true,
@@ -68,17 +69,12 @@ export async function GET(
         sameSite: "lax",
     })
 
-    // redirect to the front-end “verify-email” page
-    return NextResponse.json(
-        {
-            message: "Email verified successfully",
-            code: "VERIFICATION_SUCCESS",
+    // ✅ Redirect to frontend with cookie
+    return new NextResponse(null, {
+        status: 302,
+        headers: {
+            "Set-Cookie": cookie,
+            Location: `${process.env.NEXTAUTH_URL || "https://bluebizhub.com"}`,
         },
-        {
-            status: 200,
-            headers: {
-                "Set-Cookie": cookie,
-            },
-        }
-    )
+    })
 }
