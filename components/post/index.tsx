@@ -46,6 +46,7 @@ const Post = ({
     error?: string
     correctSlug?: string
 }) => {
+    console.log(data, initialData, correctSlug, error)
     const router = useRouter()
     const [commentsLoaded, setCommentsLoaded] = useState(false)
     const [commentsData, setCommentsData] = useState<{
