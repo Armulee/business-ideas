@@ -40,16 +40,18 @@ export async function POST(req: Request) {
 
         // send email
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: process.env.EMAIL_SERVER_HOST, // Brevo’s SMTP host
+            port: process.env.EMAIL_SERVER_PORT, // TLS port
+            secure: process.env.EMAIL_SERVER_SECURE, // false → STARTTLS (use true for port 465)
             auth: {
-                user: process.env.EMAIL_SERVER_USER,
-                pass: process.env.EMAIL_SERVER_PASSWORD,
+                user: process.env.EMAIL_SERVER_USER, // your SMTP “login” (often your sender email) :contentReference[oaicite:0]{index=0}
+                pass: process.env.EMAIL_SERVER_PASS, // your SMTP key (not your API key) :contentReference[oaicite:1]{index=1}
             },
         })
         const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password/${token}`
         await transporter.sendMail({
             to: user.email,
-            from: "Business Idea <no-reply@businessidea.com>",
+            from: process.env.EMAIL_FROM,
             subject: "Password Reset Request",
             html: `<p>You requested a password reset. Click <a href="${resetUrl}">here</a> to set a new password.</p>`,
         })
