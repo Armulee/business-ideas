@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import Post from "@/database/Post"
 import connectDB from "@/database"
+import "@/database/Profile"
 
 export async function GET() {
     try {
