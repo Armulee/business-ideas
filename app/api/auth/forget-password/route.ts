@@ -1,5 +1,4 @@
-import connectDB from "@/database"
-import User from "@/database/User"
+import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 import nodemailer from "nodemailer"
@@ -8,10 +7,11 @@ export async function POST(req: Request) {
     try {
         const { email } = await req.json()
 
-        connectDB()
-
-        const user = await User.findOne({ email })
-        if (!user)
+        const user = await prisma.user.findUnique({ 
+            where: { email } 
+        })
+        
+        if (!user) {
             return NextResponse.json(
                 {
                     message:
@@ -19,10 +19,12 @@ export async function POST(req: Request) {
                 },
                 { status: 404 }
             )
+        }
 
         if (user.provider !== "credentials") {
-            const provider =
-                user.provider[0].toUpperCase() + user.provider.slice(1)
+            const provider = user.provider
+                ? user.provider[0].toUpperCase() + user.provider.slice(1)
+                : "OAuth"
             return NextResponse.json(
                 {
                     message: `This email has been registered with ${provider}, please continue with the ${provider} to login`,
@@ -33,10 +35,15 @@ export async function POST(req: Request) {
 
         // generate reset token
         const token = crypto.randomBytes(32).toString("hex")
-        // const expires = Date.now() + 3600000 // 1 hour
-        user.resetPasswordToken = token
-        // user.resetPasswordExpires = expires
-        await user.save()
+        const resetTokenExpires = new Date(Date.now() + 3600000) // 1 hour
+        
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                resetToken: token,
+                resetTokenExpires,
+            }
+        })
 
         // send email
         const transporter = nodemailer.createTransport({

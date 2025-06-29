@@ -3,7 +3,7 @@ export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
 import connectDB from "@/database"
-import User from "@/database/User"
+import { prisma } from "@/lib/prisma"
 import { encode } from "next-auth/jwt"
 import { serialize } from "cookie"
 
@@ -22,19 +22,22 @@ export async function GET(
 
     await connectDB()
 
-    const user = await User.findOne({ verificationToken: token })
+    const user = await prisma.user.findFirst({ 
+        where: { verificationToken: token } 
+    })
+    
     if (!user) {
         return NextResponse.json({
-            message: "No verifiction token found",
+            message: "No verification token found",
             code: "INVALID_TOKEN",
             status: 404,
         })
     }
 
     // expired?
-    if (!user.verificationExpires || user.verificationExpires < Date.now()) {
-        // clear stale token
-        await user.deleteOne()
+    if (!user.verificationExpires || user.verificationExpires < new Date()) {
+        // Delete expired user
+        await prisma.user.delete({ where: { id: user.id } })
 
         return NextResponse.json({
             message: "The verification token has expired, please sign up again",
@@ -43,15 +46,19 @@ export async function GET(
         })
     }
 
-    // valid → mark verified
-    await user.updateOne({
-        $set: { verified: true },
-        $unset: { verificationToken: "", verificationExpires: "" },
+    // valid → mark verified and clear tokens
+    await prisma.user.update({
+        where: { id: user.id },
+        data: {
+            emailVerified: new Date(),
+            verificationToken: null,
+            verificationExpires: null,
+        }
     })
 
     // issue NextAuth session-token cookie
-    if (!process.env.NEXTAUTH_SECRET) {
-        throw new Error("Missing NEXTAUTH_SECRET")
+    if (!process.env.AUTH_SECRET) {
+        throw new Error("Missing AUTH_SECRET")
     }
     const jwt = await encode({
         token: {
@@ -59,7 +66,8 @@ export async function GET(
             email: user.email,
             name: user.name,
         },
-        secret: process.env.NEXTAUTH_SECRET,
+        secret: process.env.AUTH_SECRET,
+        salt: "",
         maxAge: 60 * 60 * 24 * 30, // 30 days
     })
     const cookie = serialize("next-auth.session-token", jwt, {
@@ -74,7 +82,7 @@ export async function GET(
         status: 302,
         headers: {
             "Set-Cookie": cookie,
-            Location: process.env.NEXTAUTH_URL || "https://bluebizhub.com",
+            Location: process.env.AUTH_URL || "https://bluebizhub.com",
         },
     })
 }

@@ -1,18 +1,27 @@
 import connectDB from "@/database"
-import User from "@/database/User"
+import { prisma } from "@/lib/prisma"
+import Profile from "@/database/Profile"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
 import nodemailer from "nodemailer"
 import { NextRequest, NextResponse } from "next/server"
+import { generateRandomWord, generateUsername } from "@/lib/generate-random-name"
 
 // get user email exists in the database or not?
 export async function GET(req: NextRequest) {
     try {
-        await connectDB()
-
         const searchParams = req.nextUrl.searchParams
         const email = searchParams.get("email")
-        const user = await User.findOne({ email })
+        
+        if (!email) {
+            return new NextResponse(JSON.stringify({ message: "Email required" }), {
+                status: 400,
+            })
+        }
+
+        const user = await prisma.user.findUnique({ 
+            where: { email } 
+        })
 
         if (user) {
             return new NextResponse(JSON.stringify({ message: "found" }), {
@@ -34,22 +43,26 @@ export async function POST(req: Request) {
         await connectDB()
 
         const { name, email, password, provider } = await req.json()
-        const user = await User.findOne({ email })
-        // handle existing user
-        if (user) {
-            // Already fully signed up & verified?
-            if (user.provider === "credentials") {
+        
+        // Check if user already exists in PostgreSQL
+        const existingUser = await prisma.user.findUnique({ 
+            where: { email } 
+        })
+        
+        if (existingUser) {
+            if (existingUser.provider === "credentials") {
                 return NextResponse.json(
                     { message: "This email is already registered." },
                     { status: 409 }
                 )
             }
 
-            const provider =
-                user.provider[0].toUpperCase() + user.provider.slice(1)
+            const userProvider = existingUser.provider 
+                ? existingUser.provider[0].toUpperCase() + existingUser.provider.slice(1)
+                : "OAuth"
             return new NextResponse(
                 JSON.stringify({
-                    message: `This email have been registered with us before via ${provider}. Please continue by login with the ${provider} method.`,
+                    message: `This email have been registered with us before via ${userProvider}. Please continue by login with the ${userProvider} method.`,
                 }),
                 {
                     status: 409,
@@ -57,23 +70,38 @@ export async function POST(req: Request) {
             )
         }
 
-        // hash the password
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10)
-        // create new User model
-        const newUser = await new User({
-            name,
-            email,
-            password: hashedPassword,
-            provider,
-            verified: false,
-        })
-        await newUser.save()
-
+        
         // Generate one-time verification token (24h expiry)
         const token = crypto.randomBytes(32).toString("hex")
-        newUser.verificationToken = token
-        newUser.verificationExpires = Date.now() + 24 * 60 * 60 * 1000
-        await newUser.save()
+        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+        // Create new PostgreSQL user
+        const newUser = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                provider,
+                emailVerified: null, // Not verified yet
+                verificationToken: token,
+                verificationExpires,
+            }
+        })
+
+        // Create MongoDB profile
+        const mongoProfile = await Profile.create({
+            name: name || generateUsername() + "-" + generateRandomWord(),
+            email,
+        })
+        await mongoProfile.save()
+
+        // Update PostgreSQL user with profileId
+        await prisma.user.update({
+            where: { id: newUser.id },
+            data: { profileId: mongoProfile._id.toString() }
+        })
 
         // Send verification email
         const transporter = nodemailer.createTransport({
@@ -86,7 +114,7 @@ export async function POST(req: Request) {
             },
         })
 
-        const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`
+        const verifyUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`
 
         await transporter.sendMail({
             to: email,

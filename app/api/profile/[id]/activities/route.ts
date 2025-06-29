@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import connectDB from "@/database"
 import { getProfileActivities } from "@/lib/get-profile"
 import Profile from "@/database/Profile"
-import { getServerSession } from "next-auth"
-import authOptions from "@/lib/auth"
+import { auth } from "@/auth"
 
 export async function GET(
     request: NextRequest,
@@ -21,7 +20,7 @@ export async function GET(
         }
         
         // Check if current user is the profile owner
-        const session = await getServerSession(authOptions)
+        const session = await auth()
         const isOwner = session?.user?.profile === Number(id)
         
         // Get profile activities (conditional private data for owner)

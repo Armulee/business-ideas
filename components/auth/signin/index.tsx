@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { signIn } from "next-auth/react"
+import { signIn } from "@/lib/auth-actions"
 import { Button } from "@/components/ui/button"
 
 import Link from "next/link"
@@ -19,16 +19,20 @@ import Loading from "@/components/loading"
 import ProviderDialog from "./provider-dialog"
 import { Logo } from "@/components/logo"
 import { useSearchParams } from "next/navigation"
+import MagicLink from "./magic-link"
 
 const SignIn = () => {
     const searchParams = useSearchParams()
+    const callbackUrl = searchParams.get("callbackUrl") || "/"
+
     const [pageLoading, setPageLoading] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [consentDialog, setConsentDialog] = useState(false)
-    const [selectedProvider, setSelectedProvider] = useState<string | null>(
-        null
-    )
+    const [authentication, setAuthentication] = useState<{
+        provider: string
+        email?: string
+    }>({ provider: "" })
     const [providerDialog, setProviderDialog] = useState(false)
 
     // rate limit
@@ -52,15 +56,17 @@ const SignIn = () => {
         setError("")
         setRemainingAttempts(null)
 
-        const result = await signIn("credentials", {
-            email: data.email,
-            password: data.password,
-            callbackUrl: searchParams.get("callbackUrl") || "/",
-        })
-
-        if (result?.error) {
+        try {
+            await signIn("crendentials", {
+                email: data.email,
+                password: data.password,
+                callbackUrl,
+            })
+        } catch (error: unknown) {
             try {
-                const payload = JSON.parse(result.error) as {
+                const errorMessage =
+                    error instanceof Error ? error.message : String(error)
+                const payload = JSON.parse(errorMessage) as {
                     code: string
                     retry?: number
                     message?: string
@@ -89,7 +95,7 @@ const SignIn = () => {
                 if (payload?.code === "PROVIDER_ALREADY_ASSOCIATED") {
                     setError(payload.message!)
                     setIsLoading(false)
-                    setSelectedProvider(payload.provider!)
+                    setAuthentication({ provider: payload.provider! })
                     setProviderDialog(true)
                     return
                 }
@@ -102,6 +108,7 @@ const SignIn = () => {
                         : "Something went wrong"
                 setError(`${message} Please try again.`)
             }
+            setIsLoading(false)
         }
     }
 
@@ -125,13 +132,16 @@ const SignIn = () => {
         setPageLoading(false)
     }, [])
 
+    // open magic link when user select the Magic Link authentication method
+    const [magicLink, setMagicLink] = useState(false)
+
     if (isRateLimited) {
         return <RateLimitNotice initialSeconds={retrySeconds} />
     }
 
     return (
         <>
-            {!pageLoading ? (
+            {!pageLoading && !magicLink ? (
                 <div className='max-w-sm mx-auto'>
                     <Logo className='text-center' />
                     <h2 className='mt-2 text-center text-3xl font-extrabold text-white'>
@@ -142,8 +152,9 @@ const SignIn = () => {
                     </p>
                     <SSO
                         form={form}
-                        setSelectedProvider={setSelectedProvider}
+                        setAuthentication={setAuthentication}
                         setShowDialog={setConsentDialog}
+                        setMagicLink={setMagicLink}
                     />
 
                     <div className='mt-6 w-full flex justify-between items-center relative'>
@@ -189,7 +200,7 @@ const SignIn = () => {
                     {/* Consent Dialog for making a user accept the consent before continue with sso provider login */}
                     <ConsentDialog
                         form={form}
-                        selectedProvider={selectedProvider}
+                        authentication={authentication}
                         showDialog={consentDialog}
                         setShowDialog={setConsentDialog}
                     />
@@ -197,7 +208,7 @@ const SignIn = () => {
                     {/* Provider Dialog for making a user notice that the email has been used to login via sso provider */}
                     <ProviderDialog
                         form={form}
-                        selectedProvider={selectedProvider}
+                        authentication={authentication}
                         showDialog={providerDialog}
                         setShowDialog={setProviderDialog}
                     />
@@ -215,6 +226,8 @@ const SignIn = () => {
                         </div>
                     )}
                 </div>
+            ) : magicLink ? (
+                <MagicLink setMagicLink={setMagicLink} />
             ) : (
                 <Loading />
             )}

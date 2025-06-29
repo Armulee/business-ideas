@@ -3,7 +3,7 @@ export const runtime = "nodejs"
 
 import { NextResponse } from "next/server"
 import connectDB from "@/database"
-import User from "@/database/User"
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 
 interface ApiResponse {
@@ -20,7 +20,9 @@ export async function GET(
     try {
         await connectDB()
 
-        const user = await User.findOne({ resetPasswordToken: token })
+        const user = await prisma.user.findFirst({ 
+            where: { resetToken: token } 
+        })
         if (!user) {
             return NextResponse.json<ApiResponse>(
                 {
@@ -33,8 +35,8 @@ export async function GET(
         }
 
         if (
-            !user.resetPasswordExpires ||
-            user.resetPasswordExpires < Date.now()
+            !user.resetTokenExpires ||
+            user.resetTokenExpires < new Date()
         ) {
             // remove stale token fields
             await user.updateOne({
@@ -69,7 +71,9 @@ export async function POST(request: Request) {
     try {
         await connectDB()
 
-        const user = await User.findOne({ resetPasswordToken: token })
+        const user = await prisma.user.findFirst({ 
+            where: { resetToken: token } 
+        })
         if (!user) {
             return NextResponse.json(
                 { message: "Invalid or missing token", code: "INVALID_TOKEN" },
@@ -78,8 +82,8 @@ export async function POST(request: Request) {
         }
 
         if (
-            !user.resetPasswordExpires ||
-            user.resetPasswordExpires < Date.now()
+            !user.resetTokenExpires ||
+            user.resetTokenExpires < new Date()
         ) {
             await user.updateOne({
                 $unset: { resetPasswordToken: "", resetPasswordExpires: "" },

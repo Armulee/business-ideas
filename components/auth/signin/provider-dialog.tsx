@@ -13,12 +13,12 @@ import { useSearchParams } from "next/navigation"
 
 const ProviderDialog = ({
     form,
-    selectedProvider,
+    authentication,
     showDialog,
     setShowDialog,
 }: {
     form: UseFormReturn<FormValues>
-    selectedProvider: string | null
+    authentication: { provider: string; email?: string }
     showDialog: boolean
     setShowDialog: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -27,29 +27,30 @@ const ProviderDialog = ({
 
     const continueWithProvider = () => {
         setShowDialog(false)
-        if (selectedProvider) {
-            signIn(selectedProvider.toLowerCase(), { callbackUrl })
+        if (authentication.provider) {
+            signIn(authentication.provider.toLowerCase(), { callbackUrl })
         }
     }
     return (
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTitle className='sr-only'>
-                Continue with {selectedProvider}
+                Continue with {authentication.provider}
             </DialogTitle>
             <DialogContent className='rounded-lg text-black'>
                 <DialogHeader className='w-full text-left'>
                     <h2 className='text-lg font-semibold text-black'>
-                        Your email already registered via {selectedProvider}
+                        Your email already registered via{" "}
+                        {authentication.provider}
                     </h2>
                 </DialogHeader>
                 <p className='text-sm text-gray-600'>
                     Email <strong>{form.getValues("email")}</strong> was
                     originally registered using{" "}
-                    <strong>{selectedProvider}</strong>.
+                    <strong>{authentication.provider}</strong>.
                     <br />
                     <br />
-                    Please continue with <strong>{selectedProvider}</strong> to
-                    sign in.
+                    Please continue with{" "}
+                    <strong>{authentication.provider}</strong> to sign in.
                 </p>
                 <DialogFooter className='flex-row justify-center items-center gap-4'>
                     <Button
@@ -62,7 +63,7 @@ const ProviderDialog = ({
                         className='bg-blue-500'
                         onClick={continueWithProvider}
                     >
-                        Continue with {selectedProvider}
+                        Continue with {authentication.provider}
                     </Button>
                 </DialogFooter>
             </DialogContent>

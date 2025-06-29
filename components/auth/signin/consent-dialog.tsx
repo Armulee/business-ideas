@@ -14,12 +14,12 @@ import { useSearchParams } from "next/navigation"
 
 const ConsentDialog = ({
     form,
-    selectedProvider,
+    authentication,
     showDialog,
     setShowDialog,
 }: {
     form: UseFormReturn<FormValues>
-    selectedProvider: string | null
+    authentication: { provider: string; email?: string }
     showDialog: boolean
     setShowDialog: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -29,8 +29,8 @@ const ConsentDialog = ({
     const confirmConsentAndSignIn = () => {
         setShowDialog(false)
         form.setValue("consent", true)
-        if (selectedProvider) {
-            signIn(selectedProvider, { callbackUrl })
+        if (authentication.provider) {
+            signIn(authentication.provider, { callbackUrl })
         }
     }
     return (

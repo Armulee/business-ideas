@@ -1,5 +1,4 @@
 import connectDB from "@/database"
-import User from "@/database/User"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
