@@ -48,7 +48,7 @@ export async function POST(req: Request) {
                 pass: process.env.EMAIL_SERVER_PASS, // your SMTP key (not your API key) :contentReference[oaicite:1]{index=1}
             },
         })
-        const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password/${token}`
+        const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password/${token}`
         await transporter.sendMail({
             to: user.email,
             from: "BlueBizHub Service <no-reply@bluebizhub.com>",

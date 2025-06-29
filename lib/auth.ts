@@ -1,6 +1,7 @@
 import GoogleProvider from "next-auth/providers/google"
 import TwitterProvider from "next-auth/providers/twitter"
 import CredentialsProvider from "next-auth/providers/credentials"
+// import EmailProvider from "next-auth/providers/email"
 import connectDB from "@/database"
 import User from "@/database/User"
 import bcrypt from "bcrypt"
@@ -13,12 +14,12 @@ const limiter = new RateLimiterMemory({ points: 6, duration: 900 })
 const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_ID as string,
-            clientSecret: process.env.GOOGLE_SECRET as string,
+            clientId: process.env.AUTH_GOOGLE_ID as string,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
         }),
         TwitterProvider({
-            clientId: process.env.TWITTER_ID as string,
-            clientSecret: process.env.TWITTER_SECRET as string,
+            clientId: process.env.AUTH_TWITTER_ID as string,
+            clientSecret: process.env.AUTH_TWITTER_SECRET as string,
             version: "2.0",
         }),
 
@@ -35,8 +36,16 @@ const authOptions: NextAuthOptions = {
         //     clientSecret: process.env.LINKEDIN_SECRET as string,
         // }),
         // EmailProvider({
-        //     server: process.env.EMAIL_SERVER,
-        //     from: process.env.EMAIL_FROM,
+        //     server: {
+        //         host: "smtp-relay.brevo.com", // Brevo’s SMTP host
+        //         port: 587, // TLS port
+        //         secure: false, // false → STARTTLS (use true for port 465)
+        //         auth: {
+        //             user: process.env.EMAIL_SERVER_USER, // your SMTP “login” (often your sender email) :contentReference[oaicite:0]{index=0}
+        //             pass: process.env.EMAIL_SERVER_PASS, // your SMTP key (not your API key) :contentReference[oaicite:1]{index=1}
+        //         },
+        //     },
+        //     from: "BlueBizHub Service <no-reply@bluebizhub.com>",
         // }),
         CredentialsProvider({
             name: "credentials",
