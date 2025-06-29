@@ -59,7 +59,7 @@ const privacySections = [
     },
 ]
 
-export const termsSections = [
+const termsSections = [
     {
         title: "Acceptance of Terms",
         content:
