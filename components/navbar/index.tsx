@@ -96,7 +96,7 @@ export default function Navbar() {
                                         </Link>
                                     </Button>
                                 ) : (
-                                    <Skeleton className='rounded-full w-[100px] h-[35px] glassmorphism' />
+                                    <Skeleton className='rounded-full w-[64px] h-[35px] glassmorphism' />
                                 )}
                             </div>
                         </nav>

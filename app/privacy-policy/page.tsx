@@ -5,9 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Privacy Policy & Terms of Service | BlueBizHub",
+    title: "Privacy Policy | BlueBizHub",
     description:
-        "Our commitment to your privacy and the terms under which we operate at BlueBizHub.",
+        "Our commitment to your privacy under which we operate at BlueBizHub.",
 }
 
 // Structured content arrays for policy sections
@@ -15,47 +15,47 @@ const privacySections = [
     {
         title: "Introduction",
         content:
-            "BlueBizHub (“we”, “us”, or “our”) is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your choices regarding that information.",
+            'BlueBizHub ("we," "us," or "our") respects your privacy and is dedicated to safeguarding the confidentiality and security of your personal information. This Privacy Policy details the types of information we collect, the purposes for collecting such information, the methods we utilize to manage and protect your information, and your rights regarding your personal data.',
     },
     {
         title: "Information We Collect",
         content:
-            "We collect information you provide directly when registering or posting content, such as your name, email address, profile details, and any ideas or feedback you share. We also collect usage data via cookies and similar technologies.",
+            "We collect personal information provided directly by you when registering an account, posting content, or engaging with our community. Such information may include but is not limited to your name, email address, user profile information, and any content, ideas, feedback, or comments you voluntarily share on our platform. Additionally, we automatically collect technical information, including IP addresses, browser type, operating system, and usage data via cookies and similar tracking technologies.",
     },
     {
-        title: "How We Use Your Information",
+        title: "Use of Information",
         content:
-            "Your data helps us operate, improve, and personalize the platform. This includes authentication, providing notifications, analyzing engagement metrics, and sending relevant updates.",
+            "We utilize the collected data to operate, manage, enhance, and personalize your experience on our platform. This includes verifying user identity, providing user support, sending important notifications, analyzing user engagement and interactions, facilitating communication within our community, improving website functionality, and ensuring compliance with applicable laws and regulations.",
     },
     {
-        title: "Cookies & Tracking",
+        title: "Cookies and Tracking Technologies",
         content:
-            "We use cookies and tracking technologies to remember preferences, understand site usage, and support advertising efforts. You can manage cookie settings via your browser.",
+            "BlueBizHub uses cookies and other tracking technologies to improve functionality, personalize user experience, analyze user activity, and deliver targeted advertising. Users may control cookie preferences or disable cookies entirely through browser settings. However, disabling cookies may affect functionality and limit the user experience.",
     },
     {
         title: "Information Sharing",
         content:
-            "We do not sell your personal data. We may share aggregated or de-identified data with partners. We may also disclose information to comply with legal obligations.",
+            "We do not sell, lease, or trade your personal information. However, we may share anonymized or aggregated data with third-party partners for analytics, research, and advertising purposes. Additionally, we reserve the right to disclose personal information if required by law, legal process, or regulatory request, or if we believe disclosure is necessary to protect our rights, safety, or the safety of others.",
     },
     {
         title: "Data Security",
         content:
-            "We implement industry-standard measures to protect your data from unauthorized access, alteration, or destruction. However, no method is absolutely secure.",
+            "We implement industry-standard security measures designed to protect your personal information from unauthorized access, misuse, alteration, loss, or destruction. Nevertheless, please be aware that no method of electronic transmission or storage is completely secure, and we cannot guarantee absolute security.",
     },
     {
         title: "Children’s Privacy",
         content:
-            "Our service is not intended for children under 13. We do not knowingly collect data from minors. If we become aware of such data, we will delete it promptly.",
+            "Our platform is not intended for individuals under the age of thirteen (13). We do not knowingly collect personal data from minors. If we discover that we have unintentionally collected personal information from a minor, we will take immediate steps to delete such information.",
     },
     {
-        title: "Updates to This Policy",
+        title: "Changes to This Privacy Policy",
         content:
-            "We may update this policy periodically. We will post changes here with a revised effective date. Continuing to use the service constitutes acceptance of the updated policy.",
+            "We reserve the right to modify this Privacy Policy at any time. Any revisions will be communicated by updating the effective date listed herein. Continued use of our service following such updates indicates acceptance of the amended Privacy Policy.",
     },
     {
-        title: "Contact Us",
+        title: "Contact Information",
         content:
-            "If you have questions about this Privacy Policy, please contact us at privacy@bluebizhub.com.",
+            "For any questions or concerns regarding this Privacy Policy, please contact us at privacy@bluebizhub.com.",
     },
 ]
 
@@ -63,42 +63,37 @@ const termsSections = [
     {
         title: "Acceptance of Terms",
         content:
-            "By accessing or using BlueBizHub, you agree to these Terms of Service. If you do not agree, please do not use our platform.",
+            'By accessing or utilizing the BlueBizHub platform ("Service"), you acknowledge and agree to comply with these Terms of Service. If you do not accept these terms, refrain from using our Service.',
     },
     {
         title: "User Conduct",
         content:
-            "You agree to use the service in compliance with our Community Guidelines. You are responsible for any content you post.",
+            "Users agree to comply with all applicable laws and our established Community Guidelines. You bear full responsibility for all content and communications posted by your account.",
     },
     {
-        title: "Intellectual Property",
+        title: "Intellectual Property Rights",
         content:
-            "All content on BlueBizHub is owned by us or our licensors. You may not reproduce, distribute, or create derivative works without permission.",
+            "All materials, content, and intellectual property available on the BlueBizHub platform are owned exclusively by us or our licensors. Users may not copy, distribute, reproduce, or create derivative works from our content without prior express written permission.",
     },
     {
-        title: "Disclaimers",
+        title: "Disclaimers and Liability Limitations",
         content:
-            "The service is provided “as is” without warranties of any kind. We do not guarantee accuracy, reliability, or suitability for any purpose.",
-    },
-    {
-        title: "Limitation of Liability",
-        content:
-            "To the maximum extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.",
+            'The BlueBizHub service is provided "as is" without warranties of any kind, either expressed or implied. We expressly disclaim all warranties regarding accuracy, reliability, completeness, or suitability of the Service for any particular purpose. To the fullest extent permissible under applicable law, we shall not be liable for indirect, incidental, consequential, special, or punitive damages arising from or related to your use of or inability to use our Service.',
     },
     {
         title: "Termination",
         content:
-            "We may suspend or terminate your access at any time for violations of these Terms or for any other reason.",
+            "We reserve the right, at our sole discretion, to suspend or terminate user access and account privileges without notice for violations of these Terms of Service or any other reason deemed appropriate.",
     },
     {
-        title: "Changes to Terms",
+        title: "Amendaments to Terms",
         content:
-            "We may revise these Terms at any time. We will notify you of significant changes. Continued use constitutes acceptance of the new Terms.",
+            "We reserve the right to amend these Terms of Service at any time, with notice of significant amendments communicated clearly to users. Continued use of our Service after amendments become effective signifies user acceptance of the revised terms.",
     },
     {
         title: "Governing Law",
         content:
-            "These Terms are governed by the laws of [Your Jurisdiction], without regard to conflict of law principles.",
+            "These Terms of Service are governed and interpreted under the laws of Thailand, irrespective of conflicts of law principles.",
     },
 ]
 
@@ -129,7 +124,7 @@ export default function PolicyPage() {
             <Card className='max-w-3xl mx-auto mb-28 bg-transparent border-0 shadow-none'>
                 <CardHeader>
                     <CardTitle className='text-blue-200 flex items-center space-x-2 text-2xl font-extrabold'>
-                        <FileText className='w-6 h-6 text-blue-500' />
+                        <FileText className='w-6 h-6' />
                         <span>Terms of Service</span>
                     </CardTitle>
                 </CardHeader>

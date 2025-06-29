@@ -40,7 +40,6 @@ import {
     Phone,
     Truck,
     Globe,
-    Scale,
     ShieldCheck,
     Lock,
     Compass,
@@ -317,7 +316,11 @@ export const useCollapsibleMenus = () => {
         {
             section: "Resources",
             items: [
-                { href: "/rules", name: "Rules", icon: Scale }, // 👤 User profile
+                {
+                    href: "/guidelines",
+                    name: "Community Guidelines",
+                    icon: ShieldCheck,
+                }, // 👤 User profile
                 {
                     href: "/privacy-policy",
                     name: "Privacy Policies",
@@ -326,7 +329,7 @@ export const useCollapsibleMenus = () => {
                 {
                     href: "/terms",
                     name: "Terms & Conditions",
-                    icon: ShieldCheck,
+                    icon: FileText,
                 }, // 🔔 Alerts
             ],
         },
