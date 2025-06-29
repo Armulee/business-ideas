@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose"
 import Counter from "./Counter"
-import { IUser } from "./User"
 
 interface SocialMedia {
     facebook: string
@@ -33,14 +32,14 @@ export interface IProfile extends Document<Schema.Types.ObjectId> {
     updatedAt: Date
 }
 
-// ✅ Populated Profile Interface
+// ✅ Populated Profile Interface (PostgreSQL User reference via ID string)
 export interface IProfilePopulated extends Omit<IProfile, "user"> {
-    user: IUser
+    user: string // PostgreSQL User ID reference
 }
 
 // Profile schema
 const ProfileSchema = new Schema<IProfile>({
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: Schema.Types.ObjectId, required: false }, // Legacy field, now using PostgreSQL User
     profileId: { type: Number, unique: true },
     avatar: { type: String },
     name: { type: String },

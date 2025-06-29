@@ -12,7 +12,7 @@ interface ApiResponse {
 }
 
 export async function GET(
-    request: Request,
+    _request: Request,
     { params }: { params: Promise<{ token: string }> }
 ) {
     const { token } = await params
@@ -39,8 +39,12 @@ export async function GET(
             user.resetTokenExpires < new Date()
         ) {
             // remove stale token fields
-            await user.updateOne({
-                $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    resetToken: null,
+                    resetTokenExpires: null,
+                }
             })
             return NextResponse.json<ApiResponse>(
                 {
@@ -85,8 +89,12 @@ export async function POST(request: Request) {
             !user.resetTokenExpires ||
             user.resetTokenExpires < new Date()
         ) {
-            await user.updateOne({
-                $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    resetToken: null,
+                    resetTokenExpires: null,
+                }
             })
             return NextResponse.json(
                 { message: "Token has expired", code: "EXPIRED_TOKEN" },
@@ -96,9 +104,13 @@ export async function POST(request: Request) {
 
         // Update password + clear token
         const hashed = await bcrypt.hash(password, 10)
-        await user.updateOne({
-            $set: { password: hashed },
-            $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                password: hashed,
+                resetToken: null,
+                resetTokenExpires: null,
+            }
         })
 
         return NextResponse.json(

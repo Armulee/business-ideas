@@ -12,9 +12,5 @@ export async function signIn(
           } & Record<string, string>)
         | undefined
 ) {
-    try {
-        await authSignIn(provider, authOptions)
-    } catch (error) {
-        console.error(error)
-    }
+    return await authSignIn(provider, authOptions)
 }

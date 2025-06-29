@@ -8,6 +8,7 @@ import { signIn as passkeySignIn } from "next-auth/webauthn"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "next/navigation"
 import { Fingerprint } from "lucide-react"
+import { useLoading } from "@/components/loading-provider"
 
 const SSO = ({
     form,
@@ -24,7 +25,7 @@ const SSO = ({
 }) => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
-
+    const { setIsLoading } = useLoading()
     const handleSSOSignIn = async (provider: string) => {
         let formattedProvider
         if (provider === "x") {
@@ -46,8 +47,10 @@ const SSO = ({
             formattedProvider === "google" ||
             formattedProvider === "resend"
         ) {
+            setIsLoading(true)
             await signIn(formattedProvider, { callbackUrl })
         } else if (formattedProvider === "passkey") {
+            setIsLoading(true)
             await passkeySignIn("passkey")
         }
     }

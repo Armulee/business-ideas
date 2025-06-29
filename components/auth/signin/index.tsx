@@ -57,7 +57,7 @@ const SignIn = () => {
         setRemainingAttempts(null)
 
         try {
-            await signIn("crendentials", {
+            await signIn("credentials", {
                 email: data.email,
                 password: data.password,
                 callbackUrl,

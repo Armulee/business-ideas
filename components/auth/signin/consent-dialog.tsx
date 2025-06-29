@@ -7,10 +7,11 @@ import {
     DialogHeader,
 } from "../../ui/dialog"
 import { Button } from "@/components/ui/button"
-import { signIn } from "next-auth/react"
+import { signIn } from "@/lib/auth-actions"
 import { UseFormReturn } from "react-hook-form"
 import { FormValues } from "./types"
 import { useSearchParams } from "next/navigation"
+import { useLoading } from "@/components/loading-provider"
 
 const ConsentDialog = ({
     form,
@@ -25,12 +26,14 @@ const ConsentDialog = ({
 }) => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
+    const { setIsLoading } = useLoading()
 
-    const confirmConsentAndSignIn = () => {
+    const confirmConsentAndSignIn = async () => {
         setShowDialog(false)
         form.setValue("consent", true)
         if (authentication.provider) {
-            signIn(authentication.provider, { callbackUrl })
+            setIsLoading(true)
+            await signIn(authentication.provider, { callbackUrl })
         }
     }
     return (
