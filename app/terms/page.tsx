@@ -10,7 +10,7 @@ export const metadata: Metadata = {
         "Terms and conditions governing use of the BlueBizHub platform.",
 }
 
-export const termsSections = [
+const termsSections = [
     {
         title: "Acceptance of Terms",
         content:

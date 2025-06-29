@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 // Structured content arrays for policy sections
-export const privacySections = [
+const privacySections = [
     {
         title: "Introduction",
         content:
