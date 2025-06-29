@@ -16,17 +16,18 @@ export default function ProfileStats() {
         { title: "Post", icon: StickyNote, content: profile?.postCount },
     ]
     return (
-        <div className='w-full h-full grid grid-cols-4 md:max-w-32 md:flex md:flex-col md:gap-1.5 gap-y-4 glassmorphism p-6 mb-3.5'>
+        <div className='w-full grid grid-cols-4 md:gap-4 gap-2 mb-6'>
             {stats.map((stat, index) => (
-                <div key={`stat-${index}`} className='w-full text-center'>
-                    <div className='w-full text-xs text-gray-200 flex md:justify-start justify-center items-center shrink-0 gap-2'>
-                        <stat.icon className='sm:w-4 sm:h-4 w-6 h-6 sm:mb-0 mb-2' />
-                        <div className='sm:block hidden sm:mt-0'>
-                            {stat.title}
-                        </div>
+                <div
+                    key={`stat-${index}`}
+                    className='w-full text-center glassmorphism p-4'
+                >
+                    <div className='w-full text-xs text-gray-200 flex flex-col justify-center items-center shrink-0'>
+                        <stat.icon className='w-6 h-6 sm:mb-0 mb-2' />
+                        <div className='text-[10px] sm:mt-0'>{stat.title}</div>
                     </div>
 
-                    <span className='text-lg font-bold text-white'>
+                    <span className='text-sm font-bold text-white'>
                         {stat.content}
                     </span>
                 </div>

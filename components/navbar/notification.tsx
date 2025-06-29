@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react"
 import useSWR from "swr"
 import { useSession } from "next-auth/react"
 import axios from "axios"
-import Link from "next/link"
 import {
     ArrowBigDown,
     ArrowBigUp,
@@ -29,9 +28,9 @@ import {
 } from "../ui/sheet"
 import { formatDate } from "@/utils/format-date"
 import { usePathname } from "next/navigation"
+import { LoadingLink } from "../loading-link"
 
 // Types
-
 interface Actor {
     profileId: string
     name: string
@@ -281,7 +280,7 @@ export default function NotificationSheet() {
                                                     </div>
                                                 </div>
 
-                                                <Link
+                                                <LoadingLink
                                                     href={n.target.postLink}
                                                     className='flex-1 min-w-0'
                                                 >
@@ -541,7 +540,7 @@ export default function NotificationSheet() {
                                                             )}
                                                         </span>
                                                     </div>
-                                                </Link>
+                                                </LoadingLink>
                                             </div>
                                         </motion.div>
                                     )

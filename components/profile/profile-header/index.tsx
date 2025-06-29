@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Edit, MapPin, Calendar, Link2, UserPlus, Check } from "lucide-react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import axios from "axios"
 import DialogShowFollowMenu from "./dialog-menu"
 import { useAlert } from "@/components/provider/alert"
 import { useProfile } from ".."
+import { LoadingLink } from "@/components/loading-link"
 
 export default function ProfileHeader() {
     const { profile, followers } = useProfile()
@@ -44,8 +44,8 @@ export default function ProfileHeader() {
     }
 
     return (
-        <div className='glassmorphism p-6 mb-4 w-full'>
-            <div className='flex mb-4'>
+        <div className='px-2 w-full'>
+            <div className='flex'>
                 <Avatar className='mb-4 mr-4 h-24 w-24 md:h-20 md:w-20'>
                     <AvatarImage src={profile.avatar} alt={profile.name} />
                     <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
@@ -57,7 +57,7 @@ export default function ProfileHeader() {
                     </h4>
 
                     {session?.user.id === profile._id.toString() ? (
-                        <Link href={`${pathname}/edit`}>
+                        <LoadingLink href={`${pathname}/edit`}>
                             <Button
                                 className='bg-white/10 border-white/50'
                                 variant='outline'
@@ -66,7 +66,7 @@ export default function ProfileHeader() {
                                 <Edit className='h-4 w-4 mr-2' />
                                 Edit Profile
                             </Button>
-                        </Link>
+                        </LoadingLink>
                     ) : (
                         <Button
                             disabled={
@@ -120,9 +120,9 @@ export default function ProfileHeader() {
                     </div>
                 )}
                 {profile.createdAt && (
-                    <div className='flex items-center'>
-                        <Calendar className='h-4 w-4 mr-1' />
-                        <span>
+                    <div className='flex items-center text-white/60'>
+                        <Calendar className='h-3 w-3 mr-1' />
+                        <span className='text-xs'>
                             Joined{" "}
                             {new Date(profile.createdAt).toLocaleDateString(
                                 "en-US",

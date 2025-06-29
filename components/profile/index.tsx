@@ -10,7 +10,6 @@ import {
     Activities,
 } from "./types"
 import ProfileTabs from "./profile-tabs"
-import { ProfileSkeleton } from "../skeletons"
 import axios from "axios"
 
 interface PostProps {
@@ -46,6 +45,13 @@ const Profile = ({
     const [activitiesData, setActivitiesData] = useState<
         Activities | undefined
     >(undefined)
+
+    // Redirect if the slug is incorrect
+    useEffect(() => {
+        if (correctSlug) {
+            window.history.replaceState(null, "", correctSlug)
+        }
+    }, [correctSlug, router])
 
     // Use initial data if provided, otherwise fall back to full data
     const profileData = data || {
@@ -99,18 +105,6 @@ const Profile = ({
         }
     }, [profileData?.profile, profileId, activitiesLoaded, data])
 
-    // Redirect if the slug is incorrect
-    useEffect(() => {
-        if (correctSlug) {
-            router.replace(correctSlug)
-        }
-    }, [correctSlug, router])
-
-    // Show skeleton while loading initial data
-    if (!profileData?.profile && !error && !correctSlug) {
-        return <ProfileSkeleton />
-    }
-
     if (error) {
         return (
             <div className='flex flex-col items-center justify-center min-h-screen'>
@@ -140,8 +134,8 @@ const Profile = ({
 
         return (
             <ProfileContext.Provider value={completeProfileData}>
-                <div className='container mx-auto px-4 pt-20 pb-28'>
-                    <div className='flex flex-col md:flex-row gap-2 items-center'>
+                <div className='container mx-auto px-4 pt-24 pb-28'>
+                    <div className='flex flex-col gap-2 items-start'>
                         <ProfileHeader />
                         <ProfileStats />
                     </div>

@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card"
 import EditForm from "./form"
 import axios from "axios"
-import Loading from "@/components/loading"
 import { useSession } from "next-auth/react"
 import useSWR from "swr"
+import { EditProfileSkeleton } from "@/components/skeletons"
 
 export interface ProfileData {
     name: string | undefined
@@ -71,12 +71,6 @@ export default function EditProfile({ id }: { id: string }) {
             </div>
         )
     } else if (profileData === undefined) {
-        return (
-            <div className='w-full h-screen flex items-center justify-center'>
-                Sorry, Something went wrong
-            </div>
-        )
-    } else if (profileData === null) {
-        return <Loading />
+        return <EditProfileSkeleton />
     }
 }

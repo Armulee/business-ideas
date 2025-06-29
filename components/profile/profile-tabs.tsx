@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import CommentList from "./comment-list"
 import VoteList from "./vote-list"
 import { useProfile } from "."
+import { Lock } from "lucide-react"
 
 export default function ProfileTabs() {
     const { profile } = useProfile()
@@ -45,9 +46,18 @@ export default function ProfileTabs() {
                 <TabsTrigger value='comments'>Comments</TabsTrigger>
                 {profile._id.toString() === session?.user.id ? (
                     <>
-                        <TabsTrigger value='upvotes'>Upvotes</TabsTrigger>
-                        <TabsTrigger value='downvotes'>Downvotes</TabsTrigger>
-                        <TabsTrigger value='saved'>Saved</TabsTrigger>
+                        <TabsTrigger value='upvotes'>
+                            <Lock className='w-3 h-3 mr-1' />
+                            Upvotes
+                        </TabsTrigger>
+                        <TabsTrigger value='downvotes'>
+                            <Lock className='w-3 h-3 mr-1' />
+                            Downvotes
+                        </TabsTrigger>
+                        <TabsTrigger value='saved'>
+                            <Lock className='w-3 h-3 mr-1' />
+                            Saved
+                        </TabsTrigger>
                     </>
                 ) : null}
             </TabsList>

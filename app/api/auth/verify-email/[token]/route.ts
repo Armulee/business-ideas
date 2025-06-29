@@ -74,7 +74,7 @@ export async function GET(
         status: 302,
         headers: {
             "Set-Cookie": cookie,
-            Location: `${process.env.NEXTAUTH_URL || "https://bluebizhub.com"}`,
+            Location: process.env.NEXTAUTH_URL || "https://bluebizhub.com",
         },
     })
 }

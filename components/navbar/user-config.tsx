@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { signOut, useSession } from "next-auth/react"
-import Link from "next/link"
+import { LoadingLink } from "../loading-link"
 
 export default function UserConfig() {
     const { data: session } = useSession()
@@ -35,13 +35,13 @@ export default function UserConfig() {
                 <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                <Link
+                <LoadingLink
                     href={`/profile/${
                         session?.user.profile
                     }/${session?.user.name?.toLowerCase()}`}
                 >
                     <DropdownMenuItem>View Profile</DropdownMenuItem>
-                </Link>
+                </LoadingLink>
 
                 {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
 

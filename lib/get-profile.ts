@@ -138,11 +138,25 @@ export async function getProfileActivities(profileObjectId: string, isOwner: boo
                     .sort({ createdAt: -1 })
                     .lean(),
                 Activity.find({ actor: profileObjectId, type: "repost" })
-                    .populate("target", "postLink title author avatar")
+                    .populate({
+                        path: "target",
+                        select: "title postLink content category createdAt viewCount commentCount upvoteCount downvoteCount",
+                        populate: {
+                            path: "author",
+                            select: "name profileId avatar",
+                        },
+                    })
                     .sort({ createdAt: -1 })
                     .lean(),
                 Activity.find({ actor: profileObjectId, type: "bookmark" })
-                    .populate("target", "postLink title author avatar")
+                    .populate({
+                        path: "target",
+                        select: "title postLink content category createdAt viewCount commentCount upvoteCount downvoteCount",
+                        populate: {
+                            path: "author",
+                            select: "name profileId avatar",
+                        },
+                    })
                     .sort({ createdAt: -1 })
                     .lean(),
             ])

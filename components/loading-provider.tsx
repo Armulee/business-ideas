@@ -25,7 +25,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
         const timer = setTimeout(() => {
             setIsLoading(false)
             setIsInitialized(true)
-        }, 300)
+        }, 500)
 
         return () => clearTimeout(timer)
     }, [])
@@ -35,7 +35,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
         if (isInitialized) {
             setTimeout(() => {
                 setIsLoading(false)
-            }, 800)
+            }, 500)
         }
     }, [pathname, isInitialized])
 
