@@ -4,7 +4,7 @@ import crypto from "crypto"
 import { Resend } from "resend"
 import { ForgetPasswordEmailTemplate } from "@/lib/email-template"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.AUTH_RESEND_KEY)
 
 export async function POST(req: Request) {
     try {
