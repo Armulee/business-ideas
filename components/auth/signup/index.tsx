@@ -32,7 +32,7 @@ const SignUp = () => {
         try {
             setIsLoading(true)
 
-            await axios.post("/api/verify-email", {
+            await axios.post("/api/auth/verify-email", {
                 username: data.username,
                 email: data.email,
             })

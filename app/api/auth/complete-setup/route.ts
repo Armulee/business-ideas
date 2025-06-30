@@ -103,6 +103,7 @@ export async function POST(req: Request) {
             })
 
             await signIn("credentials", { email, password })
+
             return NextResponse.json(
                 { message: "Account setup completed with credentials" },
                 { status: 200 }
