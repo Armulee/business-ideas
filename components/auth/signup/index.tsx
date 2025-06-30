@@ -8,12 +8,10 @@ import { formSchema, FormValues } from "./types"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form } from "@/components/ui/form"
-import Name from "./name"
 import Email from "./email"
-import Password from "./password"
-import ConfirmPassword from "./confirm-password"
 import Consent from "./consent"
 import { Logo } from "@/components/logo"
+import Name from "./name"
 
 const SignUp = () => {
     const [step, setStep] = useState<"form" | "sent">("form")
@@ -24,10 +22,8 @@ const SignUp = () => {
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: "",
+            username: "",
             email: "",
-            password: "",
-            confirmPassword: "",
             consent: false,
         },
     })
@@ -36,21 +32,13 @@ const SignUp = () => {
         try {
             setIsLoading(true)
 
-            await axios.post("/api/user", {
-                name: data.name,
+            await axios.post("/api/verify-email", {
+                username: data.username,
                 email: data.email,
-                password: data.password,
-                provider: "credentials",
             })
 
             setSubmittedEmail(data.email)
             setStep("sent")
-
-            // await signIn("credentials", {
-            //     email: data.email,
-            //     password: data.password,
-            //     callbackUrl: "/",
-            // })
         } catch (error) {
             const message =
                 error instanceof AxiosError
@@ -77,8 +65,9 @@ const SignUp = () => {
                     {submittedEmail}
                 </div>
                 <p className='text-sm text-white/70 mb-6'>
-                    Click the link in that email to verify your account—and
-                    we&apos;ll log you in automatically.
+                    Click the link in that email to verify your account. After
+                    verification, you&apos;ll be able to set up your passkey or
+                    create a username and password.
                 </p>
                 <p className='text-sm text-white/50'>
                     Didn&apos;t receive it?{" "}
@@ -112,15 +101,13 @@ const SignUp = () => {
                     >
                         <Name control={form.control} />
                         <Email control={form.control} />
-                        <Password control={form.control} />
-                        <ConfirmPassword control={form.control} />
                         <Consent control={form.control} />
                         <Button
                             type='submit'
-                            className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 border border-white hover:bg-white hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                            className='group relative w-full button !bg-blue-700'
                             disabled={isLoading}
                         >
-                            {isLoading ? "Loading..." : "Register"}
+                            {isLoading ? "Loading..." : "Create Account"}
                         </Button>
                     </form>
                 </Form>

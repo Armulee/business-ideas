@@ -25,7 +25,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     providers: [
         Google,
         Twitter,
-        Resend,
+        Resend({ from: "BlueBizHub Magician <no-reply@bluebizhub.com>" }),
         Passkey,
         Credentials({
             name: "credentials",

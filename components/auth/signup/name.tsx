@@ -13,15 +13,15 @@ const Name = ({ control }: { control: Control<FormValues> }) => {
     return (
         <FormField
             control={control}
-            name='name'
+            name='username'
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='sr-only'>Name</FormLabel>
+                    <FormLabel className='sr-only'>Username</FormLabel>
                     <FormControl>
                         <Input
                             type='text'
                             className='input'
-                            placeholder='Username'
+                            placeholder='Enter your username'
                             {...field}
                         />
                     </FormControl>

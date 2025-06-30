@@ -1,27 +1,22 @@
 import { UseFormReturn } from "react-hook-form"
 import { FaGoogle } from "react-icons/fa"
-import { FaXTwitter } from "react-icons/fa6"
-import { GiFairyWand } from "react-icons/gi"
+// import { FaXTwitter } from "react-icons/fa6"
 import { FormValues } from "./types"
-import { signIn } from "@/lib/auth-actions"
-import { signIn as passkeySignIn } from "next-auth/webauthn"
+import { serverSignIn } from "@/lib/auth-server-actions"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "next/navigation"
-import { Fingerprint } from "lucide-react"
 import { useLoading } from "@/components/loading-provider"
 
 const SSO = ({
     form,
     setAuthentication,
     setShowDialog,
-    setMagicLink,
 }: {
     form: UseFormReturn<FormValues>
     setAuthentication: React.Dispatch<
         React.SetStateAction<{ provider: string; email?: string }>
     >
     setShowDialog: React.Dispatch<React.SetStateAction<boolean>>
-    setMagicLink: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
@@ -30,8 +25,6 @@ const SSO = ({
         let formattedProvider
         if (provider === "x") {
             formattedProvider = "twitter"
-        } else if (provider === "magic link") {
-            formattedProvider = "resend"
         } else {
             formattedProvider = provider
         }
@@ -42,48 +35,27 @@ const SSO = ({
             return
         }
 
-        if (
-            formattedProvider === "twitter" ||
-            formattedProvider === "google" ||
-            formattedProvider === "resend"
-        ) {
+        if (formattedProvider === "twitter" || formattedProvider === "google") {
             setIsLoading(true)
-            await signIn(formattedProvider, { callbackUrl })
-        } else if (formattedProvider === "passkey") {
-            setIsLoading(true)
-            await passkeySignIn("passkey")
+            await serverSignIn(formattedProvider, { callbackUrl })
         }
     }
     return (
         <div className='flex flex-col justify-center items-center gap-3'>
             <Button
                 onClick={() => handleSSOSignIn("google")}
-                className='w-full inline-flex justify-center py-2 px-4 glassmorphism bg-transparent text-sm font-medium text-white hover:bg-gray-50 hover:text-blue-700'
+                className='group w-full inline-flex justify-center py-2 px-4 glassmorphism !border-0 bg-transparent text-sm font-medium text-white transition duration-300 hover:bg-white hover:text-blue-600'
             >
-                <FaGoogle className='w-5 h-5 mr-2' />
+                <FaGoogle className='w-5 h-5 mr-2 text-white group-hover:text-blue-600 transition duration-300' />
                 Continue with Google
             </Button>
-            <Button
+            {/* <Button
                 onClick={() => handleSSOSignIn("twitter")}
-                className='w-full inline-flex justify-center py-2 px-4 glassmorphism bg-transparent text-sm font-medium text-white hover:bg-gray-50 hover:text-blue-700'
+                className='group w-full inline-flex justify-center py-2 px-4 glassmorphism bg-transparent text-sm font-medium text-white transition duration-300 hover:bg-black'
             >
-                <FaXTwitter className='w-5 h-5 mr-2' />
+                <FaXTwitter className='w-5 h-5 mr-2 text-white' />
                 Continue with X
-            </Button>
-            <Button
-                onClick={() => setMagicLink(true)}
-                className='w-full inline-flex justify-center py-2 px-4 glassmorphism bg-transparent text-sm font-medium text-white hover:bg-gray-50 hover:text-blue-700'
-            >
-                <GiFairyWand className='w-5 h-5 mr-2' />
-                Continue with Magic Link
-            </Button>
-            <Button
-                onClick={() => passkeySignIn("passkey")}
-                className='w-full inline-flex justify-center py-2 px-4 glassmorphism bg-transparent text-sm font-medium text-white hover:bg-gray-50 hover:text-blue-700'
-            >
-                <Fingerprint className='w-5 h-5 mr-2' />
-                Continue with Passkey
-            </Button>
+            </Button> */}
         </div>
     )
 }

@@ -20,7 +20,7 @@ const Consent = ({ control }: { control: Control<FormValues> }) => {
                     <div className='flex items-center gap-2'>
                         <FormControl>
                             <Checkbox
-                                className='border'
+                                className='border border-white'
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                             />
