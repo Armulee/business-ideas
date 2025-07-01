@@ -28,6 +28,8 @@ const SignUp = () => {
         },
     })
 
+    console.log(process.env.DATABASE_URL)
+
     const onSubmit = async (data: FormValues) => {
         try {
             setIsLoading(true)
