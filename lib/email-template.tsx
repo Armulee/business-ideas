@@ -1,5 +1,3 @@
-import { Sparkle } from "lucide-react"
-
 export function ForgetPasswordEmailTemplate({
     name,
     resetUrl,
@@ -29,6 +27,15 @@ export function ForgetPasswordEmailTemplate({
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
+                <h2
+                    style={{
+                        fontSize: "1.25rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                    }}
+                >
+                    Password Reset Request
+                </h2>
                 <span
                     style={{
                         display: "inline-flex",
@@ -39,7 +46,7 @@ export function ForgetPasswordEmailTemplate({
                         fontWeight: 500,
                         backgroundColor: "rgba(255, 255, 255, 0.1)",
                         backdropFilter: "blur(4px)",
-                        color: "#ffffff",
+                        color: "#3b82f6",
                         marginTop: "0.5rem",
                     }}
                 >
@@ -69,15 +76,6 @@ export function ForgetPasswordEmailTemplate({
                     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
             >
-                <h2
-                    style={{
-                        fontSize: "1.25rem",
-                        fontWeight: 600,
-                        color: "#111827",
-                    }}
-                >
-                    Password Reset Request
-                </h2>
                 <p style={{ marginTop: "1rem" }}>Hi {name || "there"},</p>
                 <p style={{ marginTop: "0.5rem" }}>
                     We received a request to reset the password associated with
@@ -114,7 +112,7 @@ export function ForgetPasswordEmailTemplate({
                         marginTop: "1rem",
                     }}
                 >
-                    This link will expire in 30 minutes for your security.
+                    This link will expire in 24 hours for the security purpose.
                 </p>
             </div>
 
@@ -129,9 +127,7 @@ export function ForgetPasswordEmailTemplate({
                 &copy; {new Date().getFullYear()}{" "}
                 <span
                     style={{
-                        fontSize: "1.5rem",
                         fontWeight: "bold",
-                        color: "#111827",
                     }}
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
@@ -173,6 +169,15 @@ export function VerifyEmailTemplate({
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
+                <h2
+                    style={{
+                        fontSize: "1rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                    }}
+                >
+                    Email Verification
+                </h2>
                 <span
                     style={{
                         display: "inline-flex",
@@ -183,11 +188,24 @@ export function VerifyEmailTemplate({
                         fontWeight: 500,
                         backgroundColor: "rgba(255, 255, 255, 0.1)",
                         backdropFilter: "blur(4px)",
-                        color: "#ffffff",
+                        color: "#3b82f6",
                         marginTop: "0.5rem",
                     }}
                 >
-                    <Sparkle style={{ marginRight: "0.5rem" }} />
+                    <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='24'
+                        height='24'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='2'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        style={{ marginRight: "0.5rem" }}
+                    >
+                        <path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'></path>
+                    </svg>
                     Idea, Validate, Refine
                 </span>
             </div>
@@ -200,15 +218,6 @@ export function VerifyEmailTemplate({
                     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
             >
-                <h2
-                    style={{
-                        fontSize: "1.25rem",
-                        fontWeight: 600,
-                        color: "#111827",
-                    }}
-                >
-                    Email Verification
-                </h2>
                 <p style={{ marginTop: "1rem" }}>Welcome, {name || "there"}!</p>
                 <p style={{ marginTop: "0.5rem" }}>
                     Thank you for signing up with{" "}
@@ -252,7 +261,7 @@ export function VerifyEmailTemplate({
                         marginTop: "1rem",
                     }}
                 >
-                    This link will expire in 30 minutes for your security.
+                    This link will expire in 24 hours for the security purpose.
                 </p>
             </div>
 
@@ -267,9 +276,7 @@ export function VerifyEmailTemplate({
                 &copy; {new Date().getFullYear()}{" "}
                 <span
                     style={{
-                        fontSize: "1.5rem",
                         fontWeight: "bold",
-                        color: "#111827",
                     }}
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub

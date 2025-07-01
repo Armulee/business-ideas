@@ -23,7 +23,6 @@ export async function POST(req: Request) {
                 existingUser.provider !== "credentials" &&
                 existingUser.provider !== "passkey"
             ) {
-                console.log(existingUser.provider)
                 const userProvider = existingUser.provider
                     ? existingUser.provider[0].toUpperCase() +
                       existingUser.provider.slice(1)
@@ -74,53 +73,6 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ data }, { status: 201 })
-
-        // if (provider === "email-verification") {
-
-        // } else {
-        //     // Legacy credentials registration flow
-        //     const hashedPassword = await bcrypt.hash(password, 10)
-
-        //     const newUser = await prisma.user.create({
-        //         data: {
-        //             name,
-        //             email,
-        //             password: hashedPassword,
-        //             provider,
-        //             emailVerified: null, // Not verified yet
-        //             verificationToken: token,
-        //             verificationExpires,
-        //         },
-        //     })
-
-        //     // Create MongoDB profile
-        //     const mongoProfile = await Profile.create({
-        //         name: name || generateUsername() + "-" + generateRandomWord(),
-        //         email,
-        //     })
-        //     await mongoProfile.save()
-
-        //     // Update PostgreSQL user with profileId
-        //     await prisma.user.update({
-        //         where: { id: newUser.id },
-        //         data: { profileId: mongoProfile._id.toString() },
-        //     })
-
-        //     const verifyUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/api/auth/verify-email/${token}`
-        //     // Send verification email
-        //     const { data, error } = await resend.emails.send({
-        //         from: "BlueBizHub Service <no-reply@bluebizhub.com>",
-        //         to: [email],
-        //         subject: "Verify Your Email",
-        //         react: VerifyEmailTemplate({ name, verifyUrl }),
-        //     })
-
-        //     if (error) {
-        //         return NextResponse.json({ error }, { status: 201 })
-        //     }
-
-        //     return NextResponse.json({ data }, { status: 201 })
-        // }
     } catch (err) {
         console.error(err)
         return NextResponse.json(
