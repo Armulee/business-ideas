@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
         // Find user with this email
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { email },
         })
 
         if (!user) {
@@ -39,20 +39,20 @@ export async function POST(request: NextRequest) {
             data: {
                 verificationToken,
                 verificationExpires,
-            }
+            },
         })
 
         // Send verification email
         const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/setup-account/${verificationToken}`
-        
+
         await resend.emails.send({
-            from: "BlueBizHub <no-reply@bluebizhub.com>",
+            from: "BlueBizHub Service <no-reply@bluebizhub.com>",
             to: email,
-            subject: "Complete Your Account Setup - BlueBizHub",
-            react: VerifyEmailTemplate({ 
-                name: user.name, 
-                verifyUrl: verificationUrl 
-            })
+            subject: "Verify your email",
+            react: VerifyEmailTemplate({
+                name: user.name,
+                verifyUrl: verificationUrl,
+            }),
         })
 
         return NextResponse.json({ success: true })

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import axios, { AxiosError } from "axios"
@@ -28,8 +28,6 @@ const SignUp = () => {
         },
     })
 
-    console.log(process.env.DATABASE_URL)
-
     const onSubmit = async (data: FormValues) => {
         try {
             setIsLoading(true)
@@ -41,6 +39,7 @@ const SignUp = () => {
 
             setSubmittedEmail(data.email)
             setStep("sent")
+            setResendCooldown(60)
         } catch (error) {
             const message =
                 error instanceof AxiosError
@@ -53,6 +52,29 @@ const SignUp = () => {
             setIsLoading(false)
         }
     }
+
+    // handle resend logic
+    const [resendCooldown, setResendCooldown] = useState(0)
+    const handleResend = async () => {
+        await axios.post("/api/auth/resend-verification", {
+            email: submittedEmail,
+        })
+        setResendCooldown(60)
+    }
+    useEffect(() => {
+        if (resendCooldown === 0) return
+        const timer = setInterval(() => {
+            setResendCooldown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timer) // cleanup on unmount or cooldown change
+    }, [resendCooldown])
 
     if (step === "sent") {
         return (
@@ -75,10 +97,12 @@ const SignUp = () => {
                     Didn&apos;t receive it?{" "}
                     <button
                         className='underline'
-                        onClick={() => setStep("form")}
-                        disabled={isLoading}
+                        onClick={() => handleResend()}
+                        disabled={isLoading || resendCooldown > 0}
                     >
-                        Resend
+                        {resendCooldown > 0
+                            ? `Resend in ${resendCooldown}s`
+                            : "Resend"}
                     </button>
                 </p>
             </div>

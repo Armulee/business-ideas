@@ -19,26 +19,28 @@ export async function POST(req: Request) {
 
         if (existingUser) {
             if (
-                existingUser.provider === "credentials" ||
-                existingUser.provider === "email"
+                existingUser.provider &&
+                existingUser.provider !== "credentials" &&
+                existingUser.provider !== "passkey"
             ) {
-                return NextResponse.json(
-                    { message: "This email is already registered." },
-                    { status: 409 }
+                console.log(existingUser.provider)
+                const userProvider = existingUser.provider
+                    ? existingUser.provider[0].toUpperCase() +
+                      existingUser.provider.slice(1)
+                    : "OAuth"
+                return new NextResponse(
+                    JSON.stringify({
+                        message: `This email have been registered with us before via ${userProvider}. Please continue by login with the ${userProvider} method.`,
+                    }),
+                    {
+                        status: 409,
+                    }
                 )
             }
 
-            const userProvider = existingUser.provider
-                ? existingUser.provider[0].toUpperCase() +
-                  existingUser.provider.slice(1)
-                : "OAuth"
-            return new NextResponse(
-                JSON.stringify({
-                    message: `This email have been registered with us before via ${userProvider}. Please continue by login with the ${userProvider} method.`,
-                }),
-                {
-                    status: 409,
-                }
+            return NextResponse.json(
+                { message: "This email is already registered." },
+                { status: 409 }
             )
         }
 
