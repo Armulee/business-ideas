@@ -207,14 +207,13 @@ export function VerifyEmailTemplate({
                         color: "#111827",
                     }}
                 >
-                    Password Reset Request
+                    Email Verification
                 </h2>
                 <p style={{ marginTop: "1rem" }}>Welcome, {name || "there"}!</p>
                 <p style={{ marginTop: "0.5rem" }}>
                     Thank you for signing up with{" "}
                     <span
                         style={{
-                            fontSize: "1.5rem",
                             fontWeight: "bold",
                             color: "#111827",
                         }}
