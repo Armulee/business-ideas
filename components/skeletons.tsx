@@ -192,38 +192,39 @@ export function ProfileSkeleton() {
     return (
         <section className='min-h-screen pt-20 pb-32 px-4 max-w-7xl mx-auto'>
             {/* Profile Header Skeleton */}
-            <div className='glassmorphism p-6 mb-6'>
-                <div className='flex flex-col md:flex-row gap-6'>
-                    <Skeleton className='h-32 w-32 rounded-full mx-auto md:mx-0' />
+            <div className='p-6'>
+                <div className='flex flex-col md:flex-row gap-6 mb-4'>
+                    <Skeleton className='h-24 w-24 rounded-full mx-auto md:mx-0' />
                     <div className='flex-1 text-center md:text-left'>
                         <Skeleton className='h-8 w-48 mb-3 mx-auto md:mx-0' />
-                        <Skeleton className='h-4 w-32 mb-4 mx-auto md:mx-0' />
-                        <Skeleton className='h-4 w-full mb-2' />
-                        <Skeleton className='h-4 w-3/4 mb-4 mx-auto md:mx-0' />
-
-                        <div className='flex gap-4 justify-center md:justify-start mb-4'>
-                            <Skeleton className='h-8 w-20' />
-                            <Skeleton className='h-8 w-20' />
-                            <Skeleton className='h-8 w-20' />
-                        </div>
-
-                        <Skeleton className='h-10 w-32 mx-auto md:mx-0' />
+                        <Skeleton className='h-8 w-24 mb-4 mx-auto md:mx-0' />
                     </div>
+                </div>
+                <Skeleton className='h-4 w-full mb-2' />
+                <Skeleton className='h-4 w-3/4 mb-4 mx-auto md:mx-0' />
+                <div className='flex gap-4 justify-center md:justify-start'>
+                    <Skeleton className='h-8 w-20' />
+                    <Skeleton className='h-8 w-20' />
+                    <Skeleton className='h-8 w-20' />
                 </div>
             </div>
 
             {/* Profile Stats Skeleton */}
-            <div className='glassmorphism p-4 mb-6'>
-                <div className='grid grid-cols-3 gap-4'>
-                    <div className='text-center'>
+            <div className='p-4'>
+                <div className='grid grid-cols-4 gap-4 mb-2'>
+                    <div className='text-center glassmorphism p-4'>
                         <Skeleton className='h-6 w-12 mb-1 mx-auto' />
                         <Skeleton className='h-4 w-16 mx-auto' />
                     </div>
-                    <div className='text-center'>
+                    <div className='text-center glassmorphism p-4'>
                         <Skeleton className='h-6 w-12 mb-1 mx-auto' />
                         <Skeleton className='h-4 w-16 mx-auto' />
                     </div>
-                    <div className='text-center'>
+                    <div className='text-center glassmorphism p-4'>
+                        <Skeleton className='h-6 w-12 mb-1 mx-auto' />
+                        <Skeleton className='h-4 w-16 mx-auto' />
+                    </div>
+                    <div className='text-center glassmorphism p-4'>
                         <Skeleton className='h-6 w-12 mb-1 mx-auto' />
                         <Skeleton className='h-4 w-16 mx-auto' />
                     </div>
@@ -231,24 +232,16 @@ export function ProfileSkeleton() {
             </div>
 
             {/* Profile Tabs Skeleton */}
-            <div className='glassmorphism p-4'>
-                <div className='flex gap-2 mb-6'>
-                    <Skeleton className='h-8 w-16' />
-                    <Skeleton className='h-8 w-20' />
-                    <Skeleton className='h-8 w-16' />
+            <div className='p-4'>
+                <div className='w-full flex gap-2 mb-6'>
+                    <Skeleton className='h-8 w-full' />
+                    <Skeleton className='h-8 w-full' />
+                    <Skeleton className='h-8 w-full' />
                 </div>
 
                 <div className='space-y-4'>
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className='glassmorphism p-4'>
-                            <Skeleton className='h-6 w-3/4 mb-3' />
-                            <Skeleton className='h-4 w-full mb-2' />
-                            <Skeleton className='h-4 w-4/5 mb-3' />
-                            <div className='flex gap-2'>
-                                <Skeleton className='h-6 w-12 rounded-full' />
-                                <Skeleton className='h-6 w-16 rounded-full' />
-                            </div>
-                        </div>
+                        <PostCardSkeleton key={i} />
                     ))}
                 </div>
             </div>
