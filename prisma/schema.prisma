@@ -65,15 +65,6 @@ model User {
   @@map("users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verificationtokens")
-}
-
 model Authenticator {
   credentialID         String  @unique @map("credential_id")
   userId               String  @map("user_id")

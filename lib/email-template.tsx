@@ -17,46 +17,27 @@ export function ForgetPasswordEmailTemplate({
                 color: "#1f2937",
             }}
         >
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+            <div style={{ textAlign: "center" }}>
                 <h1
                     style={{
                         fontSize: "1.5rem",
                         fontWeight: "bold",
                         color: "#111827",
+                        marginBottom: "0.5rem",
                     }}
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
-                <span
+                <p
                     style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        padding: "0.25rem 0.75rem",
-                        borderRadius: "9999px",
                         fontSize: "0.675rem",
                         fontWeight: 500,
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        backdropFilter: "blur(4px)",
                         color: "#3b82f6",
-                        marginTop: "0.5rem",
+                        marginBottom: "1rem",
                     }}
                 >
-                    <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        width='24'
-                        height='24'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='2'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        style={{ marginRight: "0.5rem" }}
-                    >
-                        <path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'></path>
-                    </svg>
                     Idea, Validate, Refine
-                </span>
+                </p>
                 <h2
                     style={{
                         fontSize: "1.25rem",
@@ -102,7 +83,7 @@ export function ForgetPasswordEmailTemplate({
                 </div>
 
                 <p>
-                    If you didn’t request this, you can safely ignore this
+                    If you didn&apos;t request this, you can safely ignore this
                     email. Your current password will remain unchanged.
                 </p>
                 <p
@@ -159,46 +140,27 @@ export function VerifyEmailTemplate({
                 color: "#1f2937",
             }}
         >
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+            <div style={{ textAlign: "center" }}>
                 <h1
                     style={{
                         fontSize: "1.5rem",
                         fontWeight: "bold",
                         color: "#111827",
+                        marginBottom: "0.5rem",
                     }}
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
-                <span
+                <p
                     style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        padding: "0.25rem 0.75rem",
-                        borderRadius: "9999px",
                         fontSize: "0.675rem",
                         fontWeight: 500,
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        backdropFilter: "blur(4px)",
                         color: "#3b82f6",
-                        marginTop: "0.5rem",
+                        marginBottom: "1.5rem",
                     }}
                 >
-                    <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        width='24'
-                        height='24'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='2'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        style={{ marginRight: "0.5rem" }}
-                    >
-                        <path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'></path>
-                    </svg>
                     Idea, Validate, Refine
-                </span>
+                </p>
                 <h2
                     style={{
                         fontSize: "1rem",

@@ -97,7 +97,7 @@ export default function SetupAccount({ token }: { token: string }) {
                 email: userEmail,
             })
 
-            router.push("/")
+            // router.push("/")
         } catch (error) {
             console.error("Passkey setup error:", (error as AxiosError).message)
             setError("Failed to set up passkey. Please try again.")

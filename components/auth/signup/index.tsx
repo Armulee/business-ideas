@@ -56,10 +56,20 @@ const SignUp = () => {
     // handle resend logic
     const [resendCooldown, setResendCooldown] = useState(0)
     const handleResend = async () => {
-        await axios.post("/api/auth/resend-verification", {
-            email: submittedEmail,
-        })
-        setResendCooldown(60)
+        if (isLoading || resendCooldown > 0) return // safeguard
+
+        setIsLoading(true)
+        try {
+            await axios.post("/api/auth/resend-verification", {
+                email: submittedEmail,
+            })
+            setResendCooldown(60)
+        } catch (error) {
+            console.error("Resend failed", error)
+            setError(`Resend failed ${(error as AxiosError).message}`)
+        } finally {
+            setIsLoading(false)
+        }
     }
     useEffect(() => {
         if (resendCooldown === 0) return
@@ -96,15 +106,26 @@ const SignUp = () => {
                 <p className='text-sm text-white/50'>
                     Didn&apos;t receive it?{" "}
                     <button
-                        className='underline'
-                        onClick={() => handleResend()}
+                        className={
+                            isLoading || resendCooldown > 0
+                                ? "text-gray-400"
+                                : "text-blue-400 underline"
+                        }
+                        onClick={handleResend}
                         disabled={isLoading || resendCooldown > 0}
                     >
                         {resendCooldown > 0
                             ? `Resend in ${resendCooldown}s`
-                            : "Resend"}
+                            : isLoading
+                              ? "Resending..."
+                              : "Resend"}
                     </button>
                 </p>
+                {error && (
+                    <div className='mt-3 text-center text-sm text-red-600'>
+                        {error}
+                    </div>
+                )}
             </div>
         )
     }

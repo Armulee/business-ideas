@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { Resend } from "resend"
-import crypto from "crypto"
 import { VerifyEmailTemplate } from "@/lib/email-template"
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY)
@@ -30,17 +29,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate new verification token
-        const verificationToken = crypto.randomBytes(32).toString("hex")
-        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-        // Update user with new token
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                verificationToken,
-                verificationExpires,
-            },
-        })
+        const verificationToken = user.verificationToken
 
         // Send verification email
         const verificationUrl = `${process.env.AUTH_URL}/auth/setup-account/${verificationToken}`
