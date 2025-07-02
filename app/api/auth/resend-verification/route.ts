@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         })
 
         // Send verification email
-        const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/setup-account/${verificationToken}`
+        const verificationUrl = `${process.env.AUTH_URL}/auth/setup-account/${verificationToken}`
 
         await resend.emails.send({
             from: "BlueBizHub Service <no-reply@bluebizhub.com>",

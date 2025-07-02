@@ -58,7 +58,7 @@ export async function POST(req: Request) {
         })
 
         // New email-only registration flow
-        const verifyUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth/setup-account?token=${token}`
+        const verifyUrl = `${process.env.AUTH_URL}/auth/setup-account/${token}`
 
         // Send verification email
         const { data, error } = await resend.emails.send({

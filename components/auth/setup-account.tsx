@@ -21,6 +21,7 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -54,6 +55,8 @@ export default function SetupAccount({ token }: { token: string }) {
             confirmPassword: "",
         },
     })
+
+    const { data: session, status } = useSession()
 
     useEffect(() => {
         const verifyToken = async () => {
@@ -90,6 +93,7 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(true)
             setError("")
 
+            console.log(session, status)
             // Register passkey with the existing session
             await passkeySignIn("passkey", { action: "register" })
 
@@ -101,7 +105,7 @@ export default function SetupAccount({ token }: { token: string }) {
 
             router.push("/")
         } catch (error) {
-            console.error("Passkey setup error:", error)
+            console.error("Passkey setup error:", (error as AxiosError).message)
             setError("Failed to set up passkey. Please try again.")
             setIsLoading(false)
         }
@@ -120,7 +124,11 @@ export default function SetupAccount({ token }: { token: string }) {
             })
 
             router.push("/")
-        } catch {
+        } catch (error) {
+            console.error(
+                "Credentials setup error:",
+                (error as AxiosError).message
+            )
             setError("Failed to set up account. Please try again.")
             setIsLoading(false)
         }
