@@ -21,7 +21,6 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -56,8 +55,6 @@ export default function SetupAccount({ token }: { token: string }) {
         },
     })
 
-    const { data: session, status } = useSession()
-
     useEffect(() => {
         const verifyToken = async () => {
             try {
@@ -66,22 +63,20 @@ export default function SetupAccount({ token }: { token: string }) {
                 )
                 const data: VerifyResponse = response.data
 
-                if (data.success && data.user) {
+                if (data.code === "NO_TOKEN" || data.code === "TOKEN_INVALID") {
+                    setVerifyState("error")
+                } else if (data.code === "EXPIRED_TOKEN") {
+                    setVerifyState("expired")
+                } else if (data.code === "TOKEN_VALID" && data.user) {
                     setUserEmail(data.user.email)
                     setVerifyState("success")
-                } else {
-                    setError(data.message || "Verification failed")
-                    setVerifyState("error")
                 }
             } catch (error) {
                 const data = (error as AxiosError).response
                     ?.data as VerifyResponse
-                if (data?.code === "EXPIRED_TOKEN") {
-                    setVerifyState("expired")
-                } else {
-                    setError(data?.message || "Failed to verify token")
-                    setVerifyState("error")
-                }
+
+                setError(data?.message || "Failed to verify token")
+                setVerifyState("error")
             }
         }
 
@@ -93,7 +88,6 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(true)
             setError("")
 
-            console.log(session, status)
             // Register passkey with the existing session
             await passkeySignIn("passkey", { action: "register" })
 

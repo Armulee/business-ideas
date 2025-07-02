@@ -9,35 +9,12 @@ export async function POST(req: Request) {
     try {
         await connectDB()
 
-        const { token, method, email, password } = await req.json()
-
-        if (!token) {
-            return NextResponse.json(
-                { message: "Token required" },
-                { status: 400 }
-            )
-        }
-
-        // Find user by verification token
-        const user = await prisma.user.findFirst({
-            where: {
-                verificationToken: token,
-                verificationExpires: {
-                    gt: new Date(),
-                },
-            },
-        })
-        if (!user) {
-            return NextResponse.json(
-                { message: "Invalid or expired token" },
-                { status: 400 }
-            )
-        }
+        const { method, email, password } = await req.json()
 
         if (method === "passkey") {
             // Complete setup with passkey
             const updatedUser = await prisma.user.update({
-                where: { id: user.id },
+                where: { email },
                 data: {
                     emailVerified: new Date(),
                     verificationToken: null,
@@ -79,7 +56,7 @@ export async function POST(req: Request) {
 
             // Complete setup with credentials
             const updatedUser = await prisma.user.update({
-                where: { id: user.id },
+                where: { email },
                 data: {
                     password: hashedPassword,
                     emailVerified: new Date(),
@@ -92,7 +69,7 @@ export async function POST(req: Request) {
             // Create MongoDB profile
             const mongoProfile = await Profile.create({
                 name: updatedUser.name,
-                email: user.email,
+                email,
             })
             await mongoProfile.save()
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import crypto from "crypto"
-import { cookies } from "next/headers"
+import { signIn } from "@/auth"
 
 export async function GET(
     request: Request,
@@ -43,7 +43,7 @@ export async function GET(
                     message: "Token has expired",
                     email: user.email,
                 },
-                { status: 400 }
+                { status: 200 }
             )
         }
 
@@ -59,18 +59,11 @@ export async function GET(
             },
         })
 
-        // Set the session cookie
-        const cookieStore = await cookies()
-        cookieStore.set("authjs.session-token", sessionToken, {
-            expires: sessionExpires,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        })
+        await signIn("", { redirect: false })
 
         return NextResponse.json({
             success: true,
+            code: "TOKEN_VALID",
             user: {
                 id: user.id,
                 email: user.email,

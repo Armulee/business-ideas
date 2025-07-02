@@ -27,22 +27,13 @@ export function ForgetPasswordEmailTemplate({
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
-                <h2
-                    style={{
-                        fontSize: "1.25rem",
-                        fontWeight: 600,
-                        color: "#111827",
-                    }}
-                >
-                    Password Reset Request
-                </h2>
                 <span
                     style={{
                         display: "inline-flex",
                         alignItems: "center",
                         padding: "0.25rem 0.75rem",
                         borderRadius: "9999px",
-                        fontSize: "0.875rem",
+                        fontSize: "0.675rem",
                         fontWeight: 500,
                         backgroundColor: "rgba(255, 255, 255, 0.1)",
                         backdropFilter: "blur(4px)",
@@ -66,6 +57,15 @@ export function ForgetPasswordEmailTemplate({
                     </svg>
                     Idea, Validate, Refine
                 </span>
+                <h2
+                    style={{
+                        fontSize: "1.25rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                    }}
+                >
+                    Password Reset Request
+                </h2>
             </div>
 
             <div
@@ -169,22 +169,13 @@ export function VerifyEmailTemplate({
                 >
                     <span style={{ color: "#3b82f6" }}>Blue</span>BizHub
                 </h1>
-                <h2
-                    style={{
-                        fontSize: "1rem",
-                        fontWeight: 600,
-                        color: "#111827",
-                    }}
-                >
-                    Email Verification
-                </h2>
                 <span
                     style={{
                         display: "inline-flex",
                         alignItems: "center",
                         padding: "0.25rem 0.75rem",
                         borderRadius: "9999px",
-                        fontSize: "0.875rem",
+                        fontSize: "0.675rem",
                         fontWeight: 500,
                         backgroundColor: "rgba(255, 255, 255, 0.1)",
                         backdropFilter: "blur(4px)",
@@ -208,6 +199,15 @@ export function VerifyEmailTemplate({
                     </svg>
                     Idea, Validate, Refine
                 </span>
+                <h2
+                    style={{
+                        fontSize: "1rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                    }}
+                >
+                    Email Verification
+                </h2>
             </div>
 
             <div
