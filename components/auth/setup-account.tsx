@@ -21,6 +21,7 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -45,7 +46,9 @@ export default function SetupAccount({ token }: { token: string }) {
     const [verifyState, setVerifyState] = useState<
         "loading" | "success" | "error" | "expired"
     >("loading")
-    const [userEmail, setUserEmail] = useState<string>("")
+    const [userData, setUserData] = useState<VerifyResponse["user"] | null>(
+        null
+    )
 
     const form = useForm<SetupFormValues>({
         resolver: zodResolver(setupFormSchema),
@@ -68,7 +71,7 @@ export default function SetupAccount({ token }: { token: string }) {
                 } else if (data.code === "EXPIRED_TOKEN") {
                     setVerifyState("expired")
                 } else if (data.code === "TOKEN_VALID" && data.user) {
-                    setUserEmail(data.user.email)
+                    setUserData(data.user)
                     setVerifyState("success")
                 }
             } catch (error) {
@@ -83,19 +86,22 @@ export default function SetupAccount({ token }: { token: string }) {
         verifyToken()
     }, [token])
 
+    const { update } = useSession()
+
     const handlePasskeySetup = async () => {
         try {
             setIsLoading(true)
             setError("")
 
+            await update({ user: userData })
             // Register passkey with the existing session
             await passkeySignIn("passkey", { action: "register" })
 
             // Complete the setup process by clearing the verification token
-            await axios.post("/api/auth/complete-setup", {
-                method: "passkey",
-                email: userEmail,
-            })
+            // await axios.post("/api/auth/complete-setup", {
+            //     method: "passkey",
+            //     email: userEmail,
+            // })
 
             // router.push("/")
         } catch (error) {
@@ -113,7 +119,7 @@ export default function SetupAccount({ token }: { token: string }) {
             // Complete account setup with credentials
             await axios.post("/api/auth/complete-setup", {
                 method: "credentials",
-                email: userEmail,
+                email: userData?.email,
                 password: data.password,
             })
 
@@ -127,6 +133,10 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(false)
         }
     }
+
+    useEffect(() => {
+        console.log(verifyState)
+    }, [verifyState])
 
     // Show loading state while verifying token
     if (verifyState === "loading") {

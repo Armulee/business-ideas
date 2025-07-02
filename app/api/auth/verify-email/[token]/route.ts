@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import crypto from "crypto"
-import { signIn } from "@/auth"
+// import { serialize } from "cookie"
 
 export async function GET(
     request: Request,
@@ -43,7 +43,7 @@ export async function GET(
                     message: "Token has expired",
                     email: user.email,
                 },
-                { status: 200 }
+                { status: 400 }
             )
         }
 
@@ -59,7 +59,16 @@ export async function GET(
             },
         })
 
-        await signIn("", { redirect: false })
+        // response.headers.set(
+        //     "Set-Cookie",
+        //     serialize("authjs.session-token", sessionToken, {
+        //         httpOnly: true,
+        //         path: "/",
+        //         sameSite: "lax",
+        //         secure: process.env.NODE_ENV === "production",
+        //         expires: sessionExpires,
+        //     })
+        // )
 
         return NextResponse.json({
             success: true,
