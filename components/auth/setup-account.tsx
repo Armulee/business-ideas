@@ -14,14 +14,16 @@ import {
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Fingerprint, Lock, CheckCheckIcon } from "lucide-react"
+import { Lock, CheckCheckIcon, Fingerprint } from "lucide-react"
 import axios, { AxiosError } from "axios"
-import { signIn as passkeySignIn } from "next-auth/webauthn"
+import { signIn } from "next-auth/webauthn"
 import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import PasswordRequirements from "./password-requirements"
+import PasswordStrengthMeter from "./password-strength-meter"
+// import { useSession } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -38,8 +40,9 @@ interface VerifyResponse {
 
 export default function SetupAccount({ token }: { token: string }) {
     const router = useRouter()
-    const [step, setStep] = useState<"choose" | "passkey" | "credentials">(
-        "choose"
+    // const pathname = usePathname()
+    const [step, setStep] = useState<"passkey" | "credentials" | "success">(
+        "passkey"
     )
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
@@ -86,31 +89,20 @@ export default function SetupAccount({ token }: { token: string }) {
         verifyToken()
     }, [token])
 
+    // const { data: session, status } = useSession()
+    // console.log(session, status)
     const handlePasskeySetup = async () => {
-        try {
-            setIsLoading(true)
-            setError("")
+        await signIn("passkey", { action: "register", redirect: false })
 
-            await signIn("credentials", {
-                email: userData?.email,
-                password: token,
-                redirect: false,
-            })
-            // Register passkey with the existing session
-            await passkeySignIn("passkey", { action: "register" })
+        setVerifyState("loading")
+        await axios.patch("/api/auth/complete-setup", {
+            method: "passkey",
+            email: userData?.email,
+            username: userData?.username,
+        })
 
-            // Complete the setup process by clearing the verification token
-            await axios.post("/api/auth/complete-setup", {
-                method: "passkey",
-                email: userData?.email,
-            })
-
-            router.push("/")
-        } catch (error) {
-            console.error("Passkey setup error:", (error as AxiosError).message)
-            setError("Failed to set up passkey. Please try again.")
-            setIsLoading(false)
-        }
+        setCountdown(10)
+        setStep("success")
     }
 
     const handleCredentialsSetup = async (data: SetupFormValues) => {
@@ -119,13 +111,14 @@ export default function SetupAccount({ token }: { token: string }) {
             setError("")
 
             // Complete account setup with credentials
-            await axios.post("/api/auth/complete-setup", {
+            await axios.patch("/api/auth/complete-setup", {
                 method: "credentials",
                 email: userData?.email,
                 password: data.password,
             })
 
-            router.push("/")
+            setCountdown(10)
+            setStep("success")
         } catch (error) {
             console.error(
                 "Credentials setup error:",
@@ -135,6 +128,25 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(false)
         }
     }
+
+    const [countdown, setCountdown] = useState<number>(0)
+
+    useEffect(() => {
+        if (countdown) {
+            const interval = setInterval(() => {
+                setCountdown((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval)
+                        return 0
+                    }
+                    return prev - 1
+                })
+                router.push("/")
+            }, 1000)
+
+            return () => clearInterval(interval)
+        }
+    }, [router, countdown])
 
     // Show loading state while verifying token
     if (verifyState === "loading") {
@@ -200,7 +212,7 @@ export default function SetupAccount({ token }: { token: string }) {
         )
     }
 
-    if (step === "choose") {
+    if (step === "passkey") {
         return (
             <div className='max-w-md mx-auto'>
                 <Logo className='mb-6' />
@@ -248,17 +260,22 @@ export default function SetupAccount({ token }: { token: string }) {
         return (
             <div className='max-w-md mx-auto'>
                 <Logo className='text-center mb-6' />
-                <h2 className='text-2xl font-semibold mb-3 text-white'>
-                    Create Your Account
+                <p className='flex items-center gap-2 px-4 py-2 bg-green-500/50 glassmorphism mb-6 text-sm'>
+                    <CheckCheckIcon />
+                    Email Verified
+                </p>
+
+                <h2 className='text-2xl font-semibold mb-1 text-white'>
+                    Setup your password
                 </h2>
-                <p className='text-white/70 mb-6'>
-                    Set up your username and password to complete your account.
+                <p className='text-white/70 mb-4'>
+                    Set up your password to complete your account.
                 </p>
 
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit(handleCredentialsSetup)}
                         className='space-y-4'
+                        onSubmit={form.handleSubmit(handleCredentialsSetup)}
                     >
                         <FormField
                             control={form.control}
@@ -277,6 +294,9 @@ export default function SetupAccount({ token }: { token: string }) {
                                         />
                                     </FormControl>
                                     <FormMessage />
+                                    <PasswordStrengthMeter
+                                        password={field.value}
+                                    />
                                 </FormItem>
                             )}
                         />
@@ -285,7 +305,7 @@ export default function SetupAccount({ token }: { token: string }) {
                             control={form.control}
                             name='confirmPassword'
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className='mb-4'>
                                     <FormLabel className='text-white'>
                                         Confirm Password
                                     </FormLabel>
@@ -302,19 +322,24 @@ export default function SetupAccount({ token }: { token: string }) {
                             )}
                         />
 
-                        <div className='flex gap-3 pt-4'>
+                        <PasswordRequirements
+                            className='grid grid-cols-2 gap-y-1'
+                            control={form.control}
+                        />
+
+                        <div className='flex justify-center gap-3 pt-4'>
                             <Button
                                 type='button'
-                                variant='outline'
-                                onClick={() => setStep("choose")}
-                                className='flex-1 glassmorphism bg-transparent text-white border border-white/30 hover:bg-white/10'
+                                disabled={isLoading}
+                                onClick={() => setStep("passkey")}
+                                className='w-full glassmorphism bg-transparent hover:bg-blue-600 text-white border border-blue-400'
                             >
                                 Back
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isLoading}
-                                className='flex-1 glassmorphism bg-blue-600/50 hover:bg-blue-600 text-white border border-blue-400'
+                                className='w-full glassmorphism bg-blue-600/50 hover:bg-blue-600 text-white border border-blue-400'
                             >
                                 <Lock className='w-4 h-4 mr-2' />
                                 {isLoading ? "Creating..." : "Create Account"}
@@ -328,6 +353,32 @@ export default function SetupAccount({ token }: { token: string }) {
                         {error}
                     </div>
                 )}
+            </div>
+        )
+    }
+
+    if (step === "success") {
+        return (
+            <div className='max-w-md mx-auto text-center'>
+                <Logo className='mb-6 mx-auto' />
+
+                <div className='p-6 bg-green-600/20 border border-green-400 rounded-md text-white'>
+                    <h2 className='text-2xl font-semibold mb-2'>
+                        Account Setup Complete
+                    </h2>
+                    <p className='text-white/80 mb-4'>
+                        Thank you for your participation. Your account has been
+                        successfully created. You can now start to engaging our
+                        platform.
+                    </p>
+                    <div
+                        onClick={() => router.push("/")}
+                        className='mt-4 text-blue-400 hover:text-blue-700 bg-transparent underline underline-offset-4'
+                    >
+                        Redirect in{" "}
+                        <span className='font-bold'>{countdown}</span> seconds.
+                    </div>
+                </div>
             </div>
         )
     }

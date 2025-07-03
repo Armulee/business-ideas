@@ -71,7 +71,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         )
                     }
 
-                    if (pgUser && pgUser.provider !== "credentials") {
+                    if (
+                        pgUser &&
+                        pgUser.provider &&
+                        pgUser.provider !== "credentials"
+                    ) {
                         // refund rate limit
                         await limiter.reward(ip)
                         const provider = pgUser.provider
@@ -88,32 +92,34 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         )
                     }
 
-                    if (!pgUser.password) {
-                        throw new Error(
-                            JSON.stringify({
-                                code: "CREDENTIALS_INVALID",
-                                message: "No password set for this account.",
-                                remainingAttempts:
-                                    rateLimiterRes.remainingPoints,
-                            })
-                        )
+                    if (
+                        !pgUser.password &&
+                        pgUser.verificationToken === credentials.password
+                    ) {
+                        return {
+                            id: pgUser.id,
+                            username: pgUser.username,
+                            email: pgUser.email,
+                        }
                     }
 
                     // match encrypted password
-                    const isMatch = await bcrypt.compare(
-                        credentials!.password as string,
-                        pgUser.password
-                    )
-                    if (!isMatch) {
-                        throw new Error(
-                            JSON.stringify({
-                                code: "CREDENTIALS_INVALID",
-                                message:
-                                    "Password is not correct. Please try again.",
-                                remainingAttempts:
-                                    rateLimiterRes.remainingPoints,
-                            })
+                    if (pgUser.password) {
+                        const isMatch = await bcrypt.compare(
+                            credentials!.password as string,
+                            pgUser.password
                         )
+                        if (!isMatch) {
+                            throw new Error(
+                                JSON.stringify({
+                                    code: "CREDENTIALS_INVALID",
+                                    message:
+                                        "Password is not correct. Please try again.",
+                                    remainingAttempts:
+                                        rateLimiterRes.remainingPoints,
+                                })
+                            )
+                        }
                     }
 
                     // ensure profile exists in MongoDB
@@ -124,7 +130,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                     if (!profile) {
                         profile = await Profile.create({
                             name:
-                                pgUser.name ||
+                                pgUser.username ||
                                 generateUsername() + "-" + generateRandomWord(),
                             email: pgUser.email,
                         })
@@ -159,7 +165,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }),
     ],
     session: {
-        strategy: "database",
+        strategy: "jwt",
     },
     callbacks: {
         async signIn({ user, account, profile: authProfile }) {

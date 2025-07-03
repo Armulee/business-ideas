@@ -7,10 +7,12 @@ import { CheckCircle, XCircle } from "lucide-react"
 interface PasswordRequirementsProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     control: Control<any>
+    className?: string
 }
 
 export default function PasswordRequirements({
     control,
+    className = "",
 }: PasswordRequirementsProps) {
     // grab both fields
     const password = useWatch({ control, name: "password" }) || ""
@@ -45,7 +47,7 @@ export default function PasswordRequirements({
     ]
 
     return (
-        <ul className='mb-4 space-y-1 text-sm'>
+        <ul className={`${className} mb-4 space-y-1 text-sm`}>
             {rules.map((rule) => (
                 <li key={rule.label} className='flex items-center'>
                     {rule.isValid ? (
