@@ -98,12 +98,12 @@ export default function SetupAccount({ token }: { token: string }) {
             await passkeySignIn("passkey", { action: "register" })
 
             // Complete the setup process by clearing the verification token
-            await axios.post("/api/auth/complete-setup", {
-                method: "passkey",
-                email: userData?.email,
-            })
+            // await axios.post("/api/auth/complete-setup", {
+            //     method: "passkey",
+            //     email: userData?.email,
+            // })
 
-            router.push("/")
+            // router.push("/")
         } catch (error) {
             console.error("Passkey setup error:", (error as AxiosError).message)
             setError("Failed to set up passkey. Please try again.")
