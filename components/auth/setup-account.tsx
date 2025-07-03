@@ -332,14 +332,14 @@ export default function SetupAccount({ token }: { token: string }) {
                                 type='button'
                                 disabled={isLoading}
                                 onClick={() => setStep("passkey")}
-                                className='w-full glassmorphism bg-transparent hover:bg-blue-600 text-white border border-blue-400'
+                                className='w-fit glassmorphism bg-transparent hover:bg-blue-600 text-white border border-blue-400'
                             >
                                 Back
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isLoading}
-                                className='w-full glassmorphism bg-blue-600/50 hover:bg-blue-600 text-white border border-blue-400'
+                                className='w-fit glassmorphism bg-blue-600/50 hover:bg-blue-600 text-white border border-blue-400'
                             >
                                 <Lock className='w-4 h-4 mr-2' />
                                 {isLoading ? "Creating..." : "Create Account"}

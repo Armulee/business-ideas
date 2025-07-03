@@ -51,7 +51,16 @@ export async function GET(
         // Create session for valid token
         // const sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
         // const sessionToken = crypto.randomUUID()
+        // const sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+        // const sessionToken = crypto.randomUUID()
 
+        // await prisma.session.create({
+        //     data: {
+        //         sessionToken,
+        //         userId: user.id,
+        //         expires: sessionExpires,
+        //     },
+        // })
         // await prisma.session.create({
         //     data: {
         //         sessionToken,
