@@ -21,7 +21,7 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { serverSignIn } from "@/lib/auth-server-actions"
 
 interface VerifyResponse {
     success: boolean
@@ -86,14 +86,16 @@ export default function SetupAccount({ token }: { token: string }) {
         verifyToken()
     }, [token])
 
-    const { update } = useSession()
-
     const handlePasskeySetup = async () => {
         try {
             setIsLoading(true)
             setError("")
 
-            await update({ user: userData })
+            await serverSignIn("credentials", {
+                email: userData?.email,
+                password: token,
+                redirect: false,
+            })
             // Register passkey with the existing session
             await passkeySignIn("passkey", { action: "register" })
 
