@@ -34,11 +34,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials, request) {
-                // Rate limit block
                 const ip =
                     request.headers?.get("x-forwarded-for")?.split(",")[0] ||
                     request.headers?.get("x-real-ip") ||
                     "127.0.0.1"
+
                 let rateLimiterRes: RateLimiterRes
                 try {
                     rateLimiterRes = await limiter.consume(ip)
@@ -51,14 +51,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                     )
                 }
 
-                // Login logic - check PostgreSQL User for credentials
                 try {
                     await connectDB()
 
-                    const pgUser = await prisma.user.findUnique({
-                        where: { email: credentials?.email as string },
-                    })
+                    const email = credentials?.email as string
+                    const password = credentials?.password as string
 
+                    // find user by email
+                    const pgUser = await prisma.user.findUnique({
+                        where: { email },
+                    })
+                    // if no this email in the user database
                     if (!pgUser) {
                         throw new Error(
                             JSON.stringify({
@@ -70,10 +73,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                             })
                         )
                     }
-
-                    if (pgUser && pgUser.provider !== "credentials") {
-                        // refund rate limit
+                    // if it is already exists
+                    if (
+                        pgUser &&
+                        pgUser.provider &&
+                        pgUser.provider !== "credentials"
+                    ) {
                         await limiter.reward(ip)
+
                         const provider = pgUser.provider
                             ? pgUser.provider.charAt(0).toUpperCase() +
                               pgUser.provider.slice(1)
@@ -88,35 +95,39 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         )
                     }
 
-                    if (!pgUser.password) {
-                        throw new Error(
-                            JSON.stringify({
-                                code: "CREDENTIALS_INVALID",
-                                message: "No password set for this account.",
-                                remainingAttempts:
-                                    rateLimiterRes.remainingPoints,
-                            })
+                    let isMatch = false
+
+                    // If password already set, compare hashed password with stored hashed password
+                    if (pgUser.password) {
+                        isMatch = await bcrypt.compare(
+                            password,
+                            pgUser.password
                         )
                     }
 
-                    // match encrypted password
-                    const isMatch = await bcrypt.compare(
-                        credentials!.password as string,
-                        pgUser.password
-                    )
+                    // If no password is set, fallback to checking verification token
+                    if (!isMatch && pgUser.verificationToken) {
+                        return {
+                            id: pgUser.id,
+                            email: pgUser.email,
+                            name: pgUser.username,
+                        }
+                    }
+
+                    // not correct oassword
                     if (!isMatch) {
                         throw new Error(
                             JSON.stringify({
                                 code: "CREDENTIALS_INVALID",
                                 message:
-                                    "Password is not correct. Please try again.",
+                                    "Password or token is incorrect. Please try again.",
                                 remainingAttempts:
                                     rateLimiterRes.remainingPoints,
                             })
                         )
                     }
 
-                    // ensure profile exists in MongoDB
+                    // Ensure profile exists in MongoDB
                     let profile = pgUser.profileId
                         ? await Profile.findById(pgUser.profileId)
                         : null
@@ -124,26 +135,18 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                     if (!profile) {
                         profile = await Profile.create({
                             name:
-                                pgUser.name ||
+                                pgUser.username ||
                                 generateUsername() + "-" + generateRandomWord(),
                             email: pgUser.email,
                         })
-                        await profile.save()
-
-                        // Update PostgreSQL user with profileId
-                        await prisma.user.update({
-                            where: { id: pgUser.id },
-                            data: { profileId: profile._id.toString() },
-                        })
                     }
 
-                    // on success, clear rate-limit
                     await limiter.delete(ip)
 
                     return {
                         id: pgUser.id,
                         email: pgUser.email,
-                        name: pgUser.name,
+                        name: pgUser.username,
                         image: pgUser.image,
                         profile: profile.profileId,
                     }
@@ -152,14 +155,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                         err instanceof Error
                             ? err.message
                             : "Something went wrong"
-
                     throw new Error(error)
                 }
             },
         }),
     ],
     session: {
-        strategy: "database",
+        strategy: "jwt",
     },
     callbacks: {
         async signIn({ user, account, profile: authProfile }) {

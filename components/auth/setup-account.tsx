@@ -21,7 +21,7 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { useSession } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -38,6 +38,7 @@ interface VerifyResponse {
 
 export default function SetupAccount({ token }: { token: string }) {
     const router = useRouter()
+    // const pathname = usePathname()
     const [step, setStep] = useState<"choose" | "passkey" | "credentials">(
         "choose"
     )
@@ -49,6 +50,9 @@ export default function SetupAccount({ token }: { token: string }) {
     const [userData, setUserData] = useState<VerifyResponse["user"] | null>(
         null
     )
+
+    const { data: session, status } = useSession()
+    console.log(session, status)
 
     const form = useForm<SetupFormValues>({
         resolver: zodResolver(setupFormSchema),
@@ -87,30 +91,15 @@ export default function SetupAccount({ token }: { token: string }) {
     }, [token])
 
     const handlePasskeySetup = async () => {
-        try {
-            setIsLoading(true)
-            setError("")
+        await passkeySignIn("passkey", { action: "register", redirect: false })
 
-            await signIn("credentials", {
-                email: userData?.email,
-                password: token,
-                redirect: false,
-            })
-            // Register passkey with the existing session
-            await passkeySignIn("passkey", { action: "register" })
+        await axios.patch("/api/auth/complete-setup", {
+            method: "passkey",
+            email: userData?.email,
+            username: userData?.username,
+        })
 
-            // Complete the setup process by clearing the verification token
-            await axios.post("/api/auth/complete-setup", {
-                method: "passkey",
-                email: userData?.email,
-            })
-
-            router.push("/")
-        } catch (error) {
-            console.error("Passkey setup error:", (error as AxiosError).message)
-            setError("Failed to set up passkey. Please try again.")
-            setIsLoading(false)
-        }
+        router.replace("/")
     }
 
     const handleCredentialsSetup = async (data: SetupFormValues) => {
@@ -119,13 +108,13 @@ export default function SetupAccount({ token }: { token: string }) {
             setError("")
 
             // Complete account setup with credentials
-            await axios.post("/api/auth/complete-setup", {
+            await axios.patch("/api/auth/complete-setup", {
                 method: "credentials",
                 email: userData?.email,
                 password: data.password,
             })
 
-            router.push("/")
+            router.replace("/")
         } catch (error) {
             console.error(
                 "Credentials setup error:",

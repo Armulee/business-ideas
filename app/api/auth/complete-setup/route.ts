@@ -5,35 +5,30 @@ import bcrypt from "bcrypt"
 import { NextResponse } from "next/server"
 import { signIn } from "@/auth"
 
-export async function POST(req: Request) {
+export async function PATCH(req: Request) {
     try {
         await connectDB()
 
-        const { method, email, password } = await req.json()
+        const { method, username, email, password } = await req.json()
 
         if (method === "passkey") {
+            // Create MongoDB profile
+            const mongoProfile = await Profile.create({
+                name: username,
+                email,
+            })
+            await mongoProfile.save()
+
             // Complete setup with passkey
-            const updatedUser = await prisma.user.update({
+            await prisma.user.update({
                 where: { email },
                 data: {
                     emailVerified: new Date(),
                     verificationToken: null,
                     verificationExpires: null,
                     provider: "passkey",
+                    profileId: mongoProfile._id.toString(),
                 },
-            })
-
-            // Create MongoDB profile
-            const mongoProfile = await Profile.create({
-                name: updatedUser.name,
-                email: email,
-            })
-            await mongoProfile.save()
-
-            // Update PostgreSQL user with profileId
-            await prisma.user.update({
-                where: { id: updatedUser.id },
-                data: { profileId: mongoProfile._id.toString() },
             })
 
             return NextResponse.json(
@@ -51,11 +46,18 @@ export async function POST(req: Request) {
                 )
             }
 
+            // Create MongoDB profile
+            const mongoProfile = await Profile.create({
+                name: username,
+                email,
+            })
+            await mongoProfile.save()
+
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10)
 
             // Complete setup with credentials
-            const updatedUser = await prisma.user.update({
+            await prisma.user.update({
                 where: { email },
                 data: {
                     password: hashedPassword,
@@ -63,20 +65,8 @@ export async function POST(req: Request) {
                     verificationToken: null,
                     verificationExpires: null,
                     provider: "credentials",
+                    profileId: mongoProfile._id.toString(),
                 },
-            })
-
-            // Create MongoDB profile
-            const mongoProfile = await Profile.create({
-                name: updatedUser.name,
-                email,
-            })
-            await mongoProfile.save()
-
-            // Update PostgreSQL user with profileId
-            await prisma.user.update({
-                where: { id: updatedUser.id },
-                data: { profileId: mongoProfile._id.toString() },
             })
 
             await signIn("credentials", { email, password })
