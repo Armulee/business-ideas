@@ -21,7 +21,7 @@ import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
-import { serverSignIn } from "@/lib/auth-server-actions"
+import { signIn } from "next-auth/react"
 
 interface VerifyResponse {
     success: boolean
@@ -91,7 +91,7 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(true)
             setError("")
 
-            await serverSignIn("credentials", {
+            await signIn("credentials", {
                 email: userData?.email,
                 password: token,
                 redirect: false,
