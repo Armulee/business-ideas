@@ -23,6 +23,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
     callbacks: {
         signIn: signInCallback,
+        jwt: async ({ token, user }) => {
+            // Persist the OAuth user ID to the token right after signin
+            if (user) {
+                token.sub = user.id
+            }
+            return token
+        },
         session,
     },
 })

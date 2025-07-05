@@ -18,6 +18,7 @@ import { LoadingLink } from "../loading-link"
 
 export default function UserConfig() {
     const { data: session } = useSession()
+    console.log(session)
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className='cursor-pointer' asChild>

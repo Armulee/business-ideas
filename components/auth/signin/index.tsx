@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Form } from "../../ui/form"
@@ -57,7 +57,7 @@ const SignIn = () => {
     })
 
     // checking the email auth method, whether passkey or password
-    const checkEmailAuthMethod = async (email: string) => {
+    const checkEmailAuthMethod = useCallback(async (email: string) => {
         setCheckingEmail(true)
         try {
             const response = await axios.get(
@@ -78,7 +78,7 @@ const SignIn = () => {
             setCheckedEmail(email) // 👈 Save this as the verified email
 
             if (detectedMethod === "passkey") {
-                const res = await passkeySignIn()
+                const res = await passkeySignIn(callbackUrl)
                 // handling passkey error
                 if (res?.error === "Abort") {
                     setSuggestion(
@@ -102,7 +102,7 @@ const SignIn = () => {
         } finally {
             setCheckingEmail(false)
         }
-    }
+    }, [callbackUrl])
 
     // press sign in will check the email use passkey or password
     const onSubmit = async (data: FormValues) => {
@@ -118,7 +118,7 @@ const SignIn = () => {
             }
 
             if (authMethod === "passkey") {
-                await passkeySignIn()
+                await passkeySignIn(callbackUrl)
             }
 
             // Handle password authentication here (passkey is auto-handled)
@@ -187,7 +187,7 @@ const SignIn = () => {
         })
 
         return () => subscription.unsubscribe()
-    }, [checkedEmail, authMethod, form])
+    }, [checkedEmail, authMethod, form, checkEmailAuthMethod])
 
     // sent magic link
     const [sendingMagicLink, setSendingMagicLink] = useState<boolean>(false)

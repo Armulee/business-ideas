@@ -12,6 +12,7 @@ export interface IProfile extends Document<Schema.Types.ObjectId> {
     user: Schema.Types.ObjectId
     profileId: number
     name?: string
+    email?: string
     avatar?: string
     bio?: string
     location?: string
@@ -43,6 +44,7 @@ const ProfileSchema = new Schema<IProfile>({
     profileId: { type: Number, unique: true },
     avatar: { type: String },
     name: { type: String },
+    email: { type: String },
     bio: { type: String },
     location: { type: String },
     website: { type: String },

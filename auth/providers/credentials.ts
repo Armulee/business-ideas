@@ -68,7 +68,7 @@ export default function Credentials() {
             ) {
                 return {
                     id: pgUser.id,
-                    username: pgUser.username,
+                    name: pgUser.name,
                     email: pgUser.email,
                 }
             }
@@ -92,7 +92,7 @@ export default function Credentials() {
             if (!profile) {
                 profile = await Profile.create({
                     name:
-                        pgUser.username ||
+                        pgUser.name ||
                         generateUsername() + "-" + generateRandomWord(),
                     email: pgUser.email,
                 })

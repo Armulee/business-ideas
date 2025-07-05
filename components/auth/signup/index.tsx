@@ -38,7 +38,7 @@ const SignUp = () => {
                 email,
             })
 
-            setSubmittedEmail(email)
+            setSubmittedEmail(data.email)
             setStep("sent")
             setResendCooldown(60)
         } catch (error) {

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
         await prisma.user.create({
             data: {
-                username,
+                name: username,
                 email,
                 emailVerified: null, // Not verified yet
                 verificationToken: token,
