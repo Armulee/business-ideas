@@ -10,22 +10,25 @@ export async function GET(
 ) {
     try {
         const { id } = await params
-        
+
         await connectDB()
-        
+
         // First get the profile to get its ObjectId
         const profile = await Profile.findOne({ profileId: Number(id) })
         if (!profile) {
-            return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+            return NextResponse.json(
+                { error: "Profile not found" },
+                { status: 404 }
+            )
         }
-        
+
         // Check if current user is the profile owner
         const session = await auth()
         const isOwner = session?.user?.profile === Number(id)
-        
+
         // Get profile activities (conditional private data for owner)
         const data = await getProfileActivities(profile._id, isOwner)
-        
+
         return NextResponse.json(data)
     } catch (error) {
         console.error("Error fetching profile activities:", error)
