@@ -29,15 +29,16 @@ const SignUp = () => {
     })
 
     const onSubmit = async (data: FormValues) => {
+        const email = data.email.trim().toLowerCase()
         try {
             setIsLoading(true)
 
             await axios.post("/api/auth/verify-email", {
                 username: data.username,
-                email: data.email,
+                email,
             })
 
-            setSubmittedEmail(data.email)
+            setSubmittedEmail(email)
             setStep("sent")
             setResendCooldown(60)
         } catch (error) {
@@ -56,12 +57,13 @@ const SignUp = () => {
     // handle resend logic
     const [resendCooldown, setResendCooldown] = useState(0)
     const handleResend = async () => {
+        const email = submittedEmail.trim().toLowerCase()
         if (isLoading || resendCooldown > 0) return // safeguard
 
         setIsLoading(true)
         try {
             await axios.post("/api/auth/resend-verification", {
-                email: submittedEmail,
+                email,
             })
             setResendCooldown(60)
         } catch (error) {

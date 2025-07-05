@@ -121,12 +121,17 @@ export default function NotificationSheet() {
     const pathname = usePathname()
     const { data: session, status } = useSession()
     const shouldFetch = status === "authenticated"
+
     const { data: notifications, mutate } = useSWR<NotificationItem[]>(
         shouldFetch
             ? `/api/activities/notifications/${session!.user.id}`
             : null,
         fetcher,
-        { revalidateOnFocus: false, revalidateIfStale: false }
+        {
+            revalidateOnFocus: false,
+            revalidateIfStale: false,
+            shouldRetryOnError: false,
+        }
     )
     const [unreadCount, setUnreadCount] = useState<number>(0)
     useEffect(() => {

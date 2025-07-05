@@ -33,7 +33,7 @@ export default function PostCard({
     const { data: session } = useSession()
 
     // deect permission
-    const permission = session?.user.profile === post?.author.profileId
+    const permission = session?.user.profile === post?.author.profileId || false
 
     if (!post) {
         return <PostCardSkeleton />

@@ -15,11 +15,12 @@ export async function GET(req: NextRequest) {
 
         const user = await prisma.user.findUnique({
             where: { email },
-            include: {
+            select: {
+                provider: true,
+                password: true,
                 authenticators: true,
             },
         })
-
         if (!user) {
             return NextResponse.json({
                 exists: false,
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
 
         // Check if user has passkey (authenticators)
         const hasPasskey = user.authenticators && user.authenticators.length > 0
-        
+
         // Determine auth method based on provider and available methods
         let authMethod = null
         if (hasPasskey) {

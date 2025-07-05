@@ -106,7 +106,7 @@ const ResponsivePostSkeletons = ({ className }: { className?: string }) => {
     }, [])
 
     return (
-        <div className={`${className} flex gap-5`}>
+        <div className={`${className} w-[90%] mx-auto flex gap-5`}>
             {/* Always show 1 skeleton */}
             <PostCardSkeleton className='flex-1' />
             {/* Show 2nd skeleton on md+ (768px) */}

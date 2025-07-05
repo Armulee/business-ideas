@@ -17,18 +17,23 @@ import Loading from "@/components/loading"
 import ProviderDialog from "./provider-dialog"
 import { Logo } from "@/components/logo"
 import { useSearchParams } from "next/navigation"
-import { serverSignIn } from "@/lib/auth-server-actions"
-import { signIn as passkeySignIn } from "next-auth/webauthn"
-import { GiFairyWand } from "react-icons/gi"
-import { CheckCircleIcon, ChevronLeft } from "lucide-react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { passkeySignIn } from "@/lib/passkey-signin"
+import MagicLinkButton from "./magic-link-button"
+import MagicLinkMessage from "./magic-link-message"
+import clearParams from "@/lib/clear-params"
 
 const SignIn = () => {
+    const router = useRouter()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
+    const errorParms = searchParams.get("error")
 
     const [pageLoading, setPageLoading] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [suggestion, setSuggestion] = useState("")
     const [consentDialog, setConsentDialog] = useState(false)
     const [authentication, setAuthentication] = useState<{
         provider: string
@@ -40,6 +45,7 @@ const SignIn = () => {
     const [authMethod, setAuthMethod] = useState<string | null>(null)
     const [showPasswordField, setShowPasswordField] = useState(false)
     const [checkingEmail, setCheckingEmail] = useState(false)
+    const [checkedEmail, setCheckedEmail] = useState<string | null>(null)
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -69,10 +75,20 @@ const SignIn = () => {
             }
 
             setAuthMethod(detectedMethod)
+            setCheckedEmail(email) // 👈 Save this as the verified email
 
             if (detectedMethod === "passkey") {
-                // Auto sign in with passkey
-                await passkeySignIn("passkey")
+                const res = await passkeySignIn()
+                // handling passkey error
+                if (res?.error === "Abort") {
+                    setSuggestion(
+                        "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
+                    )
+                } else if (res?.error === "Error") {
+                    setError(
+                        "There was a problem signing in with your passkey. Please try again."
+                    )
+                }
             } else if (detectedMethod === "password") {
                 setShowPasswordField(true)
             } else {
@@ -90,18 +106,22 @@ const SignIn = () => {
 
     // press sign in will check the email use passkey or password
     const onSubmit = async (data: FormValues) => {
-        setIsLoading(true)
+        const email = data.email.trim().toLowerCase()
         setError("")
 
         try {
             // First check what auth method this email uses
             if (!authMethod) {
-                await checkEmailAuthMethod(data.email)
+                await checkEmailAuthMethod(email)
                 setIsLoading(false)
                 return
             }
 
-            // Only handle password authentication here (passkey is auto-handled)
+            if (authMethod === "passkey") {
+                await passkeySignIn()
+            }
+
+            // Handle password authentication here (passkey is auto-handled)
             if (authMethod === "password") {
                 if (!data.password) {
                     setError("Please enter your password")
@@ -109,11 +129,28 @@ const SignIn = () => {
                     return
                 }
 
-                await serverSignIn("credentials", {
-                    email: data.email,
+                const res = await signIn("credentials", {
+                    email: email,
                     password: data.password,
-                    callbackUrl,
+                    redirect: false,
                 })
+
+                if (res.error) {
+                    try {
+                        setError(
+                            `The password is invalid. You have ${res.code} attempt${parseInt(res.code!) > 1 ? "s" : ""} remaining.`
+                        )
+                    } catch {
+                        // fallback if it's not JSON
+                        if (res.error === "CredentialsSignin") {
+                            setError("The password is invalid.")
+                        } else {
+                            setError(res.error)
+                        }
+                    }
+                } else {
+                    router.replace(callbackUrl)
+                }
             }
         } catch (error: unknown) {
             const message =
@@ -122,13 +159,42 @@ const SignIn = () => {
             setIsLoading(false)
         }
     }
+    // If user edit the email address after checked the auth method, then remove the auth method to remove the password field
+    useEffect(() => {
+        const subscription = form.watch((values) => {
+            setError("")
+            setSuggestion("")
+            const currentEmail = values.email?.trim().toLowerCase()
+
+            if (
+                checkedEmail &&
+                currentEmail !== checkedEmail.toLowerCase() &&
+                authMethod !== null
+            ) {
+                // email changed after check — reset auth method
+                setAuthMethod(null)
+                setShowPasswordField(false)
+            }
+
+            if (
+                !authMethod &&
+                checkedEmail &&
+                currentEmail === checkedEmail.toLowerCase()
+            ) {
+                // same email restored — restore auth method
+                checkEmailAuthMethod(currentEmail)
+            }
+        })
+
+        return () => subscription.unsubscribe()
+    }, [checkedEmail, authMethod, form])
 
     // sent magic link
     const [sendingMagicLink, setSendingMagicLink] = useState<boolean>(false)
     const [sentMagicLink, setSentMagicLink] = useState<boolean>(false)
     const [resendCooldown, setResendCooldown] = useState<number>(0)
     const handleMagicLinkClick = async () => {
-        const email = form.getValues("email")
+        const email = form.getValues("email").toLowerCase()
         if (!email) {
             setError("Please enter your email first")
             return
@@ -140,17 +206,17 @@ const SignIn = () => {
         }
 
         setSendingMagicLink(true)
-        await serverSignIn("resend", { callbackUrl, email, redirect: false })
+        await signIn("resend", { callbackUrl, email, redirect: false })
         setSendingMagicLink(false)
-        setSentMagicLink(true)
 
         // Set cooldown to 60 seconds
         setResendCooldown(60)
+        // Show sent magic link page
+        setSentMagicLink(true)
     }
     // resend button cooldown timer
     useEffect(() => {
         if (resendCooldown <= 0) return
-
         const interval = setInterval(() => {
             setResendCooldown((prev) => {
                 if (prev <= 1) {
@@ -168,6 +234,16 @@ const SignIn = () => {
     useEffect(() => {
         setPageLoading(false)
     }, [])
+
+    // handle error from params of OAuth
+    useEffect(() => {
+        if (errorParms) {
+            setError(
+                "This email is already associated with another sign-in method. Please use your original method to sign in."
+            )
+            clearParams("error")
+        }
+    }, [errorParms])
 
     return (
         <>
@@ -234,17 +310,10 @@ const SignIn = () => {
                             {(!sendingMagicLink ||
                                 checkingEmail ||
                                 isLoading) && (
-                                <div className='w-full flex justify-center mx-auto'>
-                                    <Button
-                                        type='button'
-                                        onClick={handleMagicLinkClick}
-                                        disabled={sendingMagicLink}
-                                        className='mt-3 w-fit inline-flex justify-center py-2 px-6 glassmorphism bg-transparent text-sm font-medium text-white hover:bg-indigo-700 hover:text-white border border-white/30 duration-300'
-                                    >
-                                        <GiFairyWand className='w-5 h-5 mr-2' />
-                                        Send Magic Link
-                                    </Button>
-                                </div>
+                                <MagicLinkButton
+                                    handleMagicLinkClick={handleMagicLinkClick}
+                                    sendingMagicLink={sendingMagicLink}
+                                />
                             )}
 
                             <div className='text-center mt-4'>
@@ -280,49 +349,20 @@ const SignIn = () => {
                                     {error}
                                 </div>
                             )}
+
+                            {suggestion && (
+                                <div className='mt-4 text-center text-sm text-white bg-yellow-700 px-4 py-2 glassmorphism'>
+                                    {suggestion}
+                                </div>
+                            )}
                         </>
                     ) : (
-                        <>
-                            <div className='flex items-center gap-1 hover:-translate-x-1 duration-300 mb-5'>
-                                <ChevronLeft />
-                                <span
-                                    onClick={() => setSentMagicLink(false)}
-                                    className='text-white cursor-pointer'
-                                >
-                                    Go back
-                                </span>
-                            </div>
-                            <div className='flex items-center bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md mb-6'>
-                                <CheckCircleIcon className='w-5 h-5 mr-2 animate-pulse' />
-                                <p className='font-medium'>
-                                    Magic link sent! Check your email.
-                                </p>
-                            </div>
-                            <p className='text-left text-sm'>
-                                Not receive any email?{" "}
-                                <span
-                                    className={
-                                        resendCooldown > 0 || sendingMagicLink
-                                            ? "pointer-events-none text-gray-400 cursor-not-allowed"
-                                            : "text-blue-400 hover:underline hover:underline-offset-2 cursor-pointer "
-                                    }
-                                    onClick={() => {
-                                        if (
-                                            resendCooldown === 0 &&
-                                            !sendingMagicLink
-                                        ) {
-                                            handleMagicLinkClick()
-                                        }
-                                    }}
-                                >
-                                    {resendCooldown > 0
-                                        ? `Resend in ${resendCooldown}s`
-                                        : sendingMagicLink
-                                          ? "Resending..."
-                                          : "Resend"}
-                                </span>
-                            </p>
-                        </>
+                        <MagicLinkMessage
+                            setSentMagicLink={setSentMagicLink}
+                            resendCooldown={resendCooldown}
+                            sendingMagicLink={sendingMagicLink}
+                            handleMagicLinkClick={handleMagicLinkClick}
+                        />
                     )}
                 </div>
             ) : (

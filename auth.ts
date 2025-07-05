@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Google from "next-auth/providers/google"
 import Twitter from "next-auth/providers/twitter"
 import Resend from "next-auth/providers/resend"
@@ -21,6 +21,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
     experimental: {
         enableWebAuthn: true,
+    },
+    pages: {
+        signIn: "/auth/signin",
     },
     providers: [
         Google,
@@ -52,114 +55,83 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 }
 
                 // Login logic - check PostgreSQL User for credentials
-                try {
-                    await connectDB()
+                await connectDB()
 
-                    const pgUser = await prisma.user.findUnique({
-                        where: { email: credentials?.email as string },
-                    })
+                const pgUser = await prisma.user.findUnique({
+                    where: { email: credentials?.email as string },
+                })
 
-                    if (!pgUser) {
-                        throw new Error(
-                            JSON.stringify({
-                                code: "CREDENTIALS_INVALID",
-                                message:
-                                    "Email is not found. Please try again.",
-                                remainingAttempts:
-                                    rateLimiterRes.remainingPoints,
-                            })
-                        )
-                    }
+                if (!pgUser) {
+                    throw new RateLimitError(rateLimiterRes.remainingPoints)
+                }
 
-                    if (
-                        pgUser &&
-                        pgUser.provider &&
-                        pgUser.provider !== "credentials"
-                    ) {
-                        // refund rate limit
-                        await limiter.reward(ip)
-                        const provider = pgUser.provider
-                            ? pgUser.provider.charAt(0).toUpperCase() +
-                              pgUser.provider.slice(1)
-                            : "OAuth"
+                if (
+                    pgUser &&
+                    pgUser.provider &&
+                    pgUser.provider !== "credentials"
+                ) {
+                    // refund rate limit
+                    await limiter.reward(ip)
+                    const provider = pgUser.provider
+                        ? pgUser.provider.charAt(0).toUpperCase() +
+                          pgUser.provider.slice(1)
+                        : "OAuth"
 
-                        throw new Error(
-                            JSON.stringify({
-                                code: "PROVIDER_ALREADY_ASSOCIATED",
-                                provider,
-                                message: `This email is associated with ${provider}. Please log in using ${provider}.`,
-                            })
-                        )
-                    }
+                    throw new ProviderExistingError(provider)
+                }
 
-                    if (
-                        !pgUser.password &&
-                        pgUser.verificationToken === credentials.password
-                    ) {
-                        return {
-                            id: pgUser.id,
-                            username: pgUser.username,
-                            email: pgUser.email,
-                        }
-                    }
-
-                    // match encrypted password
-                    if (pgUser.password) {
-                        const isMatch = await bcrypt.compare(
-                            credentials!.password as string,
-                            pgUser.password
-                        )
-                        if (!isMatch) {
-                            throw new Error(
-                                JSON.stringify({
-                                    code: "CREDENTIALS_INVALID",
-                                    message:
-                                        "Password is not correct. Please try again.",
-                                    remainingAttempts:
-                                        rateLimiterRes.remainingPoints,
-                                })
-                            )
-                        }
-                    }
-
-                    // ensure profile exists in MongoDB
-                    let profile = pgUser.profileId
-                        ? await Profile.findById(pgUser.profileId)
-                        : null
-
-                    if (!profile) {
-                        profile = await Profile.create({
-                            name:
-                                pgUser.username ||
-                                generateUsername() + "-" + generateRandomWord(),
-                            email: pgUser.email,
-                        })
-                        await profile.save()
-
-                        // Update PostgreSQL user with profileId
-                        await prisma.user.update({
-                            where: { id: pgUser.id },
-                            data: { profileId: profile._id.toString() },
-                        })
-                    }
-
-                    // on success, clear rate-limit
-                    await limiter.delete(ip)
-
+                if (
+                    !pgUser.password &&
+                    pgUser.verificationToken === credentials.password
+                ) {
                     return {
                         id: pgUser.id,
+                        username: pgUser.username,
                         email: pgUser.email,
-                        name: pgUser.name,
-                        image: pgUser.image,
-                        profile: profile.profileId,
                     }
-                } catch (err) {
-                    const error =
-                        err instanceof Error
-                            ? err.message
-                            : "Something went wrong"
+                }
 
-                    throw new Error(error)
+                // match encrypted password
+                if (pgUser.password) {
+                    const isMatch = await bcrypt.compare(
+                        credentials!.password as string,
+                        pgUser.password
+                    )
+                    if (!isMatch) {
+                        throw new RateLimitError(rateLimiterRes.remainingPoints)
+                    }
+                }
+
+                // ensure profile exists in MongoDB
+                let profile = pgUser.profileId
+                    ? await Profile.findById(pgUser.profileId)
+                    : null
+
+                if (!profile) {
+                    profile = await Profile.create({
+                        name:
+                            pgUser.username ||
+                            generateUsername() + "-" + generateRandomWord(),
+                        email: pgUser.email,
+                    })
+                    await profile.save()
+
+                    // Update PostgreSQL user with profileId
+                    await prisma.user.update({
+                        where: { id: pgUser.id },
+                        data: { profileId: profile._id.toString() },
+                    })
+                }
+
+                // on success, clear rate-limit
+                await limiter.delete(ip)
+
+                return {
+                    id: pgUser.id,
+                    email: pgUser.email,
+                    name: pgUser.name,
+                    image: pgUser.image,
+                    profile: profile.profileId,
                 }
             },
         }),
@@ -259,3 +231,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
     },
 })
+
+// throw rate limit error (rate limit points will be code property)
+class RateLimitError extends CredentialsSignin {
+    remainingAttempts: number
+
+    constructor(remainingAttempts: number) {
+        super()
+        this.remainingAttempts = remainingAttempts
+        this.code = this.remainingAttempts.toString()
+    }
+}
+
+// provider error
+class ProviderExistingError extends CredentialsSignin {
+    provider: string
+
+    constructor(provider: string) {
+        super()
+        this.provider = provider
+        this.code = this.provider
+    }
+}

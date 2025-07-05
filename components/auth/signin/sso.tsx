@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form"
 import { FaGoogle } from "react-icons/fa"
 // import { FaXTwitter } from "react-icons/fa6"
 import { FormValues } from "./types"
-import { serverSignIn } from "@/lib/auth-server-actions"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "next/navigation"
 import { useLoading } from "@/components/loading-provider"
@@ -37,7 +37,7 @@ const SSO = ({
 
         if (formattedProvider === "twitter" || formattedProvider === "google") {
             setIsLoading(true)
-            await serverSignIn(formattedProvider, { callbackUrl })
+            await signIn(formattedProvider, { callbackUrl, redirect: false })
         }
     }
     return (
