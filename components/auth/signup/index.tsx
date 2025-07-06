@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import axios, { AxiosError } from "axios"
@@ -12,8 +12,12 @@ import Email from "./email"
 import Consent from "./consent"
 import { Logo } from "@/components/logo"
 import Name from "./name"
+import SentVerification from "../sent-verification"
+import { useSearchParams } from "next/navigation"
 
 const SignUp = () => {
+    const searchParams = useSearchParams()
+    const callbackUrl = searchParams.get("callbackUrl") || "/"
     const [step, setStep] = useState<"form" | "sent">("form")
     const [submittedEmail, setSubmittedEmail] = useState<string>("")
     const [isLoading, setIsLoading] = useState(false)
@@ -36,11 +40,11 @@ const SignUp = () => {
             await axios.post("/api/auth/verify-email", {
                 username: data.username,
                 email,
+                callbackUrl,
             })
 
             setSubmittedEmail(data.email)
             setStep("sent")
-            setResendCooldown(60)
         } catch (error) {
             const message =
                 error instanceof AxiosError
@@ -54,82 +58,8 @@ const SignUp = () => {
         }
     }
 
-    // handle resend logic
-    const [resendCooldown, setResendCooldown] = useState(0)
-    const handleResend = async () => {
-        const email = submittedEmail.trim().toLowerCase()
-        if (isLoading || resendCooldown > 0) return // safeguard
-
-        setIsLoading(true)
-        try {
-            await axios.post("/api/auth/resend-verification", {
-                email,
-            })
-            setResendCooldown(60)
-        } catch (error) {
-            console.error("Resend failed", error)
-            setError(`Resend failed ${(error as AxiosError).message}`)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-    useEffect(() => {
-        if (resendCooldown === 0) return
-        const timer = setInterval(() => {
-            setResendCooldown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer)
-                    return 0
-                }
-                return prev - 1
-            })
-        }, 1000)
-
-        return () => clearInterval(timer) // cleanup on unmount or cooldown change
-    }, [resendCooldown])
-
     if (step === "sent") {
-        return (
-            <div className='mt-8 max-w-md mx-auto text-center'>
-                <Logo className='mb-4' />
-                <h2 className='text-2xl font-semibold mb-3'>Almost there!</h2>
-                <p className='text-white/70'>
-                    Thank you for registering. We&apos;ve sent a verification
-                    link to
-                </p>
-                <div className='glassmorphism px-4 py-2 my-4 w-fit mx-auto font-bold'>
-                    {submittedEmail}
-                </div>
-                <p className='text-sm text-white/70 mb-6'>
-                    Click the link in that email to verify your account. After
-                    verification, you&apos;ll be able to set up your passkey or
-                    create a username and password.
-                </p>
-                <p className='text-sm text-white/50'>
-                    Didn&apos;t receive it?{" "}
-                    <button
-                        className={
-                            isLoading || resendCooldown > 0
-                                ? "text-gray-400"
-                                : "text-blue-400 underline"
-                        }
-                        onClick={handleResend}
-                        disabled={isLoading || resendCooldown > 0}
-                    >
-                        {resendCooldown > 0
-                            ? `Resend in ${resendCooldown}s`
-                            : isLoading
-                              ? "Resending..."
-                              : "Resend"}
-                    </button>
-                </p>
-                {error && (
-                    <div className='mt-3 text-center text-sm text-red-600'>
-                        {error}
-                    </div>
-                )}
-            </div>
-        )
+        return <SentVerification email={submittedEmail} />
     }
 
     return (
@@ -161,17 +91,19 @@ const SignUp = () => {
                     </form>
                 </Form>
 
-                <div className='mt-8 text-center'>
-                    <p className='text-sm text-gray-200'>
-                        Already have an account?{" "}
-                        <Link
-                            href='signin'
-                            className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
-                        >
-                            Sign in
-                        </Link>
-                    </p>
-                </div>
+                {!isLoading && (
+                    <div className='mt-8 text-center'>
+                        <p className='text-sm text-gray-200'>
+                            Already have an account?{" "}
+                            <Link
+                                href={`/auth/signin${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+                                className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
+                            >
+                                Sign in
+                            </Link>
+                        </p>
+                    </div>
+                )}
 
                 {error && (
                     <div className='mt-3 text-center text-sm text-red-600'>

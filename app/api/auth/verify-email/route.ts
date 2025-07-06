@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     try {
         await connectDB()
 
-        const { email, username } = await req.json()
+        const { email, username, callbackUrl } = await req.json()
 
         // Check if user already exists in PostgreSQL
         const existingUser = await prisma.user.findUnique({
@@ -54,6 +54,7 @@ export async function POST(req: Request) {
                 emailVerified: null, // Not verified yet
                 verificationToken: token,
                 verificationExpires,
+                callbackUrl,
             },
         })
 

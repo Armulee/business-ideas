@@ -38,8 +38,8 @@ const UsersListContent = ({
             })
         } else {
             await axios.patch("/api/profile/follow", {
-                userId: session?.user.id,
-                targetId: _id.toString(),
+                followerId: session?.user.id,
+                followeeId: _id.toString(),
             })
 
             window.location.reload()

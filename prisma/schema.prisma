@@ -24,6 +24,7 @@ model User {
   provider            String? // Authentication provider
   verificationToken   String?   @map("verification_token")
   verificationExpires DateTime? @map("verification_expires")
+  callbackUrl         String?   @map("callback_url")
   resetToken          String?   @map("reset_token")
   resetTokenExpires   DateTime? @map("reset_token_expires")
 

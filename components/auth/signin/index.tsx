@@ -23,6 +23,7 @@ import { passkeySignIn } from "@/lib/passkey-signin"
 import MagicLinkButton from "./magic-link-button"
 import MagicLinkMessage from "./magic-link-message"
 import clearParams from "@/lib/clear-params"
+import SentVerification from "../sent-verification"
 
 const SignIn = () => {
     const router = useRouter()
@@ -46,6 +47,7 @@ const SignIn = () => {
     const [showPasswordField, setShowPasswordField] = useState(false)
     const [checkingEmail, setCheckingEmail] = useState(false)
     const [checkedEmail, setCheckedEmail] = useState<string | null>(null)
+    const [showVerification, setShowVerification] = useState(false)
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -57,52 +59,68 @@ const SignIn = () => {
     })
 
     // checking the email auth method, whether passkey or password
-    const checkEmailAuthMethod = useCallback(async (email: string) => {
-        setCheckingEmail(true)
-        try {
-            const response = await axios.get(
-                `/api/auth/check-auth-method?email=${encodeURIComponent(email)}`
-            )
-            const { exists, authMethod: detectedMethod } = response.data
+    const checkEmailAuthMethod = useCallback(
+        async (email: string) => {
+            setCheckingEmail(true)
+            try {
+                const response = await axios.get(
+                    `/api/auth/check-auth-method?email=${encodeURIComponent(email)}`
+                )
+                const {
+                    exists,
+                    authMethod: detectedMethod,
+                    emailVerified,
+                } = response.data
 
-            if (!exists) {
+                if (!exists) {
+                    setAuthMethod(null)
+                    setShowPasswordField(false)
+                    setError(
+                        "No account found with this email. Please sign up first."
+                    )
+                    return
+                }
+
+                if (!emailVerified) {
+                    setShowVerification(true)
+                    setAuthMethod(null)
+                    setShowPasswordField(false)
+                    return
+                }
+
+                setAuthMethod(detectedMethod)
+                setCheckedEmail(email) // 👈 Save this as the verified email
+
+                if (detectedMethod === "passkey") {
+                    const res = await passkeySignIn(callbackUrl)
+                    // handling passkey error
+                    if (res?.error === "Abort") {
+                        setSuggestion(
+                            "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
+                        )
+                    } else if (res?.error === "Error") {
+                        setError(
+                            "There was a problem signing in with your passkey. Please try again."
+                        )
+                    }
+                } else if (detectedMethod === "password") {
+                    setShowPasswordField(true)
+                } else {
+                    setShowPasswordField(false)
+                }
+            } catch (error) {
+                console.error("Error checking auth method:", error)
                 setAuthMethod(null)
                 setShowPasswordField(false)
                 setError(
-                    "No account found with this email. Please sign up first."
+                    "Error checking authentication method. Please try again."
                 )
-                return
+            } finally {
+                setCheckingEmail(false)
             }
-
-            setAuthMethod(detectedMethod)
-            setCheckedEmail(email) // 👈 Save this as the verified email
-
-            if (detectedMethod === "passkey") {
-                const res = await passkeySignIn(callbackUrl)
-                // handling passkey error
-                if (res?.error === "Abort") {
-                    setSuggestion(
-                        "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
-                    )
-                } else if (res?.error === "Error") {
-                    setError(
-                        "There was a problem signing in with your passkey. Please try again."
-                    )
-                }
-            } else if (detectedMethod === "password") {
-                setShowPasswordField(true)
-            } else {
-                setShowPasswordField(false)
-            }
-        } catch (error) {
-            console.error("Error checking auth method:", error)
-            setAuthMethod(null)
-            setShowPasswordField(false)
-            setError("Error checking authentication method. Please try again.")
-        } finally {
-            setCheckingEmail(false)
-        }
-    }, [callbackUrl])
+        },
+        [callbackUrl]
+    )
 
     // press sign in will check the email use passkey or password
     const onSubmit = async (data: FormValues) => {
@@ -174,6 +192,7 @@ const SignIn = () => {
                 // email changed after check — reset auth method
                 setAuthMethod(null)
                 setShowPasswordField(false)
+                setShowVerification(false)
             }
 
             if (
@@ -249,9 +268,14 @@ const SignIn = () => {
         <>
             {!pageLoading ? (
                 <div className='max-w-sm mx-auto'>
-                    <Logo className='text-center' />
-                    {!sentMagicLink ? (
+                    {showVerification ? (
+                        <SentVerification
+                            email={form.getValues("email")}
+                            noInitialCooldown={true}
+                        />
+                    ) : !sentMagicLink ? (
                         <>
+                            <Logo className='text-center' />
                             <h2 className='mt-2 text-center text-3xl font-extrabold text-white'>
                                 Welcome Back
                             </h2>
@@ -320,7 +344,7 @@ const SignIn = () => {
                                 <p className='text-sm text-gray-200'>
                                     Don&apos;t have an account?{" "}
                                     <Link
-                                        href='signup'
+                                        href={`/auth/signup${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
                                         className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
                                     >
                                         Create your account

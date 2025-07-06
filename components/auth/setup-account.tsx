@@ -32,6 +32,7 @@ interface VerifyResponse {
         email: string
         name: string
         username: string
+        callbackUrl?: string
     }
     code?: string
     message?: string
@@ -94,7 +95,7 @@ export default function SetupAccount({ token }: { token: string }) {
     const handlePasskeySetup = async () => {
         await signIn("passkey", { action: "register", redirect: false })
 
-        setVerifyState("loading")
+        setIsLoading(true)
         await axios.patch("/api/auth/complete-setup", {
             method: "passkey",
             email: userData?.email,
@@ -103,6 +104,7 @@ export default function SetupAccount({ token }: { token: string }) {
 
         setCountdown(10)
         setStep("success")
+        setIsLoading(false)
     }
 
     const handleCredentialsSetup = async (data: SetupFormValues) => {
@@ -126,27 +128,29 @@ export default function SetupAccount({ token }: { token: string }) {
             )
             setError("Failed to set up account. Please try again.")
             setIsLoading(false)
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const [countdown, setCountdown] = useState<number>(0)
 
     useEffect(() => {
-        if (countdown) {
+        if (countdown > 0) {
             const interval = setInterval(() => {
                 setCountdown((prev) => {
                     if (prev <= 1) {
                         clearInterval(interval)
+                        router.push(userData?.callbackUrl || "/")
                         return 0
                     }
                     return prev - 1
                 })
-                router.push("/")
             }, 1000)
 
             return () => clearInterval(interval)
         }
-    }, [router, countdown])
+    }, [router, countdown, userData?.callbackUrl])
 
     // Show loading state while verifying token
     if (verifyState === "loading") {
@@ -216,7 +220,7 @@ export default function SetupAccount({ token }: { token: string }) {
         return (
             <div className='max-w-md mx-auto'>
                 <Logo className='mb-6' />
-                <p className='flex items-center gap-2 px-4 py-2 bg-green-500/50 glassmorphism mb-6 text-sm'>
+                <p className='flex items-center gap-2 px-4 py-2 w-fit bg-green-500/50 glassmorphism mb-6 text-sm'>
                     <CheckCheckIcon />
                     Email Verified
                 </p>
@@ -372,7 +376,7 @@ export default function SetupAccount({ token }: { token: string }) {
                         platform.
                     </p>
                     <div
-                        onClick={() => router.push("/")}
+                        onClick={() => router.push(userData?.callbackUrl || "/")}
                         className='mt-4 text-blue-400 hover:text-blue-700 bg-transparent underline underline-offset-4'
                     >
                         Redirect in{" "}

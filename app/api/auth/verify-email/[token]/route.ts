@@ -23,6 +23,13 @@ export async function GET(
 
         const user = await prisma.user.findFirst({
             where: { verificationToken: token },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                callbackUrl: true,
+                verificationExpires: true,
+            },
         })
         if (!user) {
             return NextResponse.json(
@@ -93,6 +100,7 @@ export async function GET(
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                callbackUrl: user.callbackUrl,
             },
         })
     } catch (error) {

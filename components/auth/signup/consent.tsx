@@ -29,6 +29,7 @@ const Consent = ({ control }: { control: Control<FormValues> }) => {
                             I agree to the{" "}
                             <Link
                                 href='/terms'
+                                target='_blank'
                                 className='text-white hover:text-blue-200 underline'
                             >
                                 User agreement
@@ -36,6 +37,7 @@ const Consent = ({ control }: { control: Control<FormValues> }) => {
                             and{" "}
                             <Link
                                 href='/privacy'
+                                target='_blank'
                                 className='text-white hover:text-blue-200 underline'
                             >
                                 Privacy Policy

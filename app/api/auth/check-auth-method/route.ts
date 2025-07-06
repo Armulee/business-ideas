@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
                 provider: true,
                 password: true,
                 authenticators: true,
+                emailVerified: true,
             },
         })
         if (!user) {
@@ -51,6 +52,7 @@ export async function GET(req: NextRequest) {
             provider: user.provider,
             hasPasskey,
             hasPassword: !!user.password,
+            emailVerified: !!user.emailVerified,
         })
     } catch (error) {
         console.error("Check auth method error:", error)

@@ -49,8 +49,8 @@ export default function ProfileWidget() {
             })
         } else {
             await axios.patch("/api/profile/follow", {
-                userId: session?.user.id,
-                targetId: profile?._id.toString(),
+                followerId: session?.user.id,
+                followeeId: profile?._id.toString(),
             })
 
             window.location.reload()
