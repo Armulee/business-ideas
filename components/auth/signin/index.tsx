@@ -344,7 +344,7 @@ const SignIn = () => {
                                 <p className='text-sm text-gray-200'>
                                     Don&apos;t have an account?{" "}
                                     <Link
-                                        href={`/auth/signup${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+                                        href={`/auth/signup${callbackUrl ? `?callbackUrl=${callbackUrl}` : "/"}`}
                                         className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
                                     >
                                         Create your account

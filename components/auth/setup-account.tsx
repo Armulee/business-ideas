@@ -96,7 +96,7 @@ export default function SetupAccount({ token }: { token: string }) {
         await signIn("passkey", { action: "register", redirect: false })
 
         setIsLoading(true)
-        await axios.patch("/api/auth/complete-setup", {
+        await axios.post("/api/auth/complete-setup", {
             method: "passkey",
             email: userData?.email,
             username: userData?.username,
@@ -113,13 +113,13 @@ export default function SetupAccount({ token }: { token: string }) {
             setError("")
 
             // Complete account setup with credentials
-            await axios.patch("/api/auth/complete-setup", {
+            await axios.post("/api/auth/complete-setup", {
                 method: "credentials",
                 email: userData?.email,
+                username: userData?.username,
                 password: data.password,
             })
 
-            setCountdown(10)
             setStep("success")
         } catch (error) {
             console.error(
@@ -133,15 +133,14 @@ export default function SetupAccount({ token }: { token: string }) {
         }
     }
 
-    const [countdown, setCountdown] = useState<number>(0)
+    const [countdown, setCountdown] = useState<number>(10)
 
     useEffect(() => {
-        if (countdown > 0) {
+        if (countdown > 0 && step === "success") {
             const interval = setInterval(() => {
                 setCountdown((prev) => {
                     if (prev <= 1) {
                         clearInterval(interval)
-                        router.push(userData?.callbackUrl || "/")
                         return 0
                     }
                     return prev - 1
@@ -150,7 +149,13 @@ export default function SetupAccount({ token }: { token: string }) {
 
             return () => clearInterval(interval)
         }
-    }, [router, countdown, userData?.callbackUrl])
+    }, [countdown, step])
+    // Redirect when countdown hits 0
+    useEffect(() => {
+        if (countdown === 0 && step === "success") {
+            router.push(userData?.callbackUrl || "/")
+        }
+    }, [countdown, router, step, userData?.callbackUrl])
 
     // Show loading state while verifying token
     if (verifyState === "loading") {
@@ -376,8 +381,10 @@ export default function SetupAccount({ token }: { token: string }) {
                         platform.
                     </p>
                     <div
-                        onClick={() => router.push(userData?.callbackUrl || "/")}
-                        className='mt-4 text-blue-400 hover:text-blue-700 bg-transparent underline underline-offset-4'
+                        onClick={() =>
+                            router.push(userData?.callbackUrl || "/")
+                        }
+                        className='w-fit mt-4 text-blue-300 hover:text-blue-400 bg-transparent underline underline-offset-4'
                     >
                         Redirect in{" "}
                         <span className='font-bold'>{countdown}</span> seconds.

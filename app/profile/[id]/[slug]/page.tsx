@@ -17,6 +17,8 @@ export default async function ProfilePage({
             data.profile.name?.toLowerCase() ?? ""
         )
 
+        console.log(data)
+
         // If the slug is outdated, Next.js should handle redirection
         if (data.profile && slug !== encodedName) {
             return <Profile correctSlug={`/profile/${id}/${encodedName}`} />

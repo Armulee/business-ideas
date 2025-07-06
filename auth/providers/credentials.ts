@@ -79,6 +79,7 @@ export default function Credentials() {
                     credentials!.password as string,
                     pgUser.password
                 )
+                console.log(isMatch)
                 if (!isMatch) {
                     throw new RateLimiterError(rateLimiterRes.remainingPoints)
                 }

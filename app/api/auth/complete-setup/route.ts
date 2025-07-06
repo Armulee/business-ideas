@@ -4,7 +4,7 @@ import Profile from "@/database/Profile"
 import bcrypt from "bcrypt"
 import { NextResponse } from "next/server"
 
-export async function PATCH(req: Request) {
+export async function POST(req: Request) {
     try {
         await connectDB()
 
