@@ -9,6 +9,8 @@ export async function POST(req: Request) {
         await connectDB()
 
         const { method, username, email, password } = await req.json()
+        
+        console.log("Complete setup - received data:", { method, username, email, password: password ? "[REDACTED]" : undefined })
 
         if (method === "passkey") {
             // Create MongoDB profile

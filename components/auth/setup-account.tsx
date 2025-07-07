@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Lock, CheckCheckIcon, Fingerprint } from "lucide-react"
 import axios, { AxiosError } from "axios"
-import { signIn } from "next-auth/webauthn"
+import { signIn } from "@/lib/passkey-signin"
 import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
@@ -93,13 +93,14 @@ export default function SetupAccount({ token }: { token: string }) {
     // const { data: session, status } = useSession()
     // console.log(session, status)
     const handlePasskeySetup = async () => {
+        setIsLoading(true)
+        console.log("Passkey setup - userData:", userData)
         await signIn("passkey", { action: "register", redirect: false })
 
-        setIsLoading(true)
         await axios.post("/api/auth/complete-setup", {
             method: "passkey",
             email: userData?.email,
-            username: userData?.username,
+            username: userData?.name,
         })
 
         setCountdown(10)
@@ -112,11 +113,12 @@ export default function SetupAccount({ token }: { token: string }) {
             setIsLoading(true)
             setError("")
 
+            console.log("Credentials setup - userData:", userData)
             // Complete account setup with credentials
             await axios.post("/api/auth/complete-setup", {
                 method: "credentials",
                 email: userData?.email,
-                username: userData?.username,
+                username: userData?.name,
                 password: data.password,
             })
 

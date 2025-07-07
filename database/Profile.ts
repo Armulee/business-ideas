@@ -11,8 +11,8 @@ interface SocialMedia {
 export interface IProfile extends Document<Schema.Types.ObjectId> {
     user: Schema.Types.ObjectId
     profileId: number
-    name?: string
-    email?: string
+    name: string
+    email: string
     avatar?: string
     bio?: string
     location?: string
@@ -29,6 +29,7 @@ export interface IProfile extends Document<Schema.Types.ObjectId> {
     upvoteCount: number
     downvoteCount: number
     badges?: string[]
+    hasSeenWelcome: boolean
     createdAt: Date
     updatedAt: Date
 }
@@ -43,8 +44,8 @@ const ProfileSchema = new Schema<IProfile>({
     user: { type: Schema.Types.ObjectId, required: false }, // Legacy field, now using PostgreSQL User
     profileId: { type: Number, unique: true },
     avatar: { type: String },
-    name: { type: String },
-    email: { type: String },
+    name: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
     bio: { type: String },
     location: { type: String },
     website: { type: String },
@@ -70,6 +71,7 @@ const ProfileSchema = new Schema<IProfile>({
     repostCount: { type: Number, default: 0 },
     bookmarkCount: { type: Number, default: 0 },
     badges: { type: [String] },
+    hasSeenWelcome: { type: Boolean, default: false },
     viewCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
