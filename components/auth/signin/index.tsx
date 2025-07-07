@@ -19,7 +19,7 @@ import { Logo } from "@/components/logo"
 import { useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { passkeySignIn } from "@/lib/passkey-signin"
+import { signIn as passkeySignIn } from "@/lib/passkey-signin"
 import MagicLinkButton from "./magic-link-button"
 import MagicLinkMessage from "./magic-link-message"
 import clearParams from "@/lib/clear-params"
@@ -92,16 +92,25 @@ const SignIn = () => {
                 setCheckedEmail(email) // 👈 Save this as the verified email
 
                 if (detectedMethod === "passkey") {
-                    const res = await passkeySignIn(callbackUrl)
+                    const res = await passkeySignIn("passkey", { 
+                        callbackUrl,
+                        redirect: false 
+                    })
                     // handling passkey error
                     if (res?.error === "Abort") {
                         setSuggestion(
                             "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
                         )
+                        setCheckingEmail(false)
                     } else if (res?.error === "Error") {
                         setError(
                             "There was a problem signing in with your passkey. Please try again."
                         )
+                        setCheckingEmail(false)
+                    } else if (!res?.error) {
+                        // Success case - redirect to callback URL
+                        router.replace(callbackUrl)
+                        setCheckingEmail(false)
                     }
                 } else if (detectedMethod === "password") {
                     setShowPasswordField(true)
@@ -119,7 +128,7 @@ const SignIn = () => {
                 setCheckingEmail(false)
             }
         },
-        [callbackUrl]
+        [callbackUrl, router]
     )
 
     // press sign in will check the email use passkey or password
@@ -136,7 +145,28 @@ const SignIn = () => {
             }
 
             if (authMethod === "passkey") {
-                await passkeySignIn(callbackUrl)
+                const res = await passkeySignIn("passkey", { 
+                    callbackUrl,
+                    redirect: false 
+                })
+                // handling passkey error
+                if (res?.error === "Abort") {
+                    setSuggestion(
+                        "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
+                    )
+                    setIsLoading(false)
+                    return
+                } else if (res?.error === "Error") {
+                    setError(
+                        "There was a problem signing in with your passkey. Please try again."
+                    )
+                    setIsLoading(false)
+                    return
+                } else if (!res?.error) {
+                    // Success case - redirect to callback URL
+                    router.replace(callbackUrl)
+                    return
+                }
             }
 
             // Handle password authentication here (passkey is auto-handled)
