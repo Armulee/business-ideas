@@ -15,11 +15,10 @@ import {
     FormControl,
     FormMessage,
 } from "../ui/form"
-import { Input } from "../ui/input"
+import { PasswordInput } from "../ui/password-input"
 import { Button } from "../ui/button"
 import { Logo } from "../logo"
 import Loading from "../loading"
-import { Eye, EyeOff } from "lucide-react"
 import PasswordRequirements from "./password-requirements"
 import PasswordStrengthMeter from "./password-strength-meter"
 
@@ -51,9 +50,6 @@ export default function ResetPassword({ token }: { token: string }) {
         "loading" | "invalid" | "expired" | "form" | "success" | "error"
     >("loading")
     const [info, setInfo] = useState<string>("")
-    const [showPassword, setShowPassword] = useState<boolean>(false)
-    const [showConfirmPassword, setShowConfirmPassword] =
-        useState<boolean>(false)
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: { password: "", confirmPassword: "" },
@@ -168,7 +164,7 @@ export default function ResetPassword({ token }: { token: string }) {
                             {/* Password Strength Meter */}
                             <PasswordStrengthMeter password={password} />
                             {/* Password */}
-                            <div className='relative mb-4'>
+                            <div className='mb-4'>
                                 <FormField
                                     control={form.control}
                                     name='password'
@@ -178,13 +174,8 @@ export default function ResetPassword({ token }: { token: string }) {
                                                 New Password
                                             </FormLabel>
                                             <FormControl>
-                                                <Input
+                                                <PasswordInput
                                                     {...field}
-                                                    type={
-                                                        showPassword
-                                                            ? "text"
-                                                            : "password"
-                                                    }
                                                     className='input'
                                                     placeholder='Enter new password'
                                                 />
@@ -193,23 +184,9 @@ export default function ResetPassword({ token }: { token: string }) {
                                         </FormItem>
                                     )}
                                 />
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        setShowPassword((prev) => !prev)
-                                    }
-                                    className='absolute inset-y-0 right-0 flex items-center pr-3 z-10'
-                                    tabIndex={-1}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className='h-5 w-5 text-gray-400' />
-                                    ) : (
-                                        <Eye className='h-5 w-5 text-gray-400' />
-                                    )}
-                                </button>
                             </div>
                             {/* Confirm Password */}
-                            <div className='relative mb-4'>
+                            <div className='mb-4'>
                                 <FormField
                                     control={form.control}
                                     name='confirmPassword'
@@ -219,13 +196,8 @@ export default function ResetPassword({ token }: { token: string }) {
                                                 Confirm Password
                                             </FormLabel>
                                             <FormControl>
-                                                <Input
+                                                <PasswordInput
                                                     {...field}
-                                                    type={
-                                                        showConfirmPassword
-                                                            ? "text"
-                                                            : "password"
-                                                    }
                                                     className='input'
                                                     placeholder='Confirm new password'
                                                 />
@@ -234,20 +206,6 @@ export default function ResetPassword({ token }: { token: string }) {
                                         </FormItem>
                                     )}
                                 />
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        setShowConfirmPassword((prev) => !prev)
-                                    }
-                                    className='absolute inset-y-0 right-0 flex items-center pr-3 z-10'
-                                    tabIndex={-1}
-                                >
-                                    {showConfirmPassword ? (
-                                        <EyeOff className='h-5 w-5 text-gray-400' />
-                                    ) : (
-                                        <Eye className='h-5 w-5 text-gray-400' />
-                                    )}
-                                </button>
                             </div>
 
                             <PasswordRequirements control={form.control} />

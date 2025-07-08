@@ -10,6 +10,7 @@ import About from "./about"
 import WhyJoinUs from "./why-join-us"
 import HowItWorks from "./how-it-works"
 import CTA from "./cta"
+import WelcomeDialog from "../welcome-dialog"
 // import Loading from "../loading"
 
 const Home = () => {
@@ -76,6 +77,7 @@ const Home = () => {
             {/* ) : (
                 <Loading />
             )} */}
+            <WelcomeDialog />
         </>
     )
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import {
     Form,
     FormControl,
@@ -93,19 +93,36 @@ export default function SetupAccount({ token }: { token: string }) {
     // const { data: session, status } = useSession()
     // console.log(session, status)
     const handlePasskeySetup = async () => {
-        setIsLoading(true)
-        console.log("Passkey setup - userData:", userData)
-        await signIn("passkey", { action: "register", redirect: false })
+        try {
+            setIsLoading(true)
+            setError("")
+            console.log("Passkey setup - userData:", userData)
+            
+            const result = await signIn("passkey", { action: "register", redirect: false })
+            
+            if (result?.error) {
+                if (result.error === "Abort") {
+                    setError("Passkey setup was cancelled. Please try again.")
+                } else {
+                    setError("Failed to set up passkey. Please try again.")
+                }
+                return
+            }
 
-        await axios.post("/api/auth/complete-setup", {
-            method: "passkey",
-            email: userData?.email,
-            username: userData?.name,
-        })
+            await axios.post("/api/auth/complete-setup", {
+                method: "passkey",
+                email: userData?.email,
+                username: userData?.name,
+            })
 
-        setCountdown(10)
-        setStep("success")
-        setIsLoading(false)
+            setCountdown(10)
+            setStep("success")
+        } catch (error) {
+            console.error("Passkey setup error:", error)
+            setError("Failed to set up passkey. Please try again.")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const handleCredentialsSetup = async (data: SetupFormValues) => {
@@ -297,9 +314,8 @@ export default function SetupAccount({ token }: { token: string }) {
                                         Password
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <PasswordInput
                                             {...field}
-                                            type='password'
                                             placeholder='Enter your password'
                                             className='input glassmorphism bg-white/10 border-white/30 text-white placeholder:text-white/50'
                                         />
@@ -321,9 +337,8 @@ export default function SetupAccount({ token }: { token: string }) {
                                         Confirm Password
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <PasswordInput
                                             {...field}
-                                            type='password'
                                             placeholder='Confirm your password'
                                             className='input glassmorphism bg-white/10 border-white/30 text-white placeholder:text-white/50'
                                         />
@@ -386,7 +401,7 @@ export default function SetupAccount({ token }: { token: string }) {
                         onClick={() =>
                             router.push(userData?.callbackUrl || "/")
                         }
-                        className='w-fit mt-4 text-blue-300 hover:text-blue-400 bg-transparent underline underline-offset-4'
+                        className='w-fit mt-4 mx-auto text-blue-300 hover:text-blue-400 bg-transparent underline underline-offset-4 cursor-pointer'
                     >
                         Redirect in{" "}
                         <span className='font-bold'>{countdown}</span> seconds.

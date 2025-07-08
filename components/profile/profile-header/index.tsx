@@ -48,7 +48,7 @@ export default function ProfileHeader() {
             <div className='flex'>
                 <Avatar className='mb-4 mr-4 h-24 w-24 md:h-20 md:w-20'>
                     <AvatarImage src={profile.avatar} alt={profile.name} />
-                    <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback className='text-3xl font-bold'>{profile.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
 
                 <div className='flex flex-col justify-center items-start mb-4'>
