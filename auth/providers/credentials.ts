@@ -13,6 +13,7 @@ import Profile from "@/database/Profile"
 const limiter = new RateLimiterMemory({ points: 6, duration: 900 })
 export default function Credentials() {
     return CredentialsProvider({
+        id: "credentials",
         name: "credentials",
         credentials: {
             email: { label: "Email", type: "email" },
@@ -70,6 +71,7 @@ export default function Credentials() {
                     id: pgUser.id,
                     name: pgUser.name,
                     email: pgUser.email,
+                    stealth: true,
                 }
             }
 
@@ -79,7 +81,6 @@ export default function Credentials() {
                     credentials!.password as string,
                     pgUser.password
                 )
-                console.log(isMatch)
                 if (!isMatch) {
                     throw new RateLimiterError(rateLimiterRes.remainingPoints)
                 }

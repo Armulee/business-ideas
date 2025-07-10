@@ -73,6 +73,7 @@ export function RichTextEditor({
         isActive: boolean
     ) => (
         <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={action}
             className={cn(
                 "p-2 rounded-md hover:bg-white/20 transition",

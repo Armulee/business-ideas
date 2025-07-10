@@ -306,7 +306,7 @@ export function MagicLinkEmail({ url }: { url: string }) {
             >
                 <p style={{ marginTop: "1rem" }}>Welcome, there!</p>
                 <p style={{ marginTop: "0.5rem" }}>
-                    You requested to sign in to
+                    You requested to sign in to{" "}
                     <span
                         style={{
                             fontWeight: "bold",

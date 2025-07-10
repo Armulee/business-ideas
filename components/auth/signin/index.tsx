@@ -1,10 +1,9 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Form } from "../../ui/form"
-import axios from "axios"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { FormValues, formSchema } from "../signin/types"
@@ -18,18 +17,15 @@ import ProviderDialog from "./provider-dialog"
 import { Logo } from "@/components/logo"
 import { useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { signIn as passkeySignIn } from "@/lib/passkey-signin"
 import MagicLinkButton from "./magic-link-button"
 import MagicLinkMessage from "./magic-link-message"
 import clearParams from "@/lib/clear-params"
-import SentVerification from "../sent-verification"
 
 const SignIn = () => {
-    const router = useRouter()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
-    const errorParms = searchParams.get("error")
+    const errorParams = searchParams.get("error")
+    const errorCode = searchParams.get("code")
 
     const [pageLoading, setPageLoading] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState(false)
@@ -42,13 +38,6 @@ const SignIn = () => {
     }>({ provider: "" })
     const [providerDialog, setProviderDialog] = useState(false)
 
-    // Authentication method detection
-    const [authMethod, setAuthMethod] = useState<string | null>(null)
-    const [showPasswordField, setShowPasswordField] = useState(false)
-    const [checkingEmail, setCheckingEmail] = useState(false)
-    const [checkedEmail, setCheckedEmail] = useState<string | null>(null)
-    const [showVerification, setShowVerification] = useState(false)
-
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -58,148 +47,17 @@ const SignIn = () => {
         },
     })
 
-    // checking the email auth method, whether passkey or password
-    const checkEmailAuthMethod = useCallback(
-        async (email: string) => {
-            setCheckingEmail(true)
-            try {
-                const response = await axios.get(
-                    `/api/auth/check-auth-method?email=${encodeURIComponent(email)}`
-                )
-                const {
-                    exists,
-                    authMethod: detectedMethod,
-                    emailVerified,
-                } = response.data
-
-                if (!exists) {
-                    setAuthMethod(null)
-                    setShowPasswordField(false)
-                    setError(
-                        "No account found with this email. Please sign up first."
-                    )
-                    return
-                }
-
-                if (!emailVerified) {
-                    setShowVerification(true)
-                    setAuthMethod(null)
-                    setShowPasswordField(false)
-                    return
-                }
-
-                setAuthMethod(detectedMethod)
-                setCheckedEmail(email) // 👈 Save this as the verified email
-
-                if (detectedMethod === "passkey") {
-                    const res = await passkeySignIn("passkey", { 
-                        callbackUrl,
-                        redirect: false 
-                    })
-                    // handling passkey error
-                    if (res?.error === "Abort") {
-                        setSuggestion(
-                            "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
-                        )
-                        setCheckingEmail(false)
-                    } else if (res?.error === "Error") {
-                        setError(
-                            "There was a problem signing in with your passkey. Please try again."
-                        )
-                        setCheckingEmail(false)
-                    } else if (!res?.error) {
-                        // Success case - redirect to callback URL
-                        router.replace(callbackUrl)
-                        setCheckingEmail(false)
-                    }
-                } else if (detectedMethod === "password") {
-                    setShowPasswordField(true)
-                } else {
-                    setShowPasswordField(false)
-                }
-            } catch (error) {
-                console.error("Error checking auth method:", error)
-                setAuthMethod(null)
-                setShowPasswordField(false)
-                setError(
-                    "Error checking authentication method. Please try again."
-                )
-            } finally {
-                setCheckingEmail(false)
-            }
-        },
-        [callbackUrl, router]
-    )
-
     // press sign in will check the email use passkey or password
     const onSubmit = async (data: FormValues) => {
         const email = data.email.trim().toLowerCase()
         setError("")
 
         try {
-            // First check what auth method this email uses
-            if (!authMethod) {
-                await checkEmailAuthMethod(email)
-                setIsLoading(false)
-                return
-            }
-
-            if (authMethod === "passkey") {
-                const res = await passkeySignIn("passkey", { 
-                    callbackUrl,
-                    redirect: false 
-                })
-                // handling passkey error
-                if (res?.error === "Abort") {
-                    setSuggestion(
-                        "Accidentally removed your passkey? No worries — you can sign in with a Magic Link instead."
-                    )
-                    setIsLoading(false)
-                    return
-                } else if (res?.error === "Error") {
-                    setError(
-                        "There was a problem signing in with your passkey. Please try again."
-                    )
-                    setIsLoading(false)
-                    return
-                } else if (!res?.error) {
-                    // Success case - redirect to callback URL
-                    router.replace(callbackUrl)
-                    return
-                }
-            }
-
-            // Handle password authentication here (passkey is auto-handled)
-            if (authMethod === "password") {
-                if (!data.password) {
-                    setError("Please enter your password")
-                    setIsLoading(false)
-                    return
-                }
-
-                const res = await signIn("credentials", {
-                    email: email,
-                    password: data.password,
-                    redirect: false,
-                })
-
-                if (res.error) {
-                    try {
-                        setError(
-                            `The password is invalid. You have ${res.code} attempt${parseInt(res.code!) > 1 ? "s" : ""} remaining.`
-                        )
-                    } catch {
-                        // fallback if it's not JSON
-                        if (res.error === "CredentialsSignin") {
-                            setError("The password is invalid.")
-                        } else {
-                            setError(res.error)
-                        }
-                    }
-                } else {
-                    router.replace(callbackUrl)
-                }
-            }
+            await signIn("credentials", {
+                email: email,
+                password: data.password,
+                callbackUrl,
+            })
         } catch (error: unknown) {
             const message =
                 error instanceof Error ? error.message : "Something went wrong"
@@ -209,34 +67,13 @@ const SignIn = () => {
     }
     // If user edit the email address after checked the auth method, then remove the auth method to remove the password field
     useEffect(() => {
-        const subscription = form.watch((values) => {
+        const subscription = form.watch(() => {
             setError("")
             setSuggestion("")
-            const currentEmail = values.email?.trim().toLowerCase()
-
-            if (
-                checkedEmail &&
-                currentEmail !== checkedEmail.toLowerCase() &&
-                authMethod !== null
-            ) {
-                // email changed after check — reset auth method
-                setAuthMethod(null)
-                setShowPasswordField(false)
-                setShowVerification(false)
-            }
-
-            if (
-                !authMethod &&
-                checkedEmail &&
-                currentEmail === checkedEmail.toLowerCase()
-            ) {
-                // same email restored — restore auth method
-                checkEmailAuthMethod(currentEmail)
-            }
         })
 
         return () => subscription.unsubscribe()
-    }, [checkedEmail, authMethod, form, checkEmailAuthMethod])
+    }, [form])
 
     // sent magic link
     const [sendingMagicLink, setSendingMagicLink] = useState<boolean>(false)
@@ -284,26 +121,32 @@ const SignIn = () => {
         setPageLoading(false)
     }, [])
 
-    // handle error from params of OAuth
+    // handle error from params of OAuth and credentials
     useEffect(() => {
-        if (errorParms) {
-            setError(
-                "This email is already associated with another sign-in method. Please use your original method to sign in."
-            )
-            clearParams("error")
+        if (errorCode) {
+            // Check if it's a numeric code (remaining attempts from RateLimiterError)
+            if (!isNaN(Number(errorCode))) {
+                const remaining = Number(errorCode)
+                setError(
+                    `Incorrect password. You have ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining before temporary suspension.`
+                )
+            } else {
+                // Provider error (from ProviderExistingError)
+                const provider =
+                    errorCode.charAt(0).toUpperCase() + errorCode.slice(1)
+                setError(
+                    `This email is already associated with ${provider}. Please use your original method to sign in.`
+                )
+            }
+            clearParams("code")
         }
-    }, [errorParms])
+    }, [errorParams, errorCode])
 
     return (
         <>
             {!pageLoading ? (
                 <div className='max-w-sm mx-auto'>
-                    {showVerification ? (
-                        <SentVerification
-                            email={form.getValues("email")}
-                            noInitialCooldown={true}
-                        />
-                    ) : !sentMagicLink ? (
+                    {!sentMagicLink ? (
                         <>
                             <Logo className='text-center' />
                             <h2 className='mt-2 text-center text-3xl font-extrabold text-white'>
@@ -335,35 +178,24 @@ const SignIn = () => {
                                     onSubmit={form.handleSubmit(onSubmit)}
                                 >
                                     <Email control={form.control} />
-                                    {showPasswordField && (
-                                        <Password control={form.control} />
-                                    )}
+                                    <Password control={form.control} />
                                     <Consent control={form.control} />
-
                                     <Button
                                         type='submit'
                                         className='group relative w-full flex justify-center py-2 px-4 text-sm font-medium glassmorphism text-white bg-blue-500/50 hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                                        disabled={
-                                            isLoading ||
-                                            checkingEmail ||
-                                            sendingMagicLink
-                                        }
+                                        disabled={isLoading || sendingMagicLink}
                                     >
-                                        {checkingEmail
-                                            ? "Checking..."
-                                            : isLoading
-                                              ? "Loading..."
-                                              : sendingMagicLink
-                                                ? "Magic Linking..."
-                                                : "Sign in"}
+                                        {isLoading
+                                            ? "Loading..."
+                                            : sendingMagicLink
+                                              ? "Magic Linking..."
+                                              : "Sign in"}
                                     </Button>
                                 </form>
                             </Form>
 
                             {/* Magic Link Button */}
-                            {(!sendingMagicLink ||
-                                checkingEmail ||
-                                isLoading) && (
+                            {(!sendingMagicLink || isLoading) && (
                                 <MagicLinkButton
                                     handleMagicLinkClick={handleMagicLinkClick}
                                     sendingMagicLink={sendingMagicLink}
@@ -412,6 +244,7 @@ const SignIn = () => {
                         </>
                     ) : (
                         <MagicLinkMessage
+                            email={form.getValues("email")}
                             setSentMagicLink={setSentMagicLink}
                             resendCooldown={resendCooldown}
                             sendingMagicLink={sendingMagicLink}

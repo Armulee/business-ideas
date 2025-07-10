@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Lock, CheckCheckIcon, Fingerprint } from "lucide-react"
+import { Lock, CheckCheckIcon } from "lucide-react"
 import axios, { AxiosError } from "axios"
-import { signIn } from "@/lib/passkey-signin"
+// import { signIn } from "@/lib/passkey-signin"
 import Link from "next/link"
 import Loading from "@/components/loading"
 import * as z from "zod"
@@ -42,9 +42,7 @@ interface VerifyResponse {
 export default function SetupAccount({ token }: { token: string }) {
     const router = useRouter()
     // const pathname = usePathname()
-    const [step, setStep] = useState<"passkey" | "credentials" | "success">(
-        "passkey"
-    )
+    const [step, setStep] = useState<"credentials" | "success">("credentials")
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [verifyState, setVerifyState] = useState<
@@ -90,50 +88,50 @@ export default function SetupAccount({ token }: { token: string }) {
         verifyToken()
     }, [token])
 
-    // const { data: session, status } = useSession()
-    // console.log(session, status)
-    const handlePasskeySetup = async () => {
-        try {
-            setIsLoading(true)
-            setError("")
-            console.log("Passkey setup - userData:", userData)
-            
-            const result = await signIn("passkey", { action: "register", redirect: false })
-            
-            if (result?.error) {
-                if (result.error === "Abort") {
-                    setError("Passkey setup was cancelled. Please try again.")
-                } else {
-                    setError("Failed to set up passkey. Please try again.")
-                }
-                return
-            }
+    // const handlePasskeySetup = async () => {
+    //     try {
+    //         setIsLoading(true)
+    //         setError("")
+    //         console.log("Passkey setup - userData:", userData)
 
-            await axios.post("/api/auth/complete-setup", {
-                method: "passkey",
-                email: userData?.email,
-                username: userData?.name,
-            })
+    //         const result = await signIn("passkey", {
+    //             action: "register",
+    //             redirect: false,
+    //         })
 
-            setCountdown(10)
-            setStep("success")
-        } catch (error) {
-            console.error("Passkey setup error:", error)
-            setError("Failed to set up passkey. Please try again.")
-        } finally {
-            setIsLoading(false)
-        }
-    }
+    //         if (result?.error) {
+    //             if (result.error === "Abort") {
+    //                 setError("Passkey setup was cancelled. Please try again.")
+    //             } else {
+    //                 setError("Failed to set up passkey. Please try again.")
+    //             }
+    //             return
+    //         }
+
+    //         await axios.post("/api/auth/complete-setup", {
+    //             method: "passkey",
+    //             email: userData?.email,
+    //             username: userData?.name,
+    //         })
+
+    //         setCountdown(10)
+    //         setStep("success")
+    //     } catch (error) {
+    //         console.error("Passkey setup error:", error)
+    //         setError("Failed to set up passkey. Please try again.")
+    //     } finally {
+    //         setIsLoading(false)
+    //     }
+    // }
 
     const handleCredentialsSetup = async (data: SetupFormValues) => {
         try {
             setIsLoading(true)
             setError("")
 
-            console.log("Credentials setup - userData:", userData)
             // Complete account setup with credentials
             await axios.post("/api/auth/complete-setup", {
-                method: "credentials",
+                // method: "credentials",
                 email: userData?.email,
                 username: userData?.name,
                 password: data.password,
@@ -152,8 +150,8 @@ export default function SetupAccount({ token }: { token: string }) {
         }
     }
 
+    // prepare the countdown effect
     const [countdown, setCountdown] = useState<number>(10)
-
     useEffect(() => {
         if (countdown > 0 && step === "success") {
             const interval = setInterval(() => {
@@ -240,55 +238,55 @@ export default function SetupAccount({ token }: { token: string }) {
         )
     }
 
-    if (step === "passkey") {
-        return (
-            <div className='max-w-md mx-auto'>
-                <Logo className='mb-6' />
-                <p className='flex items-center gap-2 px-4 py-2 w-fit bg-green-500/50 glassmorphism mb-6 text-sm'>
-                    <CheckCheckIcon />
-                    Email Verified
-                </p>
-                <h2 className='text-2xl font-semibold mb-3 text-white'>
-                    Create a Passkey
-                </h2>
-                <p className='text-white/70 mb-6'>
-                    Sign in to your account easily and securely with a passkey.
-                    Your biometric data is only stored on your devices and will
-                    never be shared with anyone.
-                </p>
+    // if (step === "passkey") {
+    //     return (
+    //         <div className='max-w-md mx-auto'>
+    //             <Logo className='mb-6' />
+    //             <p className='flex items-center gap-2 px-4 py-2 w-fit bg-green-500/50 glassmorphism mb-6 text-sm'>
+    //                 <CheckCheckIcon />
+    //                 Email Verified
+    //             </p>
+    //             <h2 className='text-2xl font-semibold mb-3 text-white'>
+    //                 Create a Passkey
+    //             </h2>
+    //             <p className='text-white/70 mb-6'>
+    //                 Sign in to your account easily and securely with a passkey.
+    //                 Your biometric data is only stored on your devices and will
+    //                 never be shared with anyone.
+    //             </p>
 
-                <div className='space-y-4'>
-                    <Button
-                        onClick={handlePasskeySetup}
-                        disabled={isLoading}
-                        className='w-full button'
-                    >
-                        <Fingerprint className='w-5 h-5 mr-2' />
-                        {isLoading ? "Setting up..." : "Create Passkey"}
-                    </Button>
+    //             <div className='space-y-4'>
+    //                 <Button
+    //                     onClick={handlePasskeySetup}
+    //                     disabled={isLoading}
+    //                     className='w-full button'
+    //                 >
+    //                     <Fingerprint className='w-5 h-5 mr-2' />
+    //                     {isLoading ? "Setting up..." : "Create Passkey"}
+    //                 </Button>
 
-                    <div
-                        onClick={() => setStep("credentials")}
-                        className='text-blue-400 hover:underline underline-offset-2 text-right text-sm w-full cursor-pointer'
-                    >
-                        Skip
-                    </div>
-                </div>
+    //                 <div
+    //                     onClick={() => setStep("credentials")}
+    //                     className='text-blue-400 hover:underline underline-offset-2 text-right text-sm w-full cursor-pointer'
+    //                 >
+    //                     Skip
+    //                 </div>
+    //             </div>
 
-                {error && (
-                    <div className='mt-4 p-3 bg-red-600 text-white rounded-md text-sm'>
-                        {error}
-                    </div>
-                )}
-            </div>
-        )
-    }
+    //             {error && (
+    //                 <div className='mt-4 p-3 bg-red-600 text-white rounded-md text-sm'>
+    //                     {error}
+    //                 </div>
+    //             )}
+    //         </div>
+    //     )
+    // }
 
     if (step === "credentials") {
         return (
             <div className='max-w-md mx-auto'>
                 <Logo className='text-center mb-6' />
-                <p className='flex items-center gap-2 px-4 py-2 bg-green-500/50 glassmorphism mb-6 text-sm'>
+                <p className='w-fit flex items-center gap-2 px-4 py-2 bg-green-500/50 glassmorphism mb-6 text-sm'>
                     <CheckCheckIcon />
                     Email Verified
                 </p>
@@ -353,15 +351,7 @@ export default function SetupAccount({ token }: { token: string }) {
                             control={form.control}
                         />
 
-                        <div className='flex justify-center gap-3 pt-4'>
-                            <Button
-                                type='button'
-                                disabled={isLoading}
-                                onClick={() => setStep("passkey")}
-                                className='w-fit glassmorphism bg-transparent hover:bg-blue-600 text-white border border-blue-400'
-                            >
-                                Back
-                            </Button>
+                        <div className='w-full flex justify-center'>
                             <Button
                                 type='submit'
                                 disabled={isLoading}

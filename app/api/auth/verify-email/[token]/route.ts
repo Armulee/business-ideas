@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { signIn } from "@/auth"
-// import crypto from "crypto"
-// import { serialize } from "cookie"
 
 export async function GET(
     request: Request,
@@ -54,44 +51,6 @@ export async function GET(
                 { status: 400 }
             )
         }
-
-        // Create session for valid token
-        // const sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-        // const sessionToken = crypto.randomUUID()
-        // const sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-        // const sessionToken = crypto.randomUUID()
-
-        // await prisma.session.create({
-        //     data: {
-        //         sessionToken,
-        //         userId: user.id,
-        //         expires: sessionExpires,
-        //     },
-        // })
-        // await prisma.session.create({
-        //     data: {
-        //         sessionToken,
-        //         userId: user.id,
-        //         expires: sessionExpires,
-        //     },
-        // })
-
-        // response.headers.set(
-        //     "Set-Cookie",
-        //     serialize("authjs.session-token", sessionToken, {
-        //         httpOnly: true,
-        //         path: "/",
-        //         sameSite: "lax",
-        //         secure: process.env.NODE_ENV === "production",
-        //         expires: sessionExpires,
-        //     })
-        // )
-
-        await signIn("credentials", {
-            email: user.email,
-            password: token,
-            redirect: false,
-        })
 
         return NextResponse.json({
             success: true,

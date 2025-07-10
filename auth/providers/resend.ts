@@ -11,7 +11,7 @@ async function sendVerificationRequest(
     const { identifier: to, url, provider } = params
 
     await resend.emails.send({
-        from: `Bluebizhub Magician <${provider.from as string}>`,
+        from: provider.from as string,
         to,
         subject: `BlueBizHub Magic Link 🔮`,
         react: MagicLinkEmail({ url }),

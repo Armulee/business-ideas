@@ -21,6 +21,12 @@ export default async function signIn({
     profile: authProfile,
 }: SignInProps) {
     try {
+        console.log("SignIn callback triggered:", { 
+            provider: account?.provider, 
+            userEmail: user.email,
+            userId: user.id 
+        })
+        
         await connectDB()
 
         // For OAuth providers (Google, Twitter), Resend, and Passkey

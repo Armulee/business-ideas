@@ -8,6 +8,8 @@ import "swiper/css"
 import "swiper/css/autoplay"
 import "swiper/css/free-mode"
 import "swiper/css/scrollbar"
+import "swiper/css/pagination"
+import "swiper/css/navigation"
 
 // import Quill styles
 import "quill/dist/quill.snow.css"
