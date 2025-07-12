@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Plus } from "lucide-react"
-import { Button } from "../ui/button"
-import { useAlert } from "../provider/alert"
+import { Button } from "../../ui/button"
+import { useAlert } from "../../provider/alert"
 // import useMediaQuery from "@/hooks/use-media-query"
 
 export default function NewPostButton() {

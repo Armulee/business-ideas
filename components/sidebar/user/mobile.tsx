@@ -3,7 +3,7 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
-} from "../ui/sheet"
+} from "../../ui/sheet"
 import { ChevronDown } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -11,15 +11,15 @@ import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from "../ui/collapsible"
-import { Button } from "../ui/button"
-import { Label } from "../ui/label"
-import { Separator } from "../ui/separator"
+} from "../../ui/collapsible"
+import { Button } from "../../ui/button"
+import { Label } from "../../ui/label"
+import { Separator } from "../../ui/separator"
 import React from "react"
 import { menus, useCollapsibleMenus } from "./menus"
-import { ScrollArea } from "../ui/scroll-area"
-import { Logo } from "../logo"
-import { LoadingLink } from "../loading-link"
+import { ScrollArea } from "../../ui/scroll-area"
+import { Logo } from "../../logo"
+import { LoadingLink } from "../../loading-link"
 
 const MobileSidebar = ({
     setOpen,
@@ -43,18 +43,13 @@ const MobileSidebar = ({
             className='w-[300px] sm:w-[400px] p-0 glassmorphism bg-blue-900/50 !rounded-none h-full border-0'
         >
             <Logo className='text-2xl absolute top-8 w-fit ml-10' />
-            {/* <h1 className='font-extrabold text-2xl absolute top-8 w-fit ml-10'>
-                <span className='text-blue-400'>Blue</span>
-                BizHub
-            </h1> */}
             <div className='w-full h-3/4 mt-20 relative'>
-                {/* <Separator className='absolute bg-white/20' /> */}
                 <ScrollArea className='w-full h-full flex flex-col justify-center items-center'>
                     <SheetHeader className='hidden'>
                         <SheetTitle>BlueBizHub</SheetTitle>
                         <SheetDescription>
-                            This is sidebar navigation for Business Ideas
-                            website application
+                            This is sidebar navigation for BlueBizHub website
+                            application
                         </SheetDescription>
                     </SheetHeader>
 
@@ -148,9 +143,5 @@ const MobileSidebar = ({
         </SheetContent>
     )
 }
-
-//  <p className='mt-2 text-sm text-white absolute bottom-5 w-full text-center'>
-//      © {new Date().getFullYear()} BusinessIdeas. All rights reserved.
-//  </p>
 
 export default MobileSidebar

@@ -30,6 +30,7 @@ export default async function session({
             if (mongoProfile) {
                 session.user.id = mongoProfile._id.toString() // MongoDB Profile _id as session.user.id
                 session.user.profile = mongoProfile.profileId // Incremental profileId as session.user.profile
+                session.user.role = mongoProfile.role || 'user' // Add role to session
             }
         } else if (pgUser?.email) {
             // If no profileId in PostgreSQL user, try to find by email
@@ -45,6 +46,7 @@ export default async function session({
                 
                 session.user.id = mongoProfile._id.toString()
                 session.user.profile = mongoProfile.profileId
+                session.user.role = mongoProfile.role || 'user'
             }
         }
     }

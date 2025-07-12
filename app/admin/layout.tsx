@@ -1,7 +1,9 @@
-export default function AdminLayout({
+import AdminLayout from "@/components/admin/layout"
+
+export default function AdminLayoutPage({
     children,
 }: {
     children: React.ReactNode
 }) {
-    return <section className='p-4 mt-24 mb-28'>{children}</section>
+    return <AdminLayout>{children}</AdminLayout>
 }

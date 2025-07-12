@@ -4,11 +4,17 @@ import { usePathname } from "next/navigation"
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa"
 import { useSidebar } from "./ui/sidebar"
 import { Logo } from "./logo"
+import { useSession } from "next-auth/react"
 
 export default function Footer() {
     // hide footer for the auth page
     const pathname = usePathname()
-    const hide = pathname.startsWith("/auth")
+    const { data: session } = useSession()
+    const hide =
+        pathname.startsWith("/auth") ||
+        (pathname.includes("/admin") &&
+            (session?.user.role === "admin" ||
+                session?.user.role === "moderator"))
     const { open, isMobile } = useSidebar()
     return (
         <>
@@ -18,8 +24,8 @@ export default function Footer() {
                         isMobile
                             ? "w-full"
                             : open
-                            ? "w-[calc(100%-13rem)]"
-                            : "w-[calc(100%-47px)]"
+                              ? "w-[calc(100%-13rem)]"
+                              : "w-[calc(100%-47px)]"
                     } absolute bottom-0 z-40`}
                 >
                     <div className='bg-transparent backdrop-blur-sm border-t border-t-white/30 text-white'>
@@ -28,8 +34,8 @@ export default function Footer() {
                                 <div>
                                     <Logo />
                                     <p className='mt-2 text-sm'>
-                                        © {new Date().getFullYear()} BlueBizHub.
-                                        All rights reserved.
+                                        © {new Date().getFullYear()}{" "}
+                                        BlueBizHub. All rights reserved.
                                     </p>
                                 </div>
                                 <div className='flex space-x-6'>

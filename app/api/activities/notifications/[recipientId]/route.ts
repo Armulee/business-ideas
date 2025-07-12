@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import connectDB from "@/database"
 import Activity, { IActivityPopulated } from "@/database/Activity"
+import Profile from "@/database/Profile"
 
 export async function GET(
     req: NextRequest,
@@ -20,7 +21,13 @@ export async function GET(
             .sort({ createdAt: -1 })
             .limit(20) // paginate as you like
 
-        return NextResponse.json(activities, { status: 200 })
+        const { hasSeenWelcome } =
+            await Profile.findById(recipientId).select("hasSeenWelcome")
+
+        return NextResponse.json(
+            { hasSeenWelcome, activities },
+            { status: 200 }
+        )
     } catch (err) {
         console.error(err)
         return NextResponse.json(

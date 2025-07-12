@@ -24,7 +24,8 @@ import {
     TrendingUp,
     Users,
 } from "lucide-react"
-import { Progress } from "../ui/progress"
+import { AdminSkeleton } from "../skeletons"
+import Link from "next/link"
 
 // Register Chart.js components
 ChartJS.register(
@@ -39,20 +40,20 @@ ChartJS.register(
     ArcElement
 )
 
-interface DashboardStats {
-    totalUsers: number
-    totalPosts: number
-    totalComments: number
-    totalViews: number
-    activeUsers: number
-    newUsersToday: number
-    newPostsToday: number
-    newCommentsToday: number
-    userGrowth: number
-    postGrowth: number
-    commentGrowth: number
-    viewGrowth: number
-}
+// interface DashboardStats {
+//     totalUsers: number
+//     totalPosts: number
+//     totalComments: number
+//     totalViews: number
+//     activeUsers: number
+//     newUsersToday: number
+//     newPostsToday: number
+//     newCommentsToday: number
+//     userGrowth: number
+//     postGrowth: number
+//     commentGrowth: number
+//     viewGrowth: number
+// }
 
 interface ChartData {
     userRegistrations: number[]
@@ -62,44 +63,188 @@ interface ChartData {
     labels: string[]
 }
 
+interface ActivityItem {
+    action: string
+    user: string
+    time: string
+}
+
+// Overview Stats Configuration
+const overviewStats = [
+    {
+        key: "totalUsers",
+        title: "Total Users",
+        icon: Users,
+        iconColor: "text-blue-400",
+        growthKey: "userGrowth",
+        link: "/admin/users",
+    },
+    {
+        key: "totalPosts",
+        title: "Total Posts",
+        icon: FileText,
+        iconColor: "text-green-400",
+        growthKey: "postGrowth",
+        link: "/admin/posts",
+    },
+    {
+        key: "totalComments",
+        title: "Total Comments",
+        icon: MessageSquare,
+        iconColor: "text-purple-400",
+        growthKey: "commentGrowth",
+        link: "/admin/comments",
+    },
+    {
+        key: "totalViews",
+        title: "Total Views",
+        icon: Eye,
+        iconColor: "text-orange-400",
+        growthKey: "viewGrowth",
+        link: "/admin/analytics",
+    },
+]
+
+// Today's Activity Configuration
+const todayStats = [
+    {
+        key: "newUsersToday",
+        title: "New Users Today",
+        icon: Calendar,
+        iconColor: "text-blue-400",
+        link: "/admin/users",
+    },
+    {
+        key: "newPostsToday",
+        title: "New Posts Today",
+        icon: FileText,
+        iconColor: "text-green-400",
+        link: "/admin/posts",
+    },
+    {
+        key: "newCommentsToday",
+        title: "New Comments Today",
+        icon: MessageSquare,
+        iconColor: "text-purple-400",
+        link: "/admin/comments",
+    },
+    {
+        key: "activeUsers",
+        title: "Active Users",
+        icon: Activity,
+        iconColor: "text-orange-400",
+        link: "/admin/activities",
+    },
+]
+
+// Charts Configuration
+const chartConfigs = [
+    {
+        id: "line-chart",
+        title: "User & Post Activity",
+        type: "line",
+        colSpan: "lg:col-span-1",
+    },
+    {
+        id: "bar-chart",
+        title: "Comments This Week",
+        type: "bar",
+        colSpan: "lg:col-span-1",
+    },
+    {
+        id: "doughnut-chart",
+        title: "User Activity Distribution",
+        type: "doughnut",
+        colSpan: "lg:col-span-1",
+    },
+]
+
+const chartOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            labels: {
+                color: "white",
+            },
+        },
+    },
+    scales: {
+        x: {
+            ticks: {
+                color: "white",
+            },
+            grid: {
+                color: "rgba(255, 255, 255, 0.1)",
+            },
+        },
+        y: {
+            ticks: {
+                color: "white",
+            },
+            grid: {
+                color: "rgba(255, 255, 255, 0.1)",
+            },
+        },
+    },
+}
+
 export default function AdminDashboard() {
-    const [stats, setStats] = useState<DashboardStats | null>(null)
+    const [stats, setStats] = useState<{ [stat: string]: number } | null>(null)
     const [chartData, setChartData] = useState<ChartData | null>(null)
+    const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
 
     useEffect(() => {
-        // Simulate API call to fetch dashboard data
         const fetchDashboardData = async () => {
             try {
-                // In a real app, this would be actual API calls
-                await new Promise((resolve) => setTimeout(resolve, 1000))
-
-                const mockStats: DashboardStats = {
-                    totalUsers: 12847,
-                    totalPosts: 3421,
-                    totalComments: 8934,
-                    totalViews: 156789,
-                    activeUsers: 2341,
-                    newUsersToday: 47,
-                    newPostsToday: 23,
-                    newCommentsToday: 89,
-                    userGrowth: 12.5,
-                    postGrowth: 8.3,
-                    commentGrowth: 15.7,
-                    viewGrowth: 22.1,
+                const response = await fetch("/api/admin/stats")
+                if (!response.ok) {
+                    throw new Error("Failed to fetch stats")
                 }
 
-                const mockChartData: ChartData = {
-                    userRegistrations: [120, 150, 180, 200, 170, 190, 220],
-                    postCreations: [45, 52, 38, 67, 49, 58, 71],
-                    comments: [234, 189, 267, 298, 245, 312, 289],
-                    views: [1200, 1450, 1380, 1620, 1590, 1750, 1890],
-                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                }
+                const data = await response.json()
 
-                setStats(mockStats)
-                setChartData(mockChartData)
+                setStats({
+                    totalUsers: data.totalUsers,
+                    totalPosts: data.totalPosts,
+                    totalComments: data.totalComments,
+                    totalViews: data.totalViews,
+                    activeUsers: data.activeUsers,
+                    newUsersToday: data.newUsersToday,
+                    newPostsToday: data.newPostsToday,
+                    newCommentsToday: data.newCommentsToday,
+                    userGrowth: data.userGrowth,
+                    postGrowth: data.postGrowth,
+                    commentGrowth: data.commentGrowth,
+                    viewGrowth: data.viewGrowth,
+                })
+
+                setChartData(data.chartData)
+                setRecentActivity(data.recentActivity || [])
             } catch (error) {
                 console.error("Error fetching dashboard data:", error)
+                // Set fallback data on error
+                setStats({
+                    totalUsers: 0,
+                    totalPosts: 0,
+                    totalComments: 0,
+                    totalViews: 0,
+                    activeUsers: 0,
+                    newUsersToday: 0,
+                    newPostsToday: 0,
+                    newCommentsToday: 0,
+                    userGrowth: 0,
+                    postGrowth: 0,
+                    commentGrowth: 0,
+                    viewGrowth: 0,
+                })
+                setChartData({
+                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                    userRegistrations: [0, 0, 0, 0, 0, 0, 0],
+                    postCreations: [0, 0, 0, 0, 0, 0, 0],
+                    comments: [0, 0, 0, 0, 0, 0, 0],
+                    views: [0, 0, 0, 0, 0, 0, 0],
+                })
+                setRecentActivity([])
             }
         }
 
@@ -107,265 +252,190 @@ export default function AdminDashboard() {
     }, [])
 
     if (!stats || !chartData) {
-        return <div className='text-white'>Error loading dashboard data</div>
+        return <AdminSkeleton />
     }
 
-    // Chart configurations
-    const lineChartData = {
-        labels: chartData.labels,
-        datasets: [
-            {
-                label: "User Registrations",
-                data: chartData.userRegistrations,
-                borderColor: "rgb(59, 130, 246)",
-                backgroundColor: "rgba(59, 130, 246, 0.1)",
-                tension: 0.4,
-            },
-            {
-                label: "Post Creations",
-                data: chartData.postCreations,
-                borderColor: "rgb(16, 185, 129)",
-                backgroundColor: "rgba(16, 185, 129, 0.1)",
-                tension: 0.4,
-            },
-        ],
+    // Chart data generators
+    const getLineChartData = () => {
+        if (!chartData) return null
+        return {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: "User Registrations",
+                    data: chartData.userRegistrations,
+                    borderColor: "rgb(59, 130, 246)",
+                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    tension: 0.4,
+                },
+                {
+                    label: "Post Creations",
+                    data: chartData.postCreations,
+                    borderColor: "rgb(16, 185, 129)",
+                    backgroundColor: "rgba(16, 185, 129, 0.1)",
+                    tension: 0.4,
+                },
+            ],
+        }
     }
 
-    const barChartData = {
-        labels: chartData.labels,
-        datasets: [
-            {
-                label: "Comments",
-                data: chartData.comments,
-                backgroundColor: "rgba(139, 92, 246, 0.8)",
-                borderColor: "rgb(139, 92, 246)",
-                borderWidth: 1,
-            },
-        ],
+    const getBarChartData = () => {
+        if (!chartData) return null
+        return {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: "Comments",
+                    data: chartData.comments,
+                    backgroundColor: "rgba(139, 92, 246, 0.8)",
+                    borderColor: "rgb(139, 92, 246)",
+                    borderWidth: 1,
+                },
+            ],
+        }
     }
 
-    const doughnutData = {
-        labels: ["Active Users", "Inactive Users"],
-        datasets: [
-            {
-                data: [stats.activeUsers, stats.totalUsers - stats.activeUsers],
-                backgroundColor: [
-                    "rgba(59, 130, 246, 0.8)",
-                    "rgba(107, 114, 128, 0.8)",
-                ],
-                borderColor: ["rgb(59, 130, 246)", "rgb(107, 114, 128)"],
-                borderWidth: 2,
-            },
-        ],
+    const getDoughnutData = () => {
+        if (!stats) return null
+        return {
+            labels: ["Active Users", "Inactive Users"],
+            datasets: [
+                {
+                    data: [
+                        stats.activeUsers,
+                        stats.totalUsers - stats.activeUsers,
+                    ],
+                    backgroundColor: [
+                        "rgba(59, 130, 246, 0.8)",
+                        "rgba(107, 114, 128, 0.8)",
+                    ],
+                    borderColor: ["rgb(59, 130, 246)", "rgb(107, 114, 128)"],
+                    borderWidth: 2,
+                },
+            ],
+        }
     }
 
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                labels: {
-                    color: "white",
-                },
-            },
-        },
-        scales: {
-            x: {
-                ticks: {
-                    color: "white",
-                },
-                grid: {
-                    color: "rgba(255, 255, 255, 0.1)",
-                },
-            },
-            y: {
-                ticks: {
-                    color: "white",
-                },
-                grid: {
-                    color: "rgba(255, 255, 255, 0.1)",
-                },
-            },
-        },
+    const renderChart = (type: string) => {
+        switch (type) {
+            case "line":
+                const lineData = getLineChartData()
+                return lineData ? (
+                    <Line data={lineData} options={chartOptions} />
+                ) : null
+            case "bar":
+                const barData = getBarChartData()
+                return barData ? (
+                    <Bar data={barData} options={chartOptions} />
+                ) : null
+            case "doughnut":
+                const doughnutData = getDoughnutData()
+                return doughnutData ? <Doughnut data={doughnutData} /> : null
+            default:
+                return null
+        }
     }
 
     return (
-        <div className='space-y-6'>
+        <div className='pt-6'>
             {/* Overview Stats */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-                <Card className='bg-gradient-to-br from-blue-600/20 to-blue-800/20 border-blue-500/30'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            Total Users
-                        </CardTitle>
-                        <Users className='h-4 w-4 text-blue-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.totalUsers.toLocaleString()}
-                        </div>
-                        <div className='flex items-center text-xs text-green-400'>
-                            <TrendingUp className='h-3 w-3 mr-1' />+
-                            {stats.userGrowth}% from last month
-                        </div>
-                        <Progress value={75} className='mt-2 h-1' />
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-gradient-to-br from-green-600/20 to-green-800/20 border-green-500/30'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            Total Posts
-                        </CardTitle>
-                        <FileText className='h-4 w-4 text-green-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.totalPosts.toLocaleString()}
-                        </div>
-                        <div className='flex items-center text-xs text-green-400'>
-                            <TrendingUp className='h-3 w-3 mr-1' />+
-                            {stats.postGrowth}% from last month
-                        </div>
-                        <Progress value={60} className='mt-2 h-1' />
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-gradient-to-br from-purple-600/20 to-purple-800/20 border-purple-500/30'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            Total Comments
-                        </CardTitle>
-                        <MessageSquare className='h-4 w-4 text-purple-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.totalComments.toLocaleString()}
-                        </div>
-                        <div className='flex items-center text-xs text-green-400'>
-                            <TrendingUp className='h-3 w-3 mr-1' />+
-                            {stats.commentGrowth}% from last month
-                        </div>
-                        <Progress value={85} className='mt-2 h-1' />
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-gradient-to-br from-orange-600/20 to-orange-800/20 border-orange-500/30'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            Total Views
-                        </CardTitle>
-                        <Eye className='h-4 w-4 text-orange-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.totalViews.toLocaleString()}
-                        </div>
-                        <div className='flex items-center text-xs text-green-400'>
-                            <TrendingUp className='h-3 w-3 mr-1' />+
-                            {stats.viewGrowth}% from last month
-                        </div>
-                        <Progress value={92} className='mt-2 h-1' />
-                    </CardContent>
-                </Card>
+            <p className='font-bold text-lg mb-2'>Overview</p>
+            <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-6'>
+                {overviewStats.map((stat) => {
+                    const Icon = stat.icon
+                    return (
+                        <Link key={stat.key} href={stat.link}>
+                            <Card className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'>
+                                <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                                    <CardTitle className='text-sm font-medium text-white'>
+                                        {stat.title}
+                                    </CardTitle>
+                                    <Icon
+                                        className={`h-4 w-4 ${stat.iconColor}`}
+                                    />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className='text-2xl font-bold text-white'>
+                                        {stats?.[stat.key]?.toLocaleString() ||
+                                            0}
+                                    </div>
+                                    {stats?.[stat.growthKey] > 0 ? (
+                                        <div className='flex items-center text-[10px] text-green-400'>
+                                            <TrendingUp className='h-3 w-3 mr-1' />
+                                            +{stats?.[stat.growthKey] || 0}%
+                                            from last month
+                                        </div>
+                                    ) : stats?.[stat.growthKey] < 0 ? (
+                                        <div className='flex items-center text-[10px] text-red-400'>
+                                            <TrendingUp className='h-3 w-3 mr-1' />
+                                            -{stats?.[stat.growthKey] || 0}%
+                                            from last month
+                                        </div>
+                                    ) : null}
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    )
+                })}
             </div>
 
             {/* Today's Activity */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            New Users Today
-                        </CardTitle>
-                        <Calendar className='h-4 w-4 text-blue-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.newUsersToday}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            New Posts Today
-                        </CardTitle>
-                        <FileText className='h-4 w-4 text-green-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.newPostsToday}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            New Comments Today
-                        </CardTitle>
-                        <MessageSquare className='h-4 w-4 text-purple-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.newCommentsToday}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium text-white'>
-                            Active Users
-                        </CardTitle>
-                        <Activity className='h-4 w-4 text-orange-400' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold text-white'>
-                            {stats.activeUsers.toLocaleString()}
-                        </div>
-                    </CardContent>
-                </Card>
+            <p className='font-bold text-lg mb-2'>Today Activity</p>
+            <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-6'>
+                {todayStats.map((stat) => {
+                    const Icon = stat.icon
+                    return (
+                        <Card
+                            key={stat.key}
+                            className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'
+                        >
+                            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                                <CardTitle className='text-sm font-medium text-white'>
+                                    {stat.title}
+                                </CardTitle>
+                                <Icon className={`h-4 w-4 ${stat.iconColor}`} />
+                            </CardHeader>
+                            <CardContent>
+                                <div className='text-2xl font-bold text-white'>
+                                    {stats?.[stat.key]?.toLocaleString() || 0}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )
+                })}
             </div>
 
             {/* Charts */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader>
-                        <CardTitle className='text-white'>
-                            User & Post Activity
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Line data={lineChartData} options={chartOptions} />
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-white/5 border-white/10'>
-                    <CardHeader>
-                        <CardTitle className='text-white'>
-                            Comments This Week
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Bar data={barChartData} options={chartOptions} />
-                    </CardContent>
-                </Card>
+            <p className='font-bold text-lg mb-2'>Charts</p>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6'>
+                {chartConfigs.slice(0, 2).map((chart) => (
+                    <Card
+                        key={chart.id}
+                        className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'
+                    >
+                        <CardHeader>
+                            <CardTitle className='text-white'>
+                                {chart.title}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>{renderChart(chart.type)}</CardContent>
+                    </Card>
+                ))}
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-                <Card className='bg-white/5 border-white/10'>
+                <Card className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'>
                     <CardHeader>
                         <CardTitle className='text-white'>
-                            User Activity Distribution
+                            {chartConfigs[2].title}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Doughnut data={doughnutData} />
+                        {renderChart(chartConfigs[2].type)}
                     </CardContent>
                 </Card>
 
-                <Card className='bg-white/5 border-white/10 lg:col-span-2'>
+                <Card className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl lg:col-span-2'>
                     <CardHeader>
                         <CardTitle className='text-white'>
                             Recent Activity
@@ -373,50 +443,30 @@ export default function AdminDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className='space-y-4'>
-                            {[
-                                {
-                                    action: "New user registered",
-                                    user: "john.doe@example.com",
-                                    time: "2 minutes ago",
-                                },
-                                {
-                                    action: "Post created",
-                                    user: "jane.smith",
-                                    time: "5 minutes ago",
-                                },
-                                {
-                                    action: "Comment posted",
-                                    user: "mike.wilson",
-                                    time: "8 minutes ago",
-                                },
-                                {
-                                    action: "User reported content",
-                                    user: "admin",
-                                    time: "12 minutes ago",
-                                },
-                                {
-                                    action: "New user registered",
-                                    user: "sarah.jones@example.com",
-                                    time: "15 minutes ago",
-                                },
-                            ].map((activity, index) => (
-                                <div
-                                    key={index}
-                                    className='flex items-center justify-between py-2 border-b border-white/10 last:border-b-0'
-                                >
-                                    <div>
-                                        <p className='text-white text-sm'>
-                                            {activity.action}
-                                        </p>
-                                        <p className='text-gray-400 text-xs'>
-                                            by {activity.user}
-                                        </p>
+                            {recentActivity.length > 0 ? (
+                                recentActivity.map((activity, index) => (
+                                    <div
+                                        key={index}
+                                        className='flex items-center justify-between py-2 border-b border-white/10 last:border-b-0'
+                                    >
+                                        <div>
+                                            <p className='text-white text-sm'>
+                                                {activity.action}
+                                            </p>
+                                            <p className='text-gray-400 text-xs'>
+                                                by {activity.user}
+                                            </p>
+                                        </div>
+                                        <span className='text-gray-400 text-xs'>
+                                            {activity.time}
+                                        </span>
                                     </div>
-                                    <span className='text-gray-400 text-xs'>
-                                        {activity.time}
-                                    </span>
+                                ))
+                            ) : (
+                                <div className='text-center text-gray-400 py-4'>
+                                    No recent activity available
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </CardContent>
                 </Card>

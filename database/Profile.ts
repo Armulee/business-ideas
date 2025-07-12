@@ -29,7 +29,10 @@ export interface IProfile extends Document<Schema.Types.ObjectId> {
     upvoteCount: number
     downvoteCount: number
     badges?: string[]
+    role: 'user' | 'moderator' | 'admin'
     hasSeenWelcome: boolean
+    restrictedUntil?: Date
+    restrictionReason?: string
     createdAt: Date
     updatedAt: Date
 }
@@ -71,7 +74,10 @@ const ProfileSchema = new Schema<IProfile>({
     repostCount: { type: Number, default: 0 },
     bookmarkCount: { type: Number, default: 0 },
     badges: { type: [String] },
+    role: { type: String, enum: ['user', 'moderator', 'admin'], default: 'user' },
     hasSeenWelcome: { type: Boolean, default: false },
+    restrictedUntil: { type: Date },
+    restrictionReason: { type: String },
     viewCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },

@@ -60,38 +60,23 @@ const slides = [
     },
 ]
 
-export default function WelcomeDialog() {
-    const { data: session, status } = useSession()
+export default function WelcomeDialog({
+    hasSeenWelcome,
+}: {
+    hasSeenWelcome: boolean
+}) {
+    const { status } = useSession()
     const [isOpen, setIsOpen] = useState(false)
-    const hasCheckedRef = useRef(false)
     const swiperRef = useRef<SwiperType | null>(null)
     const [swiperHeight, setSwiperHeight] = useState("auto")
     const [currentSlide, setCurrentSlide] = useState(0)
 
     useEffect(() => {
         // Only check once for authenticated users
-        if (
-            status === "authenticated" &&
-            session?.user?.email &&
-            !hasCheckedRef.current
-        ) {
-            checkWelcomeStatus()
-            hasCheckedRef.current = true
+        if (status === "authenticated" && !hasSeenWelcome) {
+            setIsOpen(true)
         }
-    }, [session, status])
-
-    const checkWelcomeStatus = async () => {
-        try {
-            const response = await axios.get(`/api/profile/welcome-status`)
-            const { hasSeenWelcome } = response.data
-
-            if (!hasSeenWelcome) {
-                setIsOpen(true)
-            }
-        } catch (error) {
-            console.error("Failed to check welcome status:", error)
-        }
-    }
+    }, [status, hasSeenWelcome])
 
     const markWelcomeAsSeen = async () => {
         try {

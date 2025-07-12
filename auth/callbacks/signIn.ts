@@ -21,12 +21,6 @@ export default async function signIn({
     profile: authProfile,
 }: SignInProps) {
     try {
-        console.log("SignIn callback triggered:", { 
-            provider: account?.provider, 
-            userEmail: user.email,
-            userId: user.id 
-        })
-        
         await connectDB()
 
         // For OAuth providers (Google, Twitter), Resend, and Passkey
@@ -39,13 +33,13 @@ export default async function signIn({
             if (!mongoProfile) {
                 // For passkey, get the name from the existing PostgreSQL user if available
                 let userName = user.name || authProfile?.name
-                
+
                 if (account?.provider === "passkey" && !userName) {
                     // Try to get name from existing PostgreSQL user
                     const existingPgUser = await prisma.user.findUnique({
                         where: { email: user.email! },
                     })
-                    userName = existingPgUser?.name || user.email?.split('@')[0]
+                    userName = existingPgUser?.name || user.email?.split("@")[0]
                 }
 
                 mongoProfile = await Profile.create({
@@ -58,7 +52,10 @@ export default async function signIn({
                 if (!mongoProfile.name && user.name) {
                     mongoProfile.name = user.name
                     await mongoProfile.save()
-                } else if (!mongoProfile.name && account?.provider === "passkey") {
+                } else if (
+                    !mongoProfile.name &&
+                    account?.provider === "passkey"
+                ) {
                     // For passkey, try to get name from PostgreSQL user
                     const existingPgUser = await prisma.user.findUnique({
                         where: { email: user.email! },
