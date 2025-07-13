@@ -1,12 +1,11 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
 import Stats from "./stats"
 import { SearchFilters } from "./search"
-import { UserItem } from "./user-item"
+import { PaginationHandler } from "./pagination-handler"
 import { ReasonDialog } from "./reason-dialog"
 import { useAdminUsers } from "./hooks/use-admin-user"
 import { useDialogs } from "./hooks/use-dialog"
@@ -16,8 +15,11 @@ import {
     getActionButtonClass,
 } from "./utils"
 import { Action, Role } from "./types"
+import { getActionFromPart, getPartFromAction } from "./mappings"
+import { updateUserAction } from "./action-utils"
+import { UserItem } from "./user-item"
 
-export default function AdminUserManagement() {
+export default function UserManagement() {
     // Get current user session for permission checks
     const { data: session } = useSession()
 
@@ -28,7 +30,7 @@ export default function AdminUserManagement() {
         loading, // Loading state for API calls
         search, // Current search input value
         setSearch, // Function to update search input
-        debouncedSearch, // Debounced search value (500ms delay)
+        debouncedSearch, // Debounced search value (configurable delay)
         startDate, // Date filter start range
         setStartDate, // Function to set start date
         endDate, // Date filter end range
@@ -53,7 +55,10 @@ export default function AdminUserManagement() {
     // Get current user ID to prevent self-actions
     const currentUserId = session?.user?.id
 
-    // Handle "Load More" button click for pagination
+    /**
+     * Handles "Load More" button click for pagination
+     * Loads the next page of users and appends to existing list
+     */
     const handleLoadMore = useCallback(() => {
         if (pagination?.hasNext && !loading) {
             const nextPage = currentPage + 1
@@ -62,47 +67,28 @@ export default function AdminUserManagement() {
         }
     }, [pagination?.hasNext, loading, currentPage, fetchUsers, setCurrentPage])
 
-    // Set up infinite scroll functionality
-    useEffect(() => {
-        const handleScroll = () => {
-            // Check if user scrolled near bottom (within 1000px)
-            if (
-                window.innerHeight + document.documentElement.scrollTop >=
-                document.documentElement.offsetHeight - 1000
-            ) {
-                // Load more users if there are more pages available
-                if (pagination?.hasNext && !loading) {
-                    handleLoadMore()
-                }
-            }
-        }
-
-        // Add scroll event listener
-        window.addEventListener("scroll", handleScroll)
-        // Cleanup function to remove listener on unmount
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [pagination, loading, handleLoadMore])
-
-    // Handle opening the reason dialog when clicking a specific user part
-    const handlePartClick = (userId: string, part: string, selectedRole?: string, selectedDuration?: string) => {
+    /**
+     * Handles opening the reason dialog when a user clicks on a specific user part
+     * @param userId - The ID of the user being acted upon
+     * @param part - The part of the user interface that was clicked (avatar, name, bio, etc.)
+     * @param selectedRole - Optional role when changing user role
+     * @param selectedDuration - Optional duration when restricting user
+     */
+    const handlePartClick = (
+        userId: string,
+        part: string,
+        selectedRole?: string,
+        selectedDuration?: string
+    ) => {
         const user = users.find((u) => u._id === userId)
         if (user && !shouldHideActions(user, currentUserId)) {
-            // Map part names to actions
-            const partToAction: Record<string, Action> = {
-                avatar: "reset_avatar",
-                name: "reset_username",
-                bio: "reset_bio",
-                role: "change_role",
-                restrict: "restrict",
-                delete: "delete",
-            }
-
-            const action = partToAction[part]
+            const action = getActionFromPart(part)
             if (action) {
                 // Get existing reasons for this specific action if they exist
                 const existingAction = selectedActions.get(userId)
-                const existingReasons = existingAction?.actionReasons?.get(action) || []
-                
+                const existingReasons =
+                    existingAction?.actionReasons?.get(action) || []
+
                 // Open simple reason dialog for this specific part
                 setReasonDialog({
                     isOpen: true,
@@ -112,31 +98,27 @@ export default function AdminUserManagement() {
                     showCustom: existingReasons.includes("Other"),
                     part, // Add part info to track which part was clicked
                     selectedRole: part === "role" ? selectedRole : undefined,
-                    selectedDuration: part === "restrict" ? selectedDuration : undefined,
+                    selectedDuration:
+                        part === "restrict" ? selectedDuration : undefined,
                 })
             }
         }
     }
 
-    // Handle editing reasons for existing user selection
+    /**
+     * Handles editing reasons for an existing user action selection
+     * @param userId - The ID of the user being acted upon
+     * @param action - The action type being edited
+     */
     const handleEditReasons = (userId: string, action: Action) => {
         const user = users.find((u) => u._id === userId)
         if (user && action && !shouldHideActions(user, currentUserId)) {
-            // Map action to part name for the dialog
-            const actionToPart: Record<string, string> = {
-                reset_avatar: "avatar",
-                reset_username: "name",
-                reset_bio: "bio",
-                change_role: "role",
-                restrict: "restrict",
-                delete: "delete",
-            }
-
-            const part = actionToPart[action]
+            const part = getPartFromAction(action)
             if (part) {
                 // Get existing reasons for this specific action
                 const existingAction = selectedActions.get(userId)
-                const existingReasons = existingAction?.actionReasons?.get(action) || []
+                const existingReasons =
+                    existingAction?.actionReasons?.get(action) || []
 
                 // Open reason dialog with existing reasons pre-selected
                 setReasonDialog({
@@ -151,14 +133,20 @@ export default function AdminUserManagement() {
         }
     }
 
-    // Handle clearing a specific user's selections
+    /**
+     * Handles clearing all selected actions for a specific user
+     * @param userId - The ID of the user whose selections should be cleared
+     */
     const handleClearUser = (userId: string) => {
         const newActions = new Map(selectedActions)
         newActions.delete(userId)
         setSelectedActions(newActions)
     }
 
-    // Handle confirming a specific user's actions
+    /**
+     * Handles confirming and executing actions for a specific user
+     * @param userId - The ID of the user whose actions should be executed
+     */
     const handleConfirmUser = async (userId: string) => {
         const userAction = selectedActions.get(userId)
         if (userAction && userAction.reasons.length > 0) {
@@ -172,7 +160,10 @@ export default function AdminUserManagement() {
         }
     }
 
-    // Handle confirming reasons in the simple reason dialog
+    /**
+     * Handles confirming reasons in the simple reason dialog
+     * Processes the selected reasons and updates the user actions state
+     */
     const handleReasonConfirm = () => {
         // Build final reasons array - if "Other" is selected and custom reason provided,
         // replace "Other" with the custom reason text
@@ -186,61 +177,27 @@ export default function AdminUserManagement() {
                   ]
                 : reasonDialog.selectedReasons
 
-        // Map part names to actions
-        const partToAction: Record<string, Action> = {
-            avatar: "reset_avatar",
-            name: "reset_username",
-            bio: "reset_bio",
-            role: "change_role",
-            restrict: "restrict",
-            delete: "delete",
-        }
-
-        const action = partToAction[reasonDialog.part || ""]
+        const action = getActionFromPart(reasonDialog.part || "")
         if (!action) return
 
         // Update the selected actions with the confirmed reasons for this specific part
-        const newActions = new Map(selectedActions)
-        const existingAction = newActions.get(reasonDialog.userId)
-
-        if (existingAction) {
-            // Add this action to existing actions
-            existingAction.actions.add(action)
-            
-            // Initialize actionReasons Map if it doesn't exist
-            if (!existingAction.actionReasons) {
-                existingAction.actionReasons = new Map()
-            }
-            
-            // Set reasons for this specific action
-            existingAction.actionReasons.set(action, finalReasons)
-            
-            newActions.set(reasonDialog.userId, {
-                ...existingAction,
-                reasons: finalReasons, // Keep for backward compatibility
-                role: (reasonDialog.selectedRole as Role) || existingAction.role,
-                duration: reasonDialog.selectedDuration || existingAction.duration,
-            })
-        } else {
-            // Create new action for this user with actionReasons Map
-            const actionReasons = new Map()
-            actionReasons.set(action, finalReasons)
-            
-            newActions.set(reasonDialog.userId, {
-                userId: reasonDialog.userId,
-                actions: new Set([action]),
-                reasons: finalReasons, // Keep for backward compatibility
-                actionReasons,
-                role: reasonDialog.selectedRole as Role,
-                duration: reasonDialog.selectedDuration,
-            })
-        }
+        const newActions = updateUserAction(
+            selectedActions,
+            reasonDialog.userId,
+            action,
+            finalReasons,
+            reasonDialog.selectedRole as Role,
+            reasonDialog.selectedDuration
+        )
 
         setSelectedActions(newActions)
         closeReasonDialog()
     }
 
-    // Handle custom reason change
+    /**
+     * Handles changes to the custom reason input field
+     * @param value - The new custom reason text
+     */
     const handleCustomReasonChange = (value: string) => {
         setReasonDialog({
             ...reasonDialog,
@@ -254,7 +211,7 @@ export default function AdminUserManagement() {
             <Stats stats={stats} />
 
             {/* Main user management card */}
-            <Card className='bg-white/10 backdrop-blur-md border-white/20'>
+            <Card className='glassmorphism bg-transparent'>
                 <CardHeader>
                     <CardTitle className='text-white'>
                         User Management
@@ -272,7 +229,6 @@ export default function AdminUserManagement() {
                         debouncedSearch={debouncedSearch}
                     />
 
-                    {/* List of users with action buttons */}
                     <ul className='space-y-4'>
                         {users.map((user) => {
                             const selectedAction = selectedActions.get(user._id) // Get selected actions for this user
@@ -312,26 +268,13 @@ export default function AdminUserManagement() {
                         })}
                     </ul>
 
-                    {/* Manual load more button (backup for infinite scroll) */}
-                    {pagination?.hasNext && (
-                        <div className='text-center pt-4'>
-                            <Button
-                                onClick={handleLoadMore}
-                                disabled={loading}
-                                variant='outline'
-                                className='bg-white/10 border-white/20 text-white hover:bg-white/20'
-                            >
-                                {loading ? "Loading..." : "Load More"}
-                            </Button>
-                        </div>
-                    )}
-
-                    {/* Show current pagination status */}
-                    {pagination && (
-                        <div className='text-center text-gray-400 text-sm'>
-                            Showing {users.length} of {pagination.total} users
-                        </div>
-                    )}
+                    {/* Pagination and load more functionality */}
+                    <PaginationHandler
+                        pagination={pagination}
+                        loading={loading}
+                        usersCount={users.length}
+                        onLoadMore={handleLoadMore}
+                    />
                 </CardContent>
             </Card>
 

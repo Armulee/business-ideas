@@ -13,6 +13,14 @@ interface FlaggedPartsProps {
     onConfirmUser: (userId: string) => void
 }
 
+/**
+ * FlaggedParts component displays the flagged sections for a user
+ *
+ * Shows individual flagged parts with their reasons and results,
+ * providing edit functionality and action buttons.
+ *
+ * @param props - Component props including user data and action handlers
+ */
 export function FlaggedParts({
     userId,
     selectedAction,
@@ -43,10 +51,11 @@ export function FlaggedParts({
                     const actionName =
                         actionNames[action as keyof typeof actionNames] ||
                         action
-                    
+
                     // Get reasons specific to this action
-                    const actionSpecificReasons = selectedAction.actionReasons?.get(action) || []
-                    
+                    const actionSpecificReasons =
+                        selectedAction.actionReasons?.get(action) || []
+
                     return (
                         <div
                             key={action}
@@ -130,7 +139,7 @@ export function FlaggedParts({
                     size='sm'
                     onClick={() => onConfirmUser(userId)}
                     disabled={!hasReasons}
-                    className='px-6 glassmorphism bg-blue-600/50 hover:bg-blue-700 border-0 text-white disabled:opacity-50'
+                    className='px-6 glassmorphism bg-blue-600/50 hover:bg-blue-700 border-0 text-white hover:text-white disabled:opacity-50'
                 >
                     Operational Confirmation <Rocket />
                 </Button>

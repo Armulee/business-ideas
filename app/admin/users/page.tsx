@@ -1,5 +1,5 @@
-import AdminUserManagement from "@/components/admin/user"
+import UserManagment from "@/components/admin/user"
 
 export default function AdminUserPage() {
-    return <AdminUserManagement />
+    return <UserManagment />
 }

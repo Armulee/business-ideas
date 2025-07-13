@@ -12,7 +12,7 @@ export default function Stats({ stats }: StatsProps) {
 
     return (
         <Link
-            href='/admin/user/history'
+            href='/admin/users/history'
             className='grid grid-cols-3 lg:grid-cols-6 gap-4 mb-6'
         >
             {ADMIN_STATS_CONFIG.map((stat) => (

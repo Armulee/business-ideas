@@ -1,10 +1,6 @@
 import { default as CredentialsProvider } from "next-auth/providers/credentials"
 import bcrypt from "bcrypt"
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible"
-import {
-    generateRandomWord,
-    generateUsername,
-} from "../../lib/generate-random-name"
 import connectDB from "@/database"
 import { prisma } from "@/lib/prisma"
 import { CredentialsSignin } from "next-auth"
@@ -93,9 +89,7 @@ export default function Credentials() {
 
             if (!profile) {
                 profile = await Profile.create({
-                    name:
-                        pgUser.name ||
-                        generateUsername() + "-" + generateRandomWord(),
+                    name: pgUser.name,
                     email: pgUser.email,
                 })
                 await profile.save()

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { User, UserAction, Action } from "./types"
 import { ROLES, RESTRICTION_OPTIONS } from "./constants"
 import { FlaggedParts } from "./flagged-parts"
+import { ACTION_DISPLAY_NAMES } from "./mappings"
 
 interface UserItemProps {
     user: User
@@ -34,6 +35,17 @@ interface UserItemProps {
     getActionButtonClass: (userId: string, action: Action) => string
 }
 
+/**
+ * UserItem component displays an individual user in the admin management interface
+ *
+ * Features:
+ * - Clickable user parts (avatar, name, bio, role) for flagging
+ * - Action buttons for restrict and delete operations
+ * - Visual indicators for selected actions
+ * - Flagged parts display with edit capabilities
+ *
+ * @param props - Component props including user data and event handlers
+ */
 export function UserItem({
     user,
     selectedAction,
@@ -56,15 +68,7 @@ export function UserItem({
         ? Array.from(selectedAction.actions)
         : []
 
-    // Convert action types to readable names for individual flagging
-    const actionNames = {
-        reset_avatar: "Avatar",
-        reset_username: "Name",
-        reset_bio: "Bio",
-        change_role: "Role",
-        restrict: "Restrict",
-        delete: "Delete",
-    }
+    // Use centralized action display names for consistent naming
 
     // Check if other actions are selected (disable delete when other actions are active)
     const hasOtherActions =
@@ -74,15 +78,7 @@ export function UserItem({
         )
 
     return (
-        <li
-            className={cn(
-                "flex flex-col gap-4 p-4 rounded-lg border transition-colors",
-                // Change background based on selection state
-                isSelected
-                    ? "bg-gray-700/50 border-gray-600" // Darker when selected
-                    : "bg-white/5 border-white/10 hover:bg-white/10" // Light with hover
-            )}
-        >
+        <li className='flex flex-col gap-4 p-4 rounded-lg border transition-colors glassmorphism bg-black/20'>
             {/* Main content row - responsive layout */}
             <div className='flex md:flex-row flex-col md:items-center md:justify-between gap-4'>
                 {/* User info section - left side */}
@@ -338,7 +334,7 @@ export function UserItem({
                     userId={user._id}
                     selectedAction={selectedAction}
                     selectedActionTypes={selectedActionTypes}
-                    actionNames={actionNames}
+                    actionNames={ACTION_DISPLAY_NAMES}
                     onEditReasons={onEditReasons}
                     onClearUser={onClearUser}
                     onConfirmUser={onConfirmUser}

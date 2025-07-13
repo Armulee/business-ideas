@@ -20,6 +20,14 @@ interface ReasonDialogProps {
     onCustomReasonChange: (value: string) => void
 }
 
+/**
+ * ReasonDialog component for selecting reasons for user actions
+ * 
+ * Provides a modal interface for selecting violation or promotion reasons
+ * with support for custom reasons and context-aware reason lists.
+ * 
+ * @param props - Component props including dialog state and event handlers
+ */
 export function ReasonDialog({
     reasonDialog,
     onClose,

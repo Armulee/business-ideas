@@ -1,7 +1,20 @@
 import { useState, useCallback, useEffect } from "react"
 import { toast } from "sonner"
 import { User, Pagination, UserAction, Stats, Action, Role } from "../types"
+import { TIMING_CONSTANTS } from "../mappings"
+import { toggleUserAction } from "../action-utils"
 
+/**
+ * Custom hook for managing admin user operations
+ * 
+ * Provides state management and functions for:
+ * - Fetching and filtering users
+ * - Managing user action selections
+ * - Executing bulk actions
+ * - Handling pagination and search
+ * 
+ * @returns Object containing state and functions for admin user management
+ */
 export function useAdminUsers() {
     const [users, setUsers] = useState<User[]>([])
     const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -68,43 +81,7 @@ export function useAdminUsers() {
         duration?: string,
         role?: Role
     ) => {
-        const newActions = new Map(selectedActions)
-        const existingAction = newActions.get(userId)
-
-        if (existingAction) {
-            const newActionSet = new Set(existingAction.actions)
-            if (newActionSet.has(action)) {
-                newActionSet.delete(action)
-            } else {
-                newActionSet.add(action)
-            }
-
-            if (newActionSet.size === 0) {
-                newActions.delete(userId)
-            } else {
-                newActions.set(userId, {
-                    ...existingAction,
-                    actions: newActionSet,
-                    duration:
-                        action === "restrict"
-                            ? duration
-                            : existingAction.duration,
-                    role: action === "change_role" ? role : existingAction.role,
-                })
-            }
-        } else {
-            const actionSet = new Set<Action>()
-            actionSet.add(action)
-            newActions.set(userId, {
-                userId,
-                actions: actionSet,
-                duration,
-                role,
-                reasons: [],
-                actionReasons: new Map(),
-            })
-        }
-
+        const newActions = toggleUserAction(selectedActions, userId, action, duration, role)
         setSelectedActions(newActions)
     }
 
@@ -186,7 +163,7 @@ export function useAdminUsers() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search)
-        }, 500)
+        }, TIMING_CONSTANTS.SEARCH_DEBOUNCE_MS)
         return () => clearTimeout(timer)
     }, [search])
 

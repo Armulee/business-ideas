@@ -2,7 +2,7 @@
  * Generate a username like "janesmith541" or "janesmith"
  * @param useNumbers include a random 3-digit suffix? default `true`
  */
-export function generateUsername(useNumbers = true): string {
+function generateName(useNumbers = true): string {
     // Sample name lists — feel free to extend!
     const firstNames = [
         "Jane",
@@ -44,7 +44,7 @@ export function generateUsername(useNumbers = true): string {
 /**
  * Generate a single random “word” username like "matrix" or "vortex"
  */
-export function generateRandomWord(): string {
+function generateRandomWord(): string {
     // A small random-word list
     const words = [
         "echo",
@@ -60,4 +60,8 @@ export function generateRandomWord(): string {
     ]
 
     return words[Math.floor(Math.random() * words.length)]
+}
+
+export default function generateRandomUsername(): string {
+    return generateName() + "-" + generateRandomWord()
 }

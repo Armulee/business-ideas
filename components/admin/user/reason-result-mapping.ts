@@ -101,13 +101,24 @@ export const REASON_SEVERITY: Record<string, number> = {
     "Other": 1
 }
 
-// Helper function to get result for a specific reason and action
+/**
+ * Gets the result text for a specific reason and action combination
+ * @param action - The action being performed
+ * @param reason - The specific reason selected
+ * @returns The result text for the action-reason combination
+ */
 export function getResultForReason(action: Action, reason: string): string {
     if (!action) return ""
     return REASON_RESULT_MAPPING[action]?.[reason] || ACTION_RESULTS[action] || "Action Applied"
 }
 
-// Helper function to get the most severe result from multiple reasons
+/**
+ * Determines the most severe result from multiple reasons for an action
+ * Uses severity ranking to show only the highest priority result
+ * @param action - The action being performed
+ * @param reasons - Array of selected reasons
+ * @returns The result text for the most severe reason
+ */
 export function getMostSevereResult(action: Action, reasons: string[]): string {
     if (!action || !reasons.length) return ""
     
