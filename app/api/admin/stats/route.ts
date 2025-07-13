@@ -6,6 +6,7 @@ import Post from "@/database/Post"
 import Comment from "@/database/Comment"
 import Reply from "@/database/Reply"
 import Activity, { IActivityPopulated } from "@/database/Activity"
+import Administration from "@/database/Administration"
 import { formatDate } from "@/utils/format-date"
 
 export async function GET() {
@@ -88,6 +89,46 @@ export async function GET() {
             ...activeUserProfiles[1],
         ]).size
 
+        // Get administration stats
+        const adminActions = await Administration.aggregate([
+            {
+                $group: {
+                    _id: "$action",
+                    count: { $sum: 1 }
+                }
+            }
+        ])
+
+        // Initialize administration stats with zeros
+        const adminStats = {
+            restrictions: 0,
+            deletions: 0,
+            avatarResets: 0,
+            usernameResets: 0,
+            roleChanges: 0
+        }
+
+        // Map the aggregated results to administration stats
+        adminActions.forEach(item => {
+            switch (item._id) {
+                case 'restrict':
+                    adminStats.restrictions = item.count
+                    break
+                case 'delete':
+                    adminStats.deletions = item.count
+                    break
+                case 'reset_avatar':
+                    adminStats.avatarResets = item.count
+                    break
+                case 'reset_username':
+                    adminStats.usernameResets = item.count
+                    break
+                case 'change_role':
+                    adminStats.roleChanges = item.count
+                    break
+            }
+        })
+
         // Get chart data for the last 7 days
         const chartData = await getChartData()
 
@@ -121,6 +162,8 @@ export async function GET() {
             viewGrowth: 0, // This would need view tracking over time
             chartData,
             recentActivity: formattedActivity,
+            // Include administration stats for user management
+            ...adminStats,
         }
 
         return NextResponse.json(stats)

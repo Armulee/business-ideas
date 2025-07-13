@@ -1,5 +1,4 @@
 import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
 import Twitter from "next-auth/providers/twitter"
 // import Passkey from "next-auth/providers/passkey"
 import { PrismaAdapter } from "@auth/prisma-adapter"
@@ -8,6 +7,7 @@ import Credentials from "./providers/credentials"
 import Resend from "./providers/resend"
 import { default as signInCallback } from "./callbacks/signIn"
 import session from "./callbacks/session"
+import Google from "./providers/google"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -18,15 +18,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         signIn: "/auth/signin",
     },
     providers: [
-        Google({
-            authorization: {
-                params: {
-                    prompt: "select_account consent",
-                    access_type: "offline",
-                    response_type: "code",
-                },
-            },
-        }),
+        Google,
         Twitter,
         Resend,
         // Passkey,

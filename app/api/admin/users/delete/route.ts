@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import connectDB from "@/database"
 import Profile from "@/database/Profile"
+import Administration from "@/database/Administration"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: Request) {
     try {
@@ -53,17 +55,44 @@ export async function POST(request: Request) {
         // Send email notification before deletion
         await sendDeletionEmail(targetUser.email, targetUser.name, reason)
 
-        // Log admin action
-        await logAdminAction({
-            adminId: adminProfile.profileId.toString(),
-            adminEmail: adminProfile.email,
+        // Delete from both PostgreSQL and MongoDB
+        // First find the PostgreSQL user by email
+        const pgUser = await prisma.user.findFirst({
+            where: { email: targetUser.email }
+        })
+        
+        if (pgUser) {
+            // Delete all related data in PostgreSQL
+            await prisma.account.deleteMany({
+                where: { userId: pgUser.id }
+            })
+            await prisma.session.deleteMany({
+                where: { userId: pgUser.id }
+            })
+            await prisma.authenticator.deleteMany({
+                where: { userId: pgUser.id }
+            })
+            await prisma.user.delete({
+                where: { id: pgUser.id }
+            })
+        }
+
+        // Create administration record
+        const administrationRecord = new Administration({
+            user: {
+                userId: targetUser._id.toString(),
+                profileId: targetUser.profileId
+            },
             action: 'delete',
-            targetUserId: targetUser.profileId.toString(),
-            targetUserEmail: targetUser.email,
-            reason,
+            reason: reason,
+            adminId: session.user.id || '',
+            adminProfileId: adminProfile.profileId,
+            result: 'permanent_ban'
         })
 
-        // Delete user profile
+        await administrationRecord.save()
+
+        // Delete user profile from MongoDB
         await Profile.findByIdAndDelete(targetUser._id)
 
         return NextResponse.json({
@@ -106,25 +135,3 @@ BlueBizHub Administration Team
     }
 }
 
-async function logAdminAction(actionData: {
-    adminId: string
-    adminEmail: string
-    action: string
-    targetUserId: string
-    targetUserEmail: string
-    reason: string
-}) {
-    try {
-        // In a real application, you would save this to an AdminAction collection
-        console.log("Admin action logged:", actionData)
-        
-        // Example: Save to database
-        // await AdminAction.create({
-        //     ...actionData,
-        //     createdAt: new Date()
-        // })
-        
-    } catch (error) {
-        console.error("Error logging admin action:", error)
-    }
-}
