@@ -20,7 +20,7 @@ export default function Loading() {
                 >
                     <span className='text-blue-400'>Blue</span>BizHub
                 </motion.p>
-                <PropagateLoader color='#ffffff' size={25} />
+                <PropagateLoader color='#ffffff' size={25} className='pr-6' />
             </motion.div>
         </div>
     )
