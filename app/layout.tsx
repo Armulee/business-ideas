@@ -22,6 +22,7 @@ import { LoadingProvider } from "@/components/loading-provider"
 
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
+import GoogleOneTap from "@/auth/google-one-tap"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -33,9 +34,42 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 })
 
-export const metaData: Metadata = {
-    title: "Blue Biz Hub",
-    description: "Business Idea",
+export const metadata: Metadata = {
+    title: "BlueBizHub – Business Idea Refinement Platform",
+    description:
+        "BlueBizHub connects visionary entrepreneurs with a vibrant community to share, discuss, and refine innovative business ideas into successful ventures.",
+    keywords: [
+        "business ideas",
+        "startup feedback",
+        "entrepreneur community",
+        "idea validation",
+        "crowdsourcing innovation",
+        "startup development",
+    ],
+    authors: [{ name: "BlueBizHub", url: "https://bluebizhub.com" }],
+    openGraph: {
+        type: "website",
+        url: "https://bluebizhub.com/",
+        title: "BlueBizHub – Community-Powered Business Idea Refinement Platform",
+        description:
+            "Share your startup vision on BlueBizHub, where entrepreneurs and experts collaborate to transform your ideas into thriving businesses.",
+        images: [
+            {
+                url: "https://bluebizhub.com/og-image.jpg",
+                width: 1200,
+                height: 630,
+                alt: "BlueBizHub – Innovate, Share, Succeed",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        site: "@BlueBizHub",
+        title: "BlueBizHub – Community-Powered Business Idea Refinement Platform",
+        description:
+            "Unlock your startup’s potential with BlueBizHub—get valuable insights and community feedback to accelerate your business journey.",
+        images: "https://bluebizhub.com/twitter-card.jpg",
+    },
 }
 
 export default function RootLayout({
@@ -47,12 +81,20 @@ export default function RootLayout({
 }>) {
     return (
         <html lang='en'>
+            <head>
+                <script
+                    src='https://accounts.google.com/gsi/client'
+                    async
+                    defer
+                ></script>
+            </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden relative h-full`}
             >
                 <div className='moving-gradient'>
                     <Provider session={session}>
                         <LoadingProvider>
+                            <GoogleOneTap />
                             <Suspense>
                                 <Navbar />
                                 <Main>{children}</Main>
