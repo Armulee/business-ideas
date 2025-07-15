@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Clock, User, Shield, Calendar } from "lucide-react"
+import { Trash2, Clock, User, Shield, Calendar, RefreshCw, UserX, FileText, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import axios from "axios"
 import Link from "next/link"
@@ -272,7 +272,7 @@ export default function UserManagementHistory() {
                                                 {/* Target User */}
                                                 <div className='flex items-center gap-2 text-sm'>
                                                     <User className='h-4 w-4 text-white/70' />
-                                                    <span className='font-bold hidden sm:block'>
+                                                    <span className='font-bold hidden sm:inline'>
                                                         Target:
                                                     </span>
                                                     {action.user && action.user.name ? (
@@ -305,7 +305,7 @@ export default function UserManagementHistory() {
                                                 {/* Admin */}
                                                 <div className='flex items-center gap-2 text-sm'>
                                                     <Shield className='h-4 w-4 text-white/70' />
-                                                    <span className='font-bold hidden sm:block'>
+                                                    <span className='font-bold hidden sm:inline'>
                                                         Admin:
                                                     </span>
                                                     {action.admin && action.admin.name ? (
@@ -339,7 +339,8 @@ export default function UserManagementHistory() {
                                                 {action.previousRole &&
                                                     action.newRole && (
                                                         <div className='flex items-center gap-2 text-sm'>
-                                                            <span className='font-medium'>
+                                                            <RefreshCw className='h-4 w-4 text-white/70' />
+                                                            <span className='font-medium hidden sm:inline'>
                                                                 Role Change:
                                                             </span>
                                                             <span className='text-white/70'>
@@ -355,7 +356,8 @@ export default function UserManagementHistory() {
                                                 {/* Avatar Reset */}
                                                 {action.action === "reset_avatar" && action.previousAvatar && (
                                                     <div className='flex items-center gap-2 text-sm'>
-                                                        <span className='font-medium'>
+                                                        <UserX className='h-4 w-4 text-white/70' />
+                                                        <span className='font-medium hidden sm:inline'>
                                                             Avatar Reset:
                                                         </span>
                                                         <Avatar className='w-6 h-6'>
@@ -374,7 +376,8 @@ export default function UserManagementHistory() {
                                                 {/* Username Reset */}
                                                 {action.action === "reset_username" && action.previousUsername && action.newUsername && (
                                                     <div className='flex items-center gap-2 text-sm'>
-                                                        <span className='font-medium'>
+                                                        <User className='h-4 w-4 text-white/70' />
+                                                        <span className='font-medium hidden sm:inline'>
                                                             Username Change:
                                                         </span>
                                                         <span className='text-white/70'>
@@ -390,7 +393,8 @@ export default function UserManagementHistory() {
                                                 {/* Bio Reset */}
                                                 {action.action === "reset_bio" && action.previousBio && (
                                                     <div className='flex items-start gap-2 text-sm'>
-                                                        <span className='font-medium'>
+                                                        <FileText className='h-4 w-4 text-white/70 mt-0.5' />
+                                                        <span className='font-medium hidden sm:inline'>
                                                             Bio Reset:
                                                         </span>
                                                         <div className='flex-1'>
@@ -408,7 +412,8 @@ export default function UserManagementHistory() {
                                                 {/* Reason */}
                                                 <div className='text-sm'>
                                                     <p className='text-white/70 mt-1'>
-                                                        <strong className='text-white mr-1'>
+                                                        <MessageSquare className='h-4 w-4 text-white/70 inline mr-2' />
+                                                        <strong className='text-white mr-1 hidden sm:inline'>
                                                             Reason:
                                                         </strong>
                                                         {action.reason}

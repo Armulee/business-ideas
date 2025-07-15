@@ -59,18 +59,6 @@ export default function Credentials() {
                 throw new ProviderExistingError(provider)
             }
 
-            if (
-                !pgUser.password &&
-                pgUser.verificationToken === credentials.password
-            ) {
-                return {
-                    id: pgUser.id,
-                    name: pgUser.name,
-                    email: pgUser.email,
-                    stealth: true,
-                }
-            }
-
             // match encrypted password
             if (pgUser.password) {
                 const isMatch = await bcrypt.compare(

@@ -20,6 +20,7 @@ import AdvancedSettings from "./advanced-settings"
 export default function NewIdea() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
 
     const { data: session, status } = useSession()
 
@@ -51,7 +52,7 @@ export default function NewIdea() {
     const [tags, setTags] = useState<string[]>([])
     const { widgets, summaries, pollData, callToComment } = useWidgetForm()
     const onSubmit = async (values: NewPostSchema) => {
-        // setLoading(true)
+        setSubmitting(true)
 
         // Here you would typically send the data to your backend
         const postData: PostData = {
@@ -91,11 +92,11 @@ export default function NewIdea() {
             router.push(`/post/${id}/${slug}`)
         } catch (err) {
             console.error((err as Error).message)
-            setLoading(false)
+            setSubmitting(false)
         }
     }
 
-    if (loading) {
+    if (loading || submitting) {
         return <Loading />
     }
 

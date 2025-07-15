@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             },
         })
 
-        await signIn("credentials", { email, password })
+        await signIn("credentials", { email, password, redirect: false })
 
         return NextResponse.json(
             { message: "Account setup completed with credentials" },

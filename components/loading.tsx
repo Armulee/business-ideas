@@ -13,7 +13,7 @@ export default function Loading() {
                 transition={{ duration: 0.5 }}
             >
                 <motion.p
-                    className='mb-8 text-white font-bold text-2xl pl-6'
+                    className='mb-8 text-white font-bold text-2xl'
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.5 }}

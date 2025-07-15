@@ -8,6 +8,7 @@ import Reply from "@/database/Reply"
 import Activity, { IActivityPopulated } from "@/database/Activity"
 import Administration from "@/database/Administration"
 import { formatDate } from "@/utils/format-date"
+import Report from "@/database/Report"
 
 export async function GET() {
     try {
@@ -72,11 +73,7 @@ export async function GET() {
                   100
                 : 0
 
-        // Get total views from posts
-        const viewsResult = await Post.aggregate([
-            { $group: { _id: null, totalViews: { $sum: "$viewCount" } } },
-        ])
-        const totalViews = viewsResult[0]?.totalViews || 0
+        const totalReports = await Report.countDocuments()
 
         // Calculate active users (users who have posted or commented in the last 30 days)
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -94,9 +91,9 @@ export async function GET() {
             {
                 $group: {
                     _id: "$action",
-                    count: { $sum: 1 }
-                }
-            }
+                    count: { $sum: 1 },
+                },
+            },
         ])
 
         // Initialize administration stats with zeros
@@ -105,25 +102,25 @@ export async function GET() {
             deletions: 0,
             avatarResets: 0,
             usernameResets: 0,
-            roleChanges: 0
+            roleChanges: 0,
         }
 
         // Map the aggregated results to administration stats
-        adminActions.forEach(item => {
+        adminActions.forEach((item) => {
             switch (item._id) {
-                case 'restrict':
+                case "restrict":
                     adminStats.restrictions = item.count
                     break
-                case 'delete':
+                case "delete":
                     adminStats.deletions = item.count
                     break
-                case 'reset_avatar':
+                case "reset_avatar":
                     adminStats.avatarResets = item.count
                     break
-                case 'reset_username':
+                case "reset_username":
                     adminStats.usernameResets = item.count
                     break
-                case 'change_role':
+                case "change_role":
                     adminStats.roleChanges = item.count
                     break
             }
@@ -151,7 +148,7 @@ export async function GET() {
             totalUsers,
             totalPosts,
             totalComments: totalComments + totalReplies,
-            totalViews,
+            totalReports,
             activeUsers,
             newUsersToday,
             newPostsToday,

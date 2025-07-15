@@ -18,14 +18,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import {
     Activity,
     Calendar,
-    Eye,
     FileText,
+    Flag,
     MessageSquare,
     TrendingUp,
     Users,
 } from "lucide-react"
 import { AdminSkeleton } from "../skeletons"
 import Link from "next/link"
+import axios from "axios"
 
 // Register Chart.js components
 ChartJS.register(
@@ -39,21 +40,6 @@ ChartJS.register(
     Legend,
     ArcElement
 )
-
-// interface DashboardStats {
-//     totalUsers: number
-//     totalPosts: number
-//     totalComments: number
-//     totalViews: number
-//     activeUsers: number
-//     newUsersToday: number
-//     newPostsToday: number
-//     newCommentsToday: number
-//     userGrowth: number
-//     postGrowth: number
-//     commentGrowth: number
-//     viewGrowth: number
-// }
 
 interface ChartData {
     userRegistrations: number[]
@@ -96,12 +82,12 @@ const overviewStats = [
         link: "/admin/comments",
     },
     {
-        key: "totalViews",
-        title: "Total Views",
-        icon: Eye,
+        key: "totalReports",
+        title: "Total Reports",
+        icon: Flag,
         iconColor: "text-orange-400",
-        growthKey: "viewGrowth",
-        link: "/admin/analytics",
+        // growthKey: "reportsGrowth",
+        link: "/admin/reports",
     },
 ]
 
@@ -196,30 +182,24 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const response = await fetch("/api/admin/stats")
-                if (!response.ok) {
-                    throw new Error("Failed to fetch stats")
-                }
-
-                const data = await response.json()
+                const response = await axios.get("/api/admin/stats")
 
                 setStats({
-                    totalUsers: data.totalUsers,
-                    totalPosts: data.totalPosts,
-                    totalComments: data.totalComments,
-                    totalViews: data.totalViews,
-                    activeUsers: data.activeUsers,
-                    newUsersToday: data.newUsersToday,
-                    newPostsToday: data.newPostsToday,
-                    newCommentsToday: data.newCommentsToday,
-                    userGrowth: data.userGrowth,
-                    postGrowth: data.postGrowth,
-                    commentGrowth: data.commentGrowth,
-                    viewGrowth: data.viewGrowth,
+                    totalUsers: response.data.totalUsers,
+                    totalPosts: response.data.totalPosts,
+                    totalComments: response.data.totalComments,
+                    totalReports: response.data.totalReports,
+                    activeUsers: response.data.activeUsers,
+                    newUsersToday: response.data.newUsersToday,
+                    newPostsToday: response.data.newPostsToday,
+                    newCommentsToday: response.data.newCommentsToday,
+                    userGrowth: response.data.userGrowth,
+                    postGrowth: response.data.postGrowth,
+                    commentGrowth: response.data.commentGrowth,
                 })
 
-                setChartData(data.chartData)
-                setRecentActivity(data.recentActivity || [])
+                setChartData(response.data.chartData)
+                setRecentActivity(response.data.recentActivity || [])
             } catch (error) {
                 console.error("Error fetching dashboard data:", error)
                 // Set fallback data on error
@@ -359,13 +339,15 @@ export default function AdminDashboard() {
                                         {stats?.[stat.key]?.toLocaleString() ||
                                             0}
                                     </div>
-                                    {stats?.[stat.growthKey] > 0 ? (
+                                    {stat.growthKey &&
+                                    stats?.[stat.growthKey] > 0 ? (
                                         <div className='flex items-center text-[10px] text-green-400'>
                                             <TrendingUp className='h-3 w-3 mr-1' />
                                             +{stats?.[stat.growthKey] || 0}%
                                             from last month
                                         </div>
-                                    ) : stats?.[stat.growthKey] < 0 ? (
+                                    ) : stat.growthKey &&
+                                      stats?.[stat.growthKey] < 0 ? (
                                         <div className='flex items-center text-[10px] text-red-400'>
                                             <TrendingUp className='h-3 w-3 mr-1' />
                                             -{stats?.[stat.growthKey] || 0}%

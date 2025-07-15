@@ -19,6 +19,14 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils" // your classnames util, optional
 import { useEffect, useState } from "react"
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+    ContextMenuSeparator,
+} from "@/components/ui/context-menu"
+
 
 interface RichTextEditorProps {
     defaultValue?: string | undefined
@@ -129,9 +137,15 @@ export function RichTextEditor({
                     editor.isActive("orderedList")
                 )}
                 {btn(
-                    () => editor.chain().focus().toggleBlockquote().run(),
+                    () => {
+                        const selection = editor.state.selection
+                        if (!selection.empty) {
+                            const selectedText = editor.state.doc.textBetween(selection.from, selection.to)
+                            editor.chain().focus().deleteSelection().insertContent(`"${selectedText}"`).run()
+                        }
+                    },
                     Quote,
-                    editor.isActive("blockquote")
+                    false
                 )}
                 {btn(
                     () => editor.chain().focus().toggleCodeBlock().run(),
@@ -154,15 +168,102 @@ export function RichTextEditor({
                 )} */}
             </div>
 
-            {/* You can add your toolbar here if you like */}
-            <EditorContent
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                className={`glassmorphism ${
-                    isFocus ? "bg-blue-600/50" : "bg-transparent"
-                } px-4 py-2 transition duration-500 ${className}`}
-                editor={editor}
-            />
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <EditorContent
+                        onFocus={() => setIsFocus(true)}
+                        onBlur={() => setIsFocus(false)}
+                        className={`glassmorphism ${
+                            isFocus ? "bg-blue-600/50" : "bg-transparent"
+                        } px-4 py-2 transition duration-500 ${className}`}
+                        editor={editor}
+                    />
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-64 glassmorphism bg-black/80 text-white border-white/20">
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleBold().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <Bold className="mr-2 h-4 w-4" />
+                        Bold {editor.isActive("bold") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleItalic().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <Italic className="mr-2 h-4 w-4" />
+                        Italic {editor.isActive("italic") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleUnderline().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <UnderlineIcon className="mr-2 h-4 w-4" />
+                        Underline {editor.isActive("underline") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleStrike().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <Strikethrough className="mr-2 h-4 w-4" />
+                        Strikethrough {editor.isActive("strike") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuSeparator className="bg-white/20" />
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleBulletList().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <List className="mr-2 h-4 w-4" />
+                        Bullet List {editor.isActive("bulletList") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <ListOrdered className="mr-2 h-4 w-4" />
+                        Numbered List {editor.isActive("orderedList") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => {
+                            const selection = editor.state.selection
+                            if (!selection.empty) {
+                                const selectedText = editor.state.doc.textBetween(selection.from, selection.to)
+                                editor.chain().focus().deleteSelection().insertContent(`"${selectedText}"`).run()
+                            }
+                        }}
+                        className="hover:bg-white/20"
+                    >
+                        <Quote className="mr-2 h-4 w-4" />
+                        Quote
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                        className="hover:bg-white/20"
+                    >
+                        <Code className="mr-2 h-4 w-4" />
+                        Code Block {editor.isActive("codeBlock") && "✓"}
+                    </ContextMenuItem>
+                    <ContextMenuSeparator className="bg-white/20" />
+                    <ContextMenuItem 
+                        onClick={() => navigator.clipboard.writeText(editor.state.selection.empty ? editor.getText() : editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to))}
+                        className="hover:bg-white/20"
+                    >
+                        Copy
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => navigator.clipboard.readText().then(text => editor.chain().focus().insertContent(text).run())}
+                        className="hover:bg-white/20"
+                    >
+                        Paste
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                        onClick={() => editor.chain().focus().selectAll().run()}
+                        className="hover:bg-white/20"
+                    >
+                        Select All
+                    </ContextMenuItem>
+                </ContextMenuContent>
+            </ContextMenu>
         </div>
     )
 }

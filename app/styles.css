@@ -253,6 +253,14 @@ body {
     }
 }
 
+.tiptap p {
+    margin-bottom: 0.75rem;
+}
+
+.tiptap p:last-child {
+    margin-bottom: 0;
+}
+
 .tiptap p.is-editor-empty:first-child::before {
     color: rgba(255, 255, 255, 0.5);
     content: attr(data-placeholder);
@@ -274,6 +282,24 @@ body {
     color: rgb(178, 201, 245);
     text-decoration: underline;
 }
+
+.tiptap q {
+    quotes: '"' '"' "'" "'" !important;
+    font-style: italic !important;
+    color: #60a5fa !important;
+    display: inline !important;
+}
+
+.tiptap q:before {
+    content: open-quote !important;
+    color: #60a5fa !important;
+}
+
+.tiptap q:after {
+    content: close-quote !important;
+    color: #60a5fa !important;
+}
+
 .ProseMirror-focused {
     outline: none;
 }
