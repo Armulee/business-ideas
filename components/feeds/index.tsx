@@ -234,6 +234,7 @@ const Feeds = () => {
                                         <div className='space-y-4'>
                                             {posts.map((post) => (
                                                 <PostCard
+                                                    className='mb-4'
                                                     key={post._id.toString()}
                                                     post={post}
                                                 />

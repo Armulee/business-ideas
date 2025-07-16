@@ -22,6 +22,7 @@ export default function RelatedPosts() {
             {relatedPosts?.length
                 ? relatedPosts.map((post, index) => (
                       <PostCard
+                          className='mb-4'
                           key={`related-post-${index + 1}`}
                           post={post}
                           showMoreButton={showButton}
