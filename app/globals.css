@@ -99,4 +99,178 @@ body {
   }
 }
 
+/* TipTap Editor Styles */
+.ProseMirror p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.ProseMirror p:empty {
+  display: none;
+}
+
+.ProseMirror p:empty::before {
+  content: "";
+  display: block;
+  height: 1em;
+}
+
+/* Image styles */
+.ProseMirror .editor-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.ProseMirror .editor-image:hover {
+  transform: scale(1.02);
+}
+
+/* Selected image styles */
+.ProseMirror .editor-image.ProseMirror-selectednode {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Video styles */
+.ProseMirror .editor-video {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 8px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ProseMirror .editor-video.ProseMirror-selectednode {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Resizable node wrapper styles */
+.ProseMirror [data-node-view-wrapper] {
+  position: relative;
+}
+
+/* Resize handle styles */
+.resize-handle {
+  position: absolute;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 2px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover {
+  background: #2563eb;
+}
+
+.resize-handle.corner {
+  width: 12px;
+  height: 12px;
+}
+
+.resize-handle.side {
+  width: 12px;
+  height: 24px;
+}
+
+/* Show resize handles on hover or selection */
+[data-node-view-wrapper]:hover .resize-handle,
+[data-node-view-wrapper].selected .resize-handle {
+  opacity: 1;
+}
+
+/* Control panel styles */
+.media-controls {
+  position: absolute;
+  top: -48px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 20;
+}
+
+[data-node-view-wrapper]:hover .media-controls,
+[data-node-view-wrapper].selected .media-controls {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Size indicator */
+.size-indicator {
+  position: absolute;
+  bottom: -32px;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 20;
+}
+
+.resizing .size-indicator,
+[data-node-view-wrapper]:hover .size-indicator {
+  opacity: 1;
+}
+
+/* Drag and drop feedback */
+.rich-text-editor.drag-over {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+}
+
+/* Alignment styles */
+.ProseMirror [data-text-align="left"] {
+  text-align: left;
+}
+
+.ProseMirror [data-text-align="center"] {
+  text-align: center;
+}
+
+.ProseMirror [data-text-align="right"] {
+  text-align: right;
+}
+
+.ProseMirror [data-text-align="justify"] {
+  text-align: justify;
+}
+
+/* Image alignment */
+.ProseMirror img[style*="text-align: center"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ProseMirror img[style*="text-align: right"] {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.ProseMirror img[style*="text-align: left"] {
+  display: block;
+  margin-left: 0;
+  margin-right: auto;
+}
+
 

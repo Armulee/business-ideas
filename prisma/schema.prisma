@@ -27,6 +27,7 @@ model User {
   callbackUrl         String?   @map("callback_url")
   resetToken          String?   @map("reset_token")
   resetTokenExpires   DateTime? @map("reset_token_expires")
+  passwordHistory     Json[]    @default([]) @map("password_history")
 
   accounts       Account[]
   sessions       Session[]

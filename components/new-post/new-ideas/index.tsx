@@ -1,26 +1,39 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState, useCallback } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import Loading from "../../loading"
-import PostTitle from "./post-titile"
+import PostTitle from "./post-title"
 import PostDescription from "./post-content"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formSchema, NewPostSchema, PostData } from "./types"
 import { useForm } from "react-hook-form"
 import { Form } from "@/components/ui/form"
-import Widgets from "./widgets"
+// import Widgets from "./widgets"
 import { useWidgetForm } from "./provider"
-import { Button } from "@/components/ui/button"
 import axios from "axios"
 import AdvancedSettings from "./advanced-settings"
+import AnimatedStatus from "./animated-status"
+import FloatingAction from "./floating-action"
+import { toast } from "sonner"
 
 export default function NewIdea() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [loading, setLoading] = useState(true)
+    const [loadingDraft, setLoadingDraft] = useState(false)
     const [submitting, setSubmitting] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+    const [hasInteracted, setHasInteracted] = useState(false)
+    const [savingDraft, setSavingDraft] = useState(false)
+    const [_draftId, setDraftId] = useState<string | null>(null)
+    const [showSaved, setShowSaved] = useState(false)
+    const [cleanFormState, setCleanFormState] = useState<NewPostSchema | null>(
+        null
+    )
 
     const { data: session, status } = useSession()
 
@@ -29,116 +42,250 @@ export default function NewIdea() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            category: "",
-            content: "",
+            categories: [""],
+            content: "<p></p>",
             tags: [],
             advancedSettings: {
                 privacy: "public",
                 allowComments: true,
                 hideViewCount: false,
                 hideVoteCount: false,
+                targetRegion: "worldwide",
+                targetCountry: "",
             },
         },
     })
+
+    // Load draft if draft ID is provided in URL
+    const loadDraft = useCallback(
+        async (draftId: string) => {
+            try {
+                setLoadingDraft(true)
+                const { data } = await axios.get(`/api/post/draft/${draftId}`)
+                const draft = data.draft
+
+                // Prepare draft data structure
+                const draftFormData = {
+                    title: draft.title || "",
+                    categories: draft.categories || [""],
+                    content: draft.content || "",
+                    tags: draft.tags || [],
+                    advancedSettings: draft.advancedSettings || {
+                        privacy: "public",
+                        allowComments: true,
+                        hideViewCount: false,
+                        hideVoteCount: false,
+                        globalPost: true,
+                        targetRegion: "worldwide",
+                        targetCountry: "",
+                    },
+                }
+
+                // Populate form with draft data
+                form.reset(draftFormData)
+
+                // Set tags and widgets (form-based approach)
+                form.setValue("tags", draft.tags || [])
+                // TODO: Set widgets from draft.widgets
+
+                setDraftId(draftId)
+
+                // Set clean state to the actual draft data (not form.getValues which might not be updated yet)
+                setCleanFormState(draftFormData)
+
+                // Don't set hasInteracted to true for loaded drafts
+                // Only set it to true when user actually makes changes
+                setHasInteracted(false)
+                setHasUnsavedChanges(false)
+            } catch (error) {
+                console.error("Failed to load draft:", error)
+                setError("Failed to load draft")
+                toast.error("Failed to load draft", {
+                    description:
+                        "There was an error loading your draft. Please try again or start a new post.",
+                    duration: 5000,
+                })
+            } finally {
+                setLoadingDraft(false)
+            }
+        },
+        [form]
+    )
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/auth/signin?callbackUrl=/new-post/new-ideas")
         } else if (status === "authenticated") {
             setLoading(false)
-        }
-    }, [status, router])
 
-    const [tags, setTags] = useState<string[]>([])
+            // Check if there's a draft ID in the URL
+            const draftId = searchParams.get("draft")
+            if (draftId) {
+                loadDraft(draftId)
+            } else {
+                setCleanFormState(form.getValues())
+            }
+        }
+    }, [status, router, searchParams, loadDraft, form])
+
     const { widgets, summaries, pollData, callToComment } = useWidgetForm()
+
+    const submitPost = useCallback(
+        async (values: NewPostSchema, isDraft: boolean = false) => {
+            const postData: PostData = {
+                author: session?.user.id,
+                title: values.title,
+                categories: values.categories,
+                content: values.content,
+                tags: values.tags || [], // New: use form tags
+                // tags: tags, // Old: state-based tags (will remove later)
+                community: "new-ideas",
+                advancedSettings: values.advancedSettings,
+                status: isDraft ? "draft" : "published",
+            }
+
+            const widgetData = widgets
+                .map((widget) => {
+                    if (widget.type === "summary") {
+                        return { ...widget, data: summaries }
+                    }
+                    if (widget.type === "callToComment") {
+                        return { ...widget, data: callToComment }
+                    }
+                    if (widget.type === "quickPoll") {
+                        return { ...widget, data: pollData }
+                    }
+                    return widget
+                })
+                .filter(Boolean)
+
+            if (widgetData.length > 0) {
+                console.log(widgetData)
+                postData.widgets = widgetData
+            }
+
+            const { data } = await axios.post("/api/post", postData)
+            return data
+        },
+        [session?.user.id, widgets, summaries, callToComment, pollData]
+    )
+
     const onSubmit = async (values: NewPostSchema) => {
         setSubmitting(true)
-
-        // Here you would typically send the data to your backend
-        const postData: PostData = {
-            author: session?.user.id,
-            title: values.title,
-            category: values.category,
-            content: values.content,
-            tags: tags,
-            community: "new-ideas",
-            advancedSettings: values.advancedSettings,
-        }
-
-        const widgetData = widgets
-            .map((widget) => {
-                if (widget.type === "summary") {
-                    return { ...widget, data: summaries }
-                }
-                if (widget.type === "callToComment") {
-                    return { ...widget, data: callToComment }
-                }
-                if (widget.type === "quickPoll") {
-                    return { ...widget, data: pollData }
-                }
-                return widget
-            })
-            .filter(Boolean)
-
-        if (widgetData.length > 0) {
-            console.log(widgetData)
-            postData.widgets = widgetData
-        }
+        setError(null)
 
         try {
-            const { data } = await axios.post("/api/post", postData)
-            // After successful submission, redirect to the main page
-            const { id, slug } = data
+            const { id, slug } = await submitPost(values, false)
+            setHasUnsavedChanges(false)
+            setCleanFormState(values)
             router.push(`/post/${id}/${slug}`)
         } catch (err) {
             console.error((err as Error).message)
+            setError(
+                err instanceof Error ? err.message : "Failed to submit post"
+            )
             setSubmitting(false)
         }
     }
 
-    if (loading || submitting) {
+    // Watch for actual form value changes with clean state comparison
+    useEffect(() => {
+        if (!cleanFormState) return
+
+        const subscription = form.watch((currentValues, { name, type }) => {
+            // Only mark as changed if there's actual data modification and values differ from clean state
+            if (type === "change" && name) {
+                console.log(currentValues.content, cleanFormState.content)
+                const hasActualChanges =
+                    currentValues.title !== cleanFormState.title ||
+                    JSON.stringify(currentValues.categories) !==
+                        JSON.stringify(cleanFormState.categories) ||
+                    currentValues.content !== cleanFormState.content ||
+                    JSON.stringify(currentValues.advancedSettings) !==
+                        JSON.stringify(cleanFormState.advancedSettings) ||
+                    // New: form-based tags detection
+                    JSON.stringify(currentValues.tags) !==
+                        JSON.stringify(cleanFormState.tags || [])
+
+                if (hasActualChanges) {
+                    setHasInteracted(true)
+                    setHasUnsavedChanges(true)
+                } else {
+                    // If values match clean state, mark as not having unsaved changes
+                    setHasUnsavedChanges(false)
+                }
+            }
+        })
+
+        return () => subscription.unsubscribe()
+    }, [form, cleanFormState])
+
+    if (loading || submitting || loadingDraft) {
         return <Loading />
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='relative'>
-                <div className='flex flex-col md:flex-row gap-4'>
-                    {/* Main content - left side on desktop, top on mobile */}
-                    <div className='flex-1'>
-                        <PostTitle control={form.control} />
-                        <PostDescription
-                            control={form.control}
-                            tags={tags}
-                            setTags={setTags}
-                        />
+        <>
+            <Form {...form}>
+                <form
+                    id='new-post-form'
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className='relative'
+                >
+                    <div className='flex flex-col md:flex-row gap-4'>
+                        {/* Main content - left side on desktop, top on mobile */}
+                        <div className='flex-1'>
+                            <PostTitle control={form.control} />
+                            <PostDescription control={form.control} />
 
-                        {/* Widget and Related posts */}
-                        <div className='md:hidden space-y-4'>
-                            <Widgets />
-                            <AdvancedSettings control={form.control} />
-                        </div>
-                        <div className='w-full flex justify-center items-center mt-4'>
-                            <Button
-                                type='submit'
-                                className='w-52 text-white glassmorphism bg-transparent hover:bg-white hover:text-blue-800 mb-8'
-                            >
-                                Submit
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Sidebar - right side on desktop, hidden on mobile */}
-                    <div className='hidden md:block w-72'>
-                        <div className='sticky'>
-                            <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                <Widgets />
+                            {/* Widget and Related posts */}
+                            <div className='md:hidden space-y-4'>
+                                {/* <Widgets /> */}
                                 <AdvancedSettings control={form.control} />
+                            </div>
+                            {error && (
+                                <div className='text-red-500 text-sm mb-4 text-center'>
+                                    {error}
+                                </div>
+                            )}
+                            <div className='pb-32'></div>
+                        </div>
+
+                        {/* Sidebar - right side on desktop, hidden on mobile */}
+                        <div className='hidden md:block w-72'>
+                            <div className='sticky'>
+                                <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
+                                    {/* <Widgets /> */}
+                                    <AdvancedSettings control={form.control} />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>
-        </Form>
+                </form>
+            </Form>
+
+            {/* Animated Status Section */}
+            <AnimatedStatus
+                hasUnsavedChanges={hasUnsavedChanges}
+                hasInteracted={hasInteracted}
+                showSaved={showSaved}
+            />
+
+            {/* Fixed Floating Action Panel */}
+            <FloatingAction
+                hasUnsavedChanges={hasUnsavedChanges}
+                hasInteracted={hasInteracted}
+                savingDraft={savingDraft}
+                submitting={submitting}
+                error={error}
+                form={form}
+                setSavingDraft={setSavingDraft}
+                setHasUnsavedChanges={setHasUnsavedChanges}
+                setShowSaved={setShowSaved}
+                _draftId={_draftId}
+                setDraftId={setDraftId}
+                setCleanFormState={setCleanFormState}
+            />
+        </>
     )
 }

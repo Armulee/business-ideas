@@ -29,14 +29,14 @@ export default function SummaryWidget({
     const inputRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({})
 
     const handleAdd = () => {
-        setSummaries((prev) => [
+        setSummaries((prev) => prev.length < 1 ? [
             ...prev,
             {
                 id: generateId("summary"),
                 topic: "",
                 values: [],
             },
-        ])
+        ] : prev)
     }
 
     const handleAddItem = (summaryId: string) => {
@@ -46,10 +46,10 @@ export default function SummaryWidget({
                 summary.id === summaryId
                     ? {
                           ...summary,
-                          values: [
+                          values: summary.values.length < 5 ? [
                               ...summary.values,
                               { id: newId, value: "" }, // New value added
-                          ],
+                          ] : summary.values,
                       }
                     : summary
             )
@@ -202,37 +202,41 @@ export default function SummaryWidget({
                                 </Button>
                             </div>
                         ))}
-                        <div className='w-full flex justify-center'>
-                            <Button
-                                type='button'
-                                className='px-4 text-center glassmorphism text-white bg-transparent hover:bg-white/10 transition duration-300'
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleAddItem(summary.id)
-                                }}
-                            >
-                                <Plus />
-                                Add Detail
-                            </Button>
-                        </div>
+                        {summary.values.length < 5 && (
+                            <div className='w-full flex justify-center'>
+                                <Button
+                                    type='button'
+                                    className='px-4 text-center glassmorphism text-white bg-transparent hover:bg-white/10 transition duration-300'
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleAddItem(summary.id)
+                                    }}
+                                >
+                                    <Plus />
+                                    Add Detail
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}
 
             {/* Add button */}
-            <div className='flex items-center gap-2'>
-                <Button
-                    type='button'
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        handleAdd()
-                    }}
-                    className='w-full pt-2 text-center glassmorphism text-white bg-transparent hover:bg-white/10 transition duration-300'
-                >
-                    <Plus />
-                    Add New Topic
-                </Button>
-            </div>
+            {summaries.length < 1 && (
+                <div className='flex items-center gap-2'>
+                    <Button
+                        type='button'
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            handleAdd()
+                        }}
+                        className='w-full pt-2 text-center glassmorphism text-white bg-transparent hover:bg-white/10 transition duration-300'
+                    >
+                        <Plus />
+                        Add New Topic
+                    </Button>
+                </div>
+            )}
         </WidgetBase>
     )
 }

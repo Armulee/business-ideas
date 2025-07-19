@@ -5,19 +5,11 @@ import { Control } from "react-hook-form"
 import { NewPostSchema } from "../types"
 import Tags from "./tags"
 
-const PostDescription = ({
-    control,
-    tags,
-    setTags,
-}: {
-    control: Control<NewPostSchema>
-    tags: string[]
-    setTags: React.Dispatch<React.SetStateAction<string[]>>
-}) => {
+const PostDescription = ({ control }: { control: Control<NewPostSchema> }) => {
     return (
         <div className='glassmorphism p-6 mb-4'>
             <Content control={control} />
-            <Tags control={control} tags={tags} setTags={setTags} />
+            <Tags control={control} />
         </div>
     )
 }

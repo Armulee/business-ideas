@@ -10,33 +10,27 @@ import { FormValues, formSchema } from "../signin/types"
 import Email from "../signin/email"
 import Password from "../signin/password"
 import Consent from "../signin/consent"
-import ConsentDialog from "../signin/consent-dialog"
 import SSO from "../signin/sso"
 import Loading from "@/components/loading"
-import ProviderDialog from "./provider-dialog"
 import { Logo } from "@/components/logo"
 import { useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import MagicLinkButton from "./magic-link-button"
 import MagicLinkMessage from "./magic-link-message"
 import clearParams from "@/lib/clear-params"
+import { useAlert } from "@/components/provider/alert"
 
 const SignIn = () => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
     const errorParams = searchParams.get("error")
     const errorCode = searchParams.get("code")
+    const alert = useAlert()
 
     const [pageLoading, setPageLoading] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [suggestion, setSuggestion] = useState("")
-    const [consentDialog, setConsentDialog] = useState(false)
-    const [authentication, setAuthentication] = useState<{
-        provider: string
-        email?: string
-    }>({ provider: "" })
-    const [providerDialog, setProviderDialog] = useState(false)
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -134,13 +128,29 @@ const SignIn = () => {
                 // Provider error (from ProviderExistingError)
                 const provider =
                     errorCode.charAt(0).toUpperCase() + errorCode.slice(1)
-                setError(
-                    `This email is already associated with ${provider}. Please use your original method to sign in.`
-                )
+                const email = searchParams.get("email") || ""
+                
+                alert.show({
+                    title: `Your email already registered via ${provider}`,
+                    description: (
+                        <span>
+                            Email <strong>{email}</strong> was originally registered using{" "}
+                            <strong>{provider}</strong>.
+                            <br />
+                            <br />
+                            Please continue with <strong>{provider}</strong> to sign in.
+                        </span>
+                    ),
+                    cancel: "Cancel",
+                    action: `Continue with ${provider}`,
+                    onAction: async () => {
+                        await signIn(provider.toLowerCase(), { callbackUrl })
+                    },
+                })
             }
             clearParams("code")
         }
-    }, [errorParams, errorCode])
+    }, [errorParams, errorCode, searchParams, callbackUrl, alert])
 
     return (
         <>
@@ -158,8 +168,6 @@ const SignIn = () => {
                             </p>
                             <SSO
                                 form={form}
-                                setAuthentication={setAuthentication}
-                                setShowDialog={setConsentDialog}
                             />
 
                             <div className='mt-6 w-full flex justify-between items-center relative'>
@@ -214,21 +222,7 @@ const SignIn = () => {
                                 </p>
                             </div>
 
-                            {/* Consent Dialog for making a user accept the consent before continue with sso provider login */}
-                            <ConsentDialog
-                                form={form}
-                                authentication={authentication}
-                                showDialog={consentDialog}
-                                setShowDialog={setConsentDialog}
-                            />
 
-                            {/* Provider Dialog for making a user notice that the email has been used to login via sso provider */}
-                            <ProviderDialog
-                                form={form}
-                                authentication={authentication}
-                                showDialog={providerDialog}
-                                setShowDialog={setProviderDialog}
-                            />
 
                             {error && (
                                 <div className='mt-4 text-center text-sm text-white bg-red-600 px-4 py-2 glassmorphism'>

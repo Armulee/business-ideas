@@ -14,7 +14,7 @@ import {
 
 type AlertOptions = {
     title: string
-    description: string
+    description: string | React.ReactNode
     action?: string
     cancel?: string
     onAction?: () => void
@@ -51,9 +51,9 @@ export const AlertProvider = ({ children }: { children: React.ReactNode }) => {
             {children}
             {options && (
                 <AlertDialog open={visible} onOpenChange={setVisible}>
-                    <AlertDialogContent>
+                    <AlertDialogContent className='glassmorphism bg-black/20 text-white'>
                         <AlertDialogHeader>
-                            <AlertDialogTitle className='text-black'>
+                            <AlertDialogTitle className='text-white'>
                                 {options.title}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
@@ -62,13 +62,13 @@ export const AlertProvider = ({ children }: { children: React.ReactNode }) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             {options.cancel && (
-                                <AlertDialogCancel className='text-black'>
+                                <AlertDialogCancel className='text-white hover:text-white bg-transparent hover:bg-transparent border-0'>
                                     {options.cancel}
                                 </AlertDialogCancel>
                             )}
                             {options.action && (
                                 <AlertDialogAction
-                                    className='bg-blue-500'
+                                    className='button !bg-blue-600/70 !px-12 hover:!bg-white hover:text-blue-600'
                                     onClick={() => {
                                         hide()
                                         options.onAction?.()

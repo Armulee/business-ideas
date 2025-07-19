@@ -18,7 +18,13 @@ export async function POST(req: Request) {
             community,
             advancedSettings,
             widgets,
+            status = "published",
         } = await req.json()
+
+        // Process geographic targeting
+        const { globalPost, targetRegion, targetCountry, ...otherSettings } = advancedSettings
+        const targetRegions = targetRegion ? [targetRegion] : []
+        const targetCountries = targetCountry ? [targetCountry] : []
 
         // Create new post
         const newPost = await Post.create({
@@ -28,7 +34,11 @@ export async function POST(req: Request) {
             content,
             tags,
             community,
-            advancedSettings,
+            advancedSettings: otherSettings,
+            status,
+            globalPost: globalPost !== false,
+            targetRegions,
+            targetCountries,
         })
         await newPost.save()
 
@@ -43,14 +53,15 @@ export async function POST(req: Request) {
             await newWidget.save()
         }
 
-        // Update user profile to increment post count
-        const updatedProfile = await Profile.findByIdAndUpdate(
-            author,
-            { $inc: { postCount: 1 } },
-            { new: true }
-        )
-
-        await updatedProfile.save()
+        // Update user profile to increment post count only for published posts
+        if (status === "published") {
+            const updatedProfile = await Profile.findByIdAndUpdate(
+                author,
+                { $inc: { postCount: 1 } },
+                { new: true }
+            )
+            await updatedProfile.save()
+        }
 
         return NextResponse.json(
             { id: newPost.postId, slug: newPost.slug },

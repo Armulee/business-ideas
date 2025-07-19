@@ -6,6 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Link from "@tiptap/extension-link"
+import Image from "@tiptap/extension-image"
 import {
     Bold,
     Italic,
@@ -16,6 +17,7 @@ import {
     ListOrdered,
     LucideProps,
     Strikethrough,
+    Paperclip,
 } from "lucide-react"
 import { cn } from "@/lib/utils" // your classnames util, optional
 import { useEffect, useState, useRef, useCallback } from "react"
@@ -44,6 +46,7 @@ export function RichTextEditor({
     autoFocus = false,
 }: RichTextEditorProps) {
     const [isFocus, setIsFocus] = useState<boolean>(false)
+    const [isUploading, setIsUploading] = useState<boolean>(false)
     const [selectionMenu, setSelectionMenu] = useState<{
         show: boolean
         x: number
@@ -55,12 +58,14 @@ export function RichTextEditor({
     const editorRef = useRef<HTMLDivElement>(null)
     const selectionMenuRef = useRef<HTMLDivElement>(null)
     const selectionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const editor = useEditor({
         extensions: [
             StarterKit,
             Placeholder.configure({ placeholder: placeholder || "" }),
             Underline,
             Link,
+            Image,
         ],
 
         // seed initial content
@@ -209,6 +214,61 @@ export function RichTextEditor({
         }
     }, [editor, handleSelectionChange, handleClickOutside, handleTouchEnd])
 
+    // Handle file upload - create blob for immediate preview
+    const handleFileUpload = useCallback(
+        async (files: FileList) => {
+            setIsUploading(true)
+            if (!files.length || !editor) return
+
+            const file = files[0]
+
+            // Check file type
+            const isImage = file.type.startsWith("image/")
+            const isVideo = file.type.startsWith("video/")
+
+            if (!isImage && !isVideo) {
+                alert("Please select an image or video file")
+                return
+            }
+
+            // Create blob URL for immediate preview
+            const blobUrl = URL.createObjectURL(file)
+
+            if (isImage) {
+                // Insert image with blob URL for immediate preview
+                editor.chain().focus().setImage({ src: blobUrl }).run()
+            } else if (isVideo) {
+                // Insert video with blob URL for immediate preview
+                editor
+                    .chain()
+                    .focus()
+                    .insertContent(
+                        `<video controls width="100%" style="max-width: 500px;"><source src="${blobUrl}" type="${file.type}">Your browser does not support the video tag.</video>`
+                    )
+                    .run()
+            }
+
+            // Store the file for later upload (you can add this to a state or callback)
+            // The actual upload will happen when the form is submitted
+            setIsUploading(false)
+        },
+        [editor]
+    )
+
+    // Handle file input change
+    const handleFileSelect = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            if (e.target.files) {
+                handleFileUpload(e.target.files)
+            }
+            // Reset input so same file can be selected again
+            if (e.target) {
+                e.target.value = ""
+            }
+        },
+        [handleFileUpload]
+    )
+
     if (!editor) return null
 
     const btn = (
@@ -236,6 +296,7 @@ export function RichTextEditor({
     return (
         <div className='relative'>
             <div className='w-full sm:w-fit flex flex-wrap gap-1 p-2 glassmorphism bg-transparent mb-3'>
+                {btn(() => fileInputRef.current?.click(), Paperclip, false)}
                 {btn(
                     () => editor.chain().focus().toggleBold().run(),
                     Bold,
@@ -291,6 +352,22 @@ export function RichTextEditor({
                     editor.isActive("codeBlock")
                 )}
             </div>
+
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                type='file'
+                accept='image/*,video/*'
+                onChange={handleFileSelect}
+                style={{ display: "none" }}
+            />
+
+            {/* Uploading Image */}
+            {isUploading && (
+                <div className='glassmorphism z-50 w-full h-full absolute'>
+                    Uploading...
+                </div>
+            )}
 
             {/* Horizontal Text Selection Menu */}
             {selectionMenu.show && (

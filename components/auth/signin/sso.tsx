@@ -6,21 +6,13 @@ import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { useSearchParams } from "next/navigation"
 import { useLoading } from "@/components/loading-provider"
+import { useAlert } from "@/components/provider/alert"
 
-const SSO = ({
-    form,
-    setAuthentication,
-    setShowDialog,
-}: {
-    form: UseFormReturn<FormValues>
-    setAuthentication: React.Dispatch<
-        React.SetStateAction<{ provider: string; email?: string }>
-    >
-    setShowDialog: React.Dispatch<React.SetStateAction<boolean>>
-}) => {
+const SSO = ({ form }: { form: UseFormReturn<FormValues> }) => {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/"
     const { setIsLoading } = useLoading()
+    const alert = useAlert()
     const handleSSOSignIn = async (provider: string) => {
         let formattedProvider
         if (provider === "x") {
@@ -30,8 +22,40 @@ const SSO = ({
         }
 
         if (!form.getValues("consent")) {
-            setAuthentication({ provider: formattedProvider })
-            setShowDialog(true)
+            alert.show({
+                title: "Accept Terms & Privacy Policy",
+                description: (
+                    <span>
+                        You have read and agreed to our{" "}
+                        <a
+                            href='/terms'
+                            className='text-blue-400 underline hover:text-blue-300'
+                        >
+                            User agreement
+                        </a>{" "}
+                        and{" "}
+                        <a
+                            href='/privacy'
+                            className='text-blue-400 underline hover:text-blue-300'
+                        >
+                            Privacy Policy
+                        </a>
+                    </span>
+                ),
+                cancel: "Cancel",
+                action: "Accept & Continue",
+                onAction: async () => {
+                    form.setValue("consent", true)
+                    if (
+                        formattedProvider === "twitter" ||
+                        formattedProvider === "google"
+                    ) {
+                        await signIn(formattedProvider, {
+                            callbackUrl,
+                        })
+                    }
+                },
+            })
             return
         }
 

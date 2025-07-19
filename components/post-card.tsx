@@ -70,9 +70,17 @@ export default function PostCard({
             >
                 <CardHeader className='border-0 border-b border-white/10 pb-2 mb-2 h-[100px]'>
                     <div className='flex justify-between items-center mb-2'>
-                        <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
-                            {post.category}
-                        </Badge>
+                        {post.categories?.length ? (
+                            post.categories.map((category, index) => (
+                                <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                                    {category}
+                                </Badge>
+                            ))
+                        ) : (
+                            <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                                Uncategorized
+                            </Badge>
+                        )}
                         <div className='flex items-center gap-2'>
                             <span
                                 className={`text-xs text-white/50 ${

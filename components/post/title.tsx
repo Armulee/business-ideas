@@ -59,9 +59,17 @@ const PostTitle = () => {
     return (
         <div className='glassmorphism bg-transparent p-6 mb-4'>
             <div className='flex flex-wrap items-center gap-3 mb-4'>
-                <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
-                    {post!.category}
-                </Badge>
+                {post!.categories?.length ? (
+                    post!.categories.map((category, index) => (
+                        <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                            {category}
+                        </Badge>
+                    ))
+                ) : (
+                    <Badge className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                        Uncategorized
+                    </Badge>
+                )}
                 {post?.advancedSettings.hideViewCount ? null : (
                     <span className='text-sm text-white/40 flex items-center'>
                         <EyeIcon className='h-4 w-4 mr-1' />

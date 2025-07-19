@@ -30,10 +30,10 @@ export default function QuickPollWidget({
     const handleAddNewOption = () => {
         setPollData((prev) => ({
             ...prev,
-            options: [
+            options: prev.options.length < 4 ? [
                 ...prev.options,
                 { id: generateId("poll-value"), value: "", vote: [] },
-            ],
+            ] : prev.options,
         }))
     }
 
@@ -99,14 +99,16 @@ export default function QuickPollWidget({
                 </div>
             ))}
 
-            <Button
-                type='button'
-                onClick={handleAddNewOption}
-                className='w-full glassmorphism bg-transparent hover:bg-white/10 mb-2'
-            >
-                <Plus />
-                Add New Option
-            </Button>
+            {pollData.options.length < 4 && (
+                <Button
+                    type='button'
+                    onClick={handleAddNewOption}
+                    className='w-full glassmorphism bg-transparent hover:bg-white/10 mb-2'
+                >
+                    <Plus />
+                    Add New Option
+                </Button>
+            )}
 
             <div className='pt-3'>
                 <Button

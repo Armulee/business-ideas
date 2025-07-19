@@ -43,6 +43,12 @@ type FormData = z.infer<typeof schema>
 interface ApiResponse {
     message: string
     code: string
+    passwordAge?: number | null
+    rateLimit?: {
+        maxAttempts: number
+        windowMinutes: number
+        message: string
+    }
 }
 
 export default function ResetPassword({ token }: { token: string }) {
@@ -50,6 +56,15 @@ export default function ResetPassword({ token }: { token: string }) {
         "loading" | "invalid" | "expired" | "form" | "success" | "error"
     >("loading")
     const [info, setInfo] = useState<string>("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [passwordInfo, setPasswordInfo] = useState<{
+        passwordAge: number | null
+        rateLimit: {
+            maxAttempts: number
+            windowMinutes: number
+            message: string
+        }
+    } | null>(null)
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: { password: "", confirmPassword: "" },
@@ -66,6 +81,12 @@ export default function ResetPassword({ token }: { token: string }) {
                 )
                 if (res.data.code === "TOKEN_VALID") {
                     setPhase("form")
+                    if (res.data.passwordAge !== undefined && res.data.rateLimit) {
+                        setPasswordInfo({
+                            passwordAge: res.data.passwordAge,
+                            rateLimit: res.data.rateLimit
+                        })
+                    }
                 } else if (res.data.code === "EXPIRED_TOKEN") {
                     setPhase("expired")
                 } else {
@@ -87,6 +108,7 @@ export default function ResetPassword({ token }: { token: string }) {
 
     // 2) Handle reset submit
     const onSubmit = async (values: FormData) => {
+        setIsSubmitting(true)
         try {
             const res = await axios.post<ApiResponse>(
                 `/api/auth/reset-password/${token}`,
@@ -107,6 +129,8 @@ export default function ResetPassword({ token }: { token: string }) {
                 setPhase("error")
                 setInfo("Unexpected error")
             }
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -159,6 +183,22 @@ export default function ResetPassword({ token }: { token: string }) {
                     <h1 className='text-xl font-semibold mb-4'>
                         Reset Your Password
                     </h1>
+                    
+                    {passwordInfo && (
+                        <div className='mb-4 p-3 glassmorphism bg-blue-600/20 border border-blue-500/30 rounded-lg'>
+                            <div className='text-sm space-y-1'>
+                                {passwordInfo.passwordAge !== null && (
+                                    <div className='text-blue-200'>
+                                        🔒 Current password was last changed: {passwordInfo.passwordAge === 0 ? 'Less than a month ago' : `${passwordInfo.passwordAge} month${passwordInfo.passwordAge > 1 ? 's' : ''} ago`}
+                                    </div>
+                                )}
+                                <div className='text-blue-200'>
+                                    🛡️ Security: {passwordInfo.rateLimit.message}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             {/* Password Strength Meter */}
@@ -178,6 +218,7 @@ export default function ResetPassword({ token }: { token: string }) {
                                                     {...field}
                                                     className='input'
                                                     placeholder='Enter new password'
+                                                    disabled={isSubmitting}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -200,6 +241,8 @@ export default function ResetPassword({ token }: { token: string }) {
                                                     {...field}
                                                     className='input'
                                                     placeholder='Confirm new password'
+                                                    autoComplete='new-password'
+                                                    disabled={isSubmitting}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -214,8 +257,9 @@ export default function ResetPassword({ token }: { token: string }) {
                                 <Button
                                     type='submit'
                                     className='glassmorphism bg-transparent hover:bg-blue-600/40'
+                                    disabled={isSubmitting}
                                 >
-                                    Reset Password
+                                    {isSubmitting ? "Resetting..." : "Reset Password"}
                                 </Button>
                             </div>
                         </form>

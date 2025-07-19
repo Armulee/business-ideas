@@ -8,7 +8,7 @@ export interface IPost extends Document<Schema.Types.ObjectId> {
     postId: number
     title: string
     author: mongoose.Schema.Types.ObjectId
-    category?: string
+    categories: string[]
     upvoteCount?: number
     downvoteCount?: number
     content: string
@@ -18,14 +18,23 @@ export interface IPost extends Document<Schema.Types.ObjectId> {
     commentCount?: number
     createdAt: Date
     updatedAt?: Date
+    publishedAt?: Date
+    lastSavedAt: Date
     bookmarkCount?: number
     repostCount?: number
     viewCount?: number
+    status: "draft" | "published" | "archived"
+    targetRegions?: string[]
+    targetCountries?: string[]
+    globalPost: boolean
     advancedSettings: {
         privacy: "public" | "followers"
         allowComments: boolean
         hideViewCount: boolean
         hideVoteCount: boolean
+        globalPost: boolean
+        targetRegion?: string
+        targetCountry?: string
     }
     postLink: string
 }
@@ -46,7 +55,7 @@ const PostSchema = new mongoose.Schema<IPost>({
         ref: "Profile",
         required: true,
     },
-    category: { type: String },
+    categories: { type: [String] },
     upvoteCount: { type: Number, default: 0 },
     downvoteCount: { type: Number, default: 0 },
     content: { type: String, required: true },
@@ -54,11 +63,21 @@ const PostSchema = new mongoose.Schema<IPost>({
     slug: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
+    publishedAt: { type: Date },
+    lastSavedAt: { type: Date, default: Date.now },
     community: { type: String, required: true },
     bookmarkCount: { type: Number, default: 0 },
     repostCount: { type: Number, default: 0 },
     commentCount: { type: Number, default: 0 },
     viewCount: { type: Number, default: 0 },
+    status: {
+        type: String,
+        enum: ["draft", "published", "archived"],
+        default: "draft",
+    },
+    targetRegions: { type: [String] },
+    targetCountries: { type: [String] },
+    globalPost: { type: Boolean, default: true },
     postLink: { type: String },
     advancedSettings: {
         privacy: {
@@ -69,6 +88,9 @@ const PostSchema = new mongoose.Schema<IPost>({
         allowComments: { type: Boolean, default: true },
         hideViewCount: { type: Boolean, default: false },
         hideVoteCount: { type: Boolean, default: false },
+        globalPost: { type: Boolean, default: true },
+        targetRegion: { type: String, default: "worldwide" },
+        targetCountry: { type: String, default: "" },
     },
 })
 
@@ -91,6 +113,19 @@ PostSchema.pre<IPost>("save", async function (next) {
 
     // Auto-generate and save postLink
     this.postLink = `/post/${this.postId}/${this.slug}`
+
+    // Update lastSavedAt on every save
+    this.lastSavedAt = new Date()
+
+    // Set publishedAt when status changes to published
+    if (
+        this.isModified("status") &&
+        this.status === "published" &&
+        !this.publishedAt
+    ) {
+        this.publishedAt = new Date()
+    }
+
     next()
 })
 

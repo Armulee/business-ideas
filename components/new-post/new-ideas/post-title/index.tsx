@@ -3,15 +3,17 @@ import { useSession } from "next-auth/react"
 import { Control } from "react-hook-form"
 import { NewPostSchema } from "../types"
 import Title from "./title"
-import Category from "./category"
+import CategorySelection from "./category-selection"
+import RegionSelection from "./region-selection"
 
 const PostTitle = ({ control }: { control: Control<NewPostSchema> }) => {
     const { data: session } = useSession()
     // const textareaRef = useRef<HTMLTextAreaElement>(null)
     return (
         <div className='glassmorphism p-6 mb-4'>
-            <Category control={control} />
+            <CategorySelection control={control} />
             <Title control={control} />
+            <RegionSelection control={control} />
 
             <div className='flex items-center mt-2'>
                 <Avatar className='h-10 w-10 mr-4'>
