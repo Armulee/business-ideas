@@ -131,7 +131,7 @@ export default function FloatingAction({
     ])
     return (
         <div className='fixed bottom-6 left-1/2 -translate-x-1/2 z-50'>
-            <div className='w-full glassmorphism bg-white/10 !rounded-full px-8 py-3 shadow-2xl'>
+            <div className='w-full glassmorphism bg-black/50 !rounded-full px-8 py-3 shadow-2xl'>
                 {/* Action Buttons */}
                 <div className='flex items-center justify-center gap-2'>
                     {/* Save Draft Button */}

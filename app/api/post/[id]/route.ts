@@ -16,15 +16,15 @@ export async function GET(
         const { id } = await params
 
         await connectDB()
-        const slug = await Post.findOne({ postId: id }).select("slug")
+        const post = await Post.findOne({ postId: id }).populate("author")
 
-        if (!slug) {
+        if (!post) {
             return NextResponse.json(
                 { message: "Post not found" },
                 { status: 404 }
             )
         }
-        return NextResponse.json(slug, { status: 200 })
+        return NextResponse.json(post, { status: 200 })
     } catch (err) {
         console.error(err)
         return new NextResponse("Internal Server Error", { status: 500 })

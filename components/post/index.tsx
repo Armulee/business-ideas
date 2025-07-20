@@ -10,6 +10,9 @@ import axios from "axios"
 import Widgets from "./widgets"
 import useSWR from "swr"
 import { PostData, PostDataContextType } from "./types"
+import { PostSkeleton } from "../skeletons"
+import { getPost, getRawComments } from "./utils"
+import { notFound } from "next/navigation"
 
 const fetchEngagements = (
     url: string,
@@ -31,68 +34,64 @@ const PostDataContext = createContext<PostDataContextType | null>(null)
 export const usePostData = () =>
     useContext(PostDataContext) as PostDataContextType
 
-const Post = ({
-    initialData,
-    postId,
-    error,
-    correctSlug,
-}: {
-    initialData?: Partial<PostData>
-    postId?: string
-    error?: string
-    correctSlug?: string
-}) => {
+const Post = ({ id, slug }: { id?: string; slug?: string }) => {
+    const [post, setPostData] = useState<PostData["post"] | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(false)
     const [commentsLoaded, setCommentsLoaded] = useState(false)
-    const [commentsData, setCommentsData] = useState<{
-        comments?: PostData["comments"]
-        replies?: PostData["replies"]
-    }>({})
+    const [comments, setComments] = useState<PostData["comments"]>([])
+    const [replies, setReplies] = useState<PostData["replies"]>({})
     const { data: session, status } = useSession()
     const [isEditing, setIsEditing] = useState<boolean>(false)
     const [showButton, setShowButton] = useState<boolean>(true)
 
-    // Use initial data if provided, otherwise fall back to full data
-    const { post, comments, replies, widgets, profile } = {
-        ...initialData,
-        ...commentsData,
-    }
-
-    // Redirect if the slug is incorrect
+    // Fetch post data if id and slug are provided
     useEffect(() => {
-        if (correctSlug) {
-            window.history.replaceState(null, "", correctSlug)
+        if (id && slug && !post) {
+            getPost(id, slug)
+                .then((data) => setPostData(data))
+                .catch(() => setError(true))
+                .finally(() => setLoading(false))
         }
-    }, [correctSlug])
+    }, [id, slug, post])
+
+    // // Use initial data if provided, otherwise use fetched data
+    // const { post, comments, replies } = {
+    //     post: postData,
+    //     ...commentsData,
+    // }
 
     // Load comments and replies separately if we have initial data but no comments
     useEffect(() => {
-        if (post && postId && !commentsLoaded && !comments) {
-            const loadComments = async () => {
-                try {
-                    const response = await axios.get(
-                        `/api/post/${postId}/comments`
-                    )
-                    setCommentsData(response.data)
-                    setCommentsLoaded(true)
-                } catch (error) {
+        if (post && id && !commentsLoaded && !comments) {
+            getRawComments(id)
+                .then(({ comments, replies }) => {
+                    setComments(comments)
+                    setReplies(replies)
+                })
+                .catch((error) => {
                     console.error("Failed to load comments:", error)
-                    setCommentsLoaded(true) // Set to true even on error to prevent retry
-                }
-            }
-            loadComments()
+                    setCommentsLoaded(true) // Set to true even on error to prevent retry}
+                })
         }
-    }, [post, postId, commentsLoaded, comments])
+    }, [post, id, commentsLoaded, comments])
 
     // update view count on page load
     useEffect(() => {
-        async function updateView() {
-            await axios.patch("/api/post/views", { postId: post?._id })
-        }
+        try {
+            async function updateView() {
+                if (post?._id) {
+                    await axios.patch("/api/post/views", { postId: post._id })
+                }
+            }
 
-        const delay = setTimeout(() => {
-            updateView()
-        }, 100)
-        return () => clearTimeout(delay)
+            const delay = setTimeout(() => {
+                updateView()
+            }, 100)
+            return () => clearTimeout(delay)
+        } catch (error) {
+            console.error("Failed to update view count:", error)
+        }
     }, [post])
 
     // Fetch engagements using SWR (only fetch once you’re authenticated and have a post)
@@ -124,11 +123,9 @@ const Post = ({
 
     // values for the provider
     const value = {
-        post,
+        post: post || undefined,
         comments,
         replies,
-        widgets,
-        profile,
         engagements,
         isEditing,
         setIsEditing,
@@ -136,11 +133,21 @@ const Post = ({
         setShowButton,
     }
 
+    // handle loading state
+    if (loading) {
+        return <PostSkeleton />
+    }
+
     // handle post not found
     if (error) {
+        return notFound()
+    }
+
+    // handle no post data
+    if (!post && !loading) {
         return (
             <div className='flex flex-col items-center justify-center min-h-screen'>
-                <p className='text-white text-center'>{error}</p>
+                <p className='text-white text-center'>Post not found</p>
             </div>
         )
     }

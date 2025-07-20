@@ -1,39 +1,15 @@
 import Post from "@/components/post"
-import { default as PostModel } from "@/database/Post"
 import connectDB from "@/database"
 import { Metadata } from "next"
-import { getPost, getWidgets } from "@/lib/get-post"
+import { default as PostModel } from "@/database/Post"
 
 export default async function PostId({
     params,
 }: {
     params: Promise<{ id: string; slug: string }>
 }) {
-    try {
-        const { id, slug } = await params
-
-        await connectDB()
-
-        // Get only post data for immediate rendering
-        const post = await getPost(id)
-        const { widgets, profile } = await getWidgets(post)
-
-        // If the slug is outdated, Next.js should handle redirection
-        if (post && slug !== post.slug) {
-            return <Post correctSlug={`/post/${id}/${post.slug}`} />
-        }
-
-        return (
-            <Post
-                initialData={{ post, widgets: widgets?.widgets, profile }}
-                postId={id}
-            />
-        )
-    } catch {
-        return (
-            <Post error='Sorry! We cannot find this post, it may be not existed or deleted.' />
-        )
-    }
+    const { id, slug } = await params
+    return <Post id={id} slug={slug} />
 }
 
 // strip html from the post content

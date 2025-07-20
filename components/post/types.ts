@@ -1,15 +1,15 @@
 import { ICommentPopulated } from "@/database/Comment"
 import { IPostPopulated } from "@/database/Post"
-import { IProfile } from "@/database/Profile"
+// import { IProfile } from "@/database/Profile"
 import { IReplyPopulated } from "@/database/Reply"
-import { Widget } from "@/database/Widget"
+// import { Widget } from "@/database/Widget"
 
 export interface PostData {
     post: IPostPopulated | undefined
     comments: ICommentPopulated[] | undefined
     replies: Record<string, IReplyPopulated[]> | undefined
-    widgets: Widget[] | undefined
-    profile?: IProfile | undefined
+    // widgets: Widget[] | undefined
+    // profile?: IProfile | undefined
 }
 
 export interface PostDataContextType extends PostData {

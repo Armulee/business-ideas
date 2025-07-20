@@ -88,7 +88,6 @@ const PostSchema = new mongoose.Schema<IPost>({
         allowComments: { type: Boolean, default: true },
         hideViewCount: { type: Boolean, default: false },
         hideVoteCount: { type: Boolean, default: false },
-        globalPost: { type: Boolean, default: true },
         targetRegion: { type: String, default: "worldwide" },
         targetCountry: { type: String, default: "" },
     },

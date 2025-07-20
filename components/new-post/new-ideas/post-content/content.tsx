@@ -10,7 +10,13 @@ import {
 import { RichTextEditor } from "@/components/rich-text-editor"
 
 /* Description Field */
-const Content = ({ control }: { control: Control<NewPostSchema> }) => {
+const Content = ({
+    control,
+    media,
+}: {
+    control: Control<NewPostSchema>
+    media?: File[]
+}) => {
     return (
         <FormField
             control={control}
@@ -21,6 +27,7 @@ const Content = ({ control }: { control: Control<NewPostSchema> }) => {
                         <RichTextEditor
                             placeholder='Enter your description...'
                             onChange={field.onChange}
+                            media={media}
                         />
                     </FormControl>
                     <FormDescription className='text-white/60'>

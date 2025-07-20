@@ -60,7 +60,7 @@ export default function AnimatedStatus({
                         animate='center'
                         exit='exit'
                         transition={transition}
-                        className='glassmorphism bg-white/10 !rounded-l-full px-3 py-2 mb-3 flex items-center gap-2'
+                        className='glassmorphism !rounded-l-full px-3 py-2 mb-3 flex items-center gap-2'
                     >
                         <AlertCircle className='w-4 h-4 text-yellow-500' />
                         <span className='text-xs text-yellow-500'>Unsaved</span>

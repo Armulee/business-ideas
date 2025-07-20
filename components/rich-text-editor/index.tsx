@@ -6,7 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Link from "@tiptap/extension-link"
-import Image from "@tiptap/extension-image"
+import TextAlign from "@tiptap/extension-text-align"
 import {
     Bold,
     Italic,
@@ -18,6 +18,9 @@ import {
     LucideProps,
     Strikethrough,
     Paperclip,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils" // your classnames util, optional
 import { useEffect, useState, useRef, useCallback } from "react"
@@ -29,6 +32,8 @@ import {
     ContextMenuSeparator,
 } from "@/components/ui/context-menu"
 import { Button } from "@/components/ui/button"
+import Video from "./extension/video"
+import { ResizableImage } from "./extension/image"
 
 interface RichTextEditorProps {
     defaultValue?: string | undefined
@@ -36,6 +41,7 @@ interface RichTextEditorProps {
     placeholder?: string
     onChange: (html: string) => void
     autoFocus?: boolean
+    media?: File[]
 }
 
 export function RichTextEditor({
@@ -44,6 +50,7 @@ export function RichTextEditor({
     className = "",
     onChange,
     autoFocus = false,
+    media,
 }: RichTextEditorProps) {
     const [isFocus, setIsFocus] = useState<boolean>(false)
     const [isUploading, setIsUploading] = useState<boolean>(false)
@@ -65,7 +72,13 @@ export function RichTextEditor({
             Placeholder.configure({ placeholder: placeholder || "" }),
             Underline,
             Link,
-            Image,
+            TextAlign.configure({
+                types: ['heading', 'paragraph', 'resizableImage'],
+                alignments: ['left', 'center', 'right'],
+                defaultAlignment: 'left',
+            }),
+            ResizableImage,
+            Video,
         ],
 
         // seed initial content
@@ -98,6 +111,13 @@ export function RichTextEditor({
         }
 
         const selection = editor.state.selection
+        
+        // Don't show text selection menu if image is selected
+        if (editor.isActive('resizableImage')) {
+            setTimeout(() => setSelectionMenu((prev) => ({ ...prev, show: false })), 0)
+            return
+        }
+        
         if (!selection.empty) {
             const selectedText = editor.state.doc.textBetween(
                 selection.from,
@@ -216,7 +236,7 @@ export function RichTextEditor({
 
     // Handle file upload - create blob for immediate preview
     const handleFileUpload = useCallback(
-        async (files: FileList) => {
+        async (files: File[]) => {
             setIsUploading(true)
             if (!files.length || !editor) return
 
@@ -236,16 +256,31 @@ export function RichTextEditor({
 
             if (isImage) {
                 // Insert image with blob URL for immediate preview
-                editor.chain().focus().setImage({ src: blobUrl }).run()
+                setTimeout(() => {
+                    editor
+                        .chain()
+                        .focus()
+                        .insertContent({
+                            type: "resizableImage",
+                            attrs: {
+                                src: blobUrl,
+                                width: "auto",
+                                height: "auto",
+                            },
+                        })
+                        .run()
+                }, 100)
             } else if (isVideo) {
                 // Insert video with blob URL for immediate preview
-                editor
-                    .chain()
-                    .focus()
-                    .insertContent(
-                        `<video controls width="100%" style="max-width: 500px;"><source src="${blobUrl}" type="${file.type}">Your browser does not support the video tag.</video>`
-                    )
-                    .run()
+                setTimeout(() => {
+                    editor
+                        .chain()
+                        .focus()
+                        .insertContent(
+                            `<video controls width="100%" style="max-width: 500px;" src="${blobUrl}" />`
+                        )
+                        .run()
+                }, 100)
             }
 
             // Store the file for later upload (you can add this to a state or callback)
@@ -259,7 +294,7 @@ export function RichTextEditor({
     const handleFileSelect = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.files) {
-                handleFileUpload(e.target.files)
+                handleFileUpload(Array.from(e.target.files))
             }
             // Reset input so same file can be selected again
             if (e.target) {
@@ -268,6 +303,13 @@ export function RichTextEditor({
         },
         [handleFileUpload]
     )
+
+    // when user upload media by drop the file
+    useEffect(() => {
+        if (media && media.length) {
+            handleFileUpload(media)
+        }
+    }, [media, handleFileUpload])
 
     if (!editor) return null
 
@@ -351,6 +393,21 @@ export function RichTextEditor({
                     Code,
                     editor.isActive("codeBlock")
                 )}
+                {btn(
+                    () => editor.chain().focus().setTextAlign('left').run(),
+                    AlignLeft,
+                    editor.isActive({ textAlign: 'left' })
+                )}
+                {btn(
+                    () => editor.chain().focus().setTextAlign('center').run(),
+                    AlignCenter,
+                    editor.isActive({ textAlign: 'center' })
+                )}
+                {btn(
+                    () => editor.chain().focus().setTextAlign('right').run(),
+                    AlignRight,
+                    editor.isActive({ textAlign: 'right' })
+                )}
             </div>
 
             {/* Hidden file input */}
@@ -359,7 +416,7 @@ export function RichTextEditor({
                 type='file'
                 accept='image/*,video/*'
                 onChange={handleFileSelect}
-                style={{ display: "none" }}
+                className='hidden'
             />
 
             {/* Uploading Image */}
