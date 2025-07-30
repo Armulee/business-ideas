@@ -4,8 +4,8 @@ import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request) {
     try {
-        const { post, user, optionId } = await req.json()
-        if (!post || !user || !optionId) {
+        const { post, user, optionValue } = await req.json()
+        if (!post || !user || !optionValue) {
             return NextResponse.json(
                 { message: "Missing the required parameters" },
                 { status: 400 }
@@ -23,12 +23,18 @@ export async function PATCH(req: Request) {
             )
         }
 
-        const quickPoll = widget.widgets.find((w) => w.type === "quickPoll")!
-            .data as PollData
+        if (widget.type !== "quickPoll") {
+            return NextResponse.json(
+                { message: "Widget is not a quickPoll type" },
+                { status: 400 }
+            )
+        }
+
+        const quickPoll = widget.data as PollData
 
         // Check if the user has already voted (before modifying anything)
         const hasVoted = quickPoll.options.some((opt) => {
-            if (opt.id === optionId) {
+            if (opt.value === optionValue) {
                 return opt.vote.includes(user)
             }
         })
@@ -40,10 +46,10 @@ export async function PATCH(req: Request) {
 
         // If they hadn't voted before, add their vote to the selected option
         if (!hasVoted) {
-            const option = quickPoll.options.find((o) => o.id === optionId)
+            const option = quickPoll.options.find((o) => o.value === optionValue)
             if (!option) {
                 return NextResponse.json(
-                    { message: "optionId is wrong" },
+                    { message: "optionValue is wrong" },
                     { status: 404 }
                 )
             }
@@ -51,7 +57,7 @@ export async function PATCH(req: Request) {
             option.vote.push(user)
         }
 
-        widget.markModified("widgets")
+        widget.markModified("data")
         await widget.save()
 
         return NextResponse.json(

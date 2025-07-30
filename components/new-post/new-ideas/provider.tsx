@@ -1,13 +1,19 @@
 "use client"
 import { createContext, useContext, useEffect, useState } from "react"
-import { PollData, SummaryData, WidgetData } from "@/database/Widget"
+import { PollData, SummaryData, WidgetType } from "@/database/Widget"
+
+// UI Widget interface for provider state management
+interface UIWidget {
+    id: string
+    type: WidgetType
+}
 import { IProfilePopulated } from "@/database/Profile"
 import { useSession } from "next-auth/react"
 import axios from "axios"
 
 export type NewPost = {
-    widgets: WidgetData[]
-    setWidgets: React.Dispatch<React.SetStateAction<WidgetData[]>>
+    widgets: UIWidget[]
+    setWidgets: React.Dispatch<React.SetStateAction<UIWidget[]>>
     summaries: SummaryData[]
     setSummaries: React.Dispatch<React.SetStateAction<SummaryData[]>>
     profile: IProfilePopulated | null
@@ -15,16 +21,30 @@ export type NewPost = {
     setPollData: React.Dispatch<React.SetStateAction<PollData>>
     callToComment: string
     setCallToComment: React.Dispatch<React.SetStateAction<string>>
+    // Change notification callback
+    notifyChange: () => void
+    // Track initial state for change detection
+    getWidgetState: () => {
+        widgets: UIWidget[]
+        summaries: SummaryData[]
+        pollData: PollData
+        callToComment: string
+    }
 }
 
 const WidgetForm = createContext<NewPost | null>(null)
 export const useWidgetForm = () => useContext(WidgetForm) as NewPost
 
-const Provider = ({ children }: { children: React.ReactNode }) => {
+interface ProviderProps {
+    children: React.ReactNode
+    onChangeNotification?: () => void
+}
+
+const Provider = ({ children, onChangeNotification }: ProviderProps) => {
     // get required profile data for profile widget, in order to prevent the state change and unnecessary fetch api, the fetch logic will be place outside the ProfileWidget component due to the sorting widget action.
     const { data: session } = useSession()
     const [profile, setProfile] = useState<IProfilePopulated | null>(null)
-    const [widgets, setWidgets] = useState<WidgetData[]>([])
+    const [widgets, setWidgets] = useState<UIWidget[]>([])
     const [summaries, setSummaries] = useState<SummaryData[]>([])
     const [callToComment, setCallToComment] = useState<string>("")
     const [pollData, setPollData] = useState<PollData>({
@@ -41,7 +61,8 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                     }/${session.user.name?.toLowerCase()}`
                 )
                 if (status === 200) {
-                    setProfile(data)
+                    const { profile } = data
+                    setProfile(profile)
                 }
             }
 
@@ -62,6 +83,13 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
                 setPollData,
                 callToComment,
                 setCallToComment,
+                notifyChange: () => onChangeNotification?.(),
+                getWidgetState: () => ({
+                    widgets,
+                    summaries,
+                    pollData,
+                    callToComment,
+                }),
             }}
         >
             {children}

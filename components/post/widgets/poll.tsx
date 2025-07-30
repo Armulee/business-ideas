@@ -15,11 +15,11 @@ export default function QuickPollWidget({
 }) {
     const { post } = usePostData()
     const { data: session } = useSession()
-    const handleVote = async (optionId: string) => {
+    const handleVote = async (optionValue: string) => {
         const { status } = await axios.patch("/api/widget/poll", {
             post: post?._id,
             user: session?.user.id,
-            optionId: optionId,
+            optionValue: optionValue,
         })
 
         if (status === 200) {
@@ -48,11 +48,11 @@ export default function QuickPollWidget({
             {data ? (
                 <>
                     <h6 className='font-bold mb-2'>{data.question}</h6>
-                    {data.options.map((option) => (
+                    {data.options.map((option, index) => (
                         <Button
-                            key={option.id}
+                            key={`quickpoll-vote-${index}`}
                             className={`w-full h-full glassmorphism flex flex-col justify-center items-center mb-3 py-2 bg-transparent hover:bg-white/10 disabled:opacity-100 overflow-x-hidden relative`}
-                            onClick={() => handleVote(option.id)}
+                            onClick={() => handleVote(option.value)}
                         >
                             <span className='text-xs'>{option.value}</span>
                             <span className='text-lg flex items-center gap-1'>

@@ -13,11 +13,13 @@ import { useForm } from "react-hook-form"
 import { Form } from "@/components/ui/form"
 // import Widgets from "./widgets"
 import { useWidgetForm } from "./provider"
+import { PollData, SummaryData } from "@/database/Widget"
 import axios from "axios"
 import AdvancedSettings from "./advanced-settings"
 import AnimatedStatus from "./animated-status"
 import FloatingAction from "./floating-action"
 import { toast } from "sonner"
+import Widgets from "./widgets"
 
 export default function NewIdea() {
     const router = useRouter()
@@ -34,6 +36,7 @@ export default function NewIdea() {
     const [cleanFormState, setCleanFormState] = useState<NewPostSchema | null>(
         null
     )
+    // Widget change tracking removed - using direct state comparison instead
 
     const { data: session, status } = useSession()
 
@@ -93,6 +96,15 @@ export default function NewIdea() {
                 // Set clean state to the actual draft data (not form.getValues which might not be updated yet)
                 setCleanFormState(draftFormData)
 
+                // Set initial widget state from draft
+                // TODO: Load widget data from draft.widgets
+                setInitialWidgetState({
+                    widgets: [],
+                    summaries: [],
+                    pollData: { question: "", options: [] },
+                    callToComment: "",
+                })
+
                 // Don't set hasInteracted to true for loaded drafts
                 // Only set it to true when user actually makes changes
                 setHasInteracted(false)
@@ -124,11 +136,26 @@ export default function NewIdea() {
                 loadDraft(draftId)
             } else {
                 setCleanFormState(form.getValues())
+                // Set initial widget state
+                setInitialWidgetState({
+                    widgets: [],
+                    summaries: [],
+                    pollData: { question: "", options: [] },
+                    callToComment: "",
+                })
             }
         }
     }, [status, router, searchParams, loadDraft, form])
 
     const { widgets, summaries, pollData, callToComment } = useWidgetForm()
+
+    // Track initial widget state for change detection
+    const [initialWidgetState, setInitialWidgetState] = useState<{
+        widgets: ReturnType<typeof useWidgetForm>["widgets"]
+        summaries: SummaryData[]
+        pollData: PollData
+        callToComment: string
+    } | null>(null)
 
     const submitPost = useCallback(
         async (values: NewPostSchema, isDraft: boolean = false) => {
@@ -190,13 +217,13 @@ export default function NewIdea() {
 
     // Watch for actual form value changes with clean state comparison
     useEffect(() => {
-        if (!cleanFormState) return
+        if (!cleanFormState || !initialWidgetState) return
 
         const subscription = form.watch((currentValues, { name, type }) => {
             // Only mark as changed if there's actual data modification and values differ from clean state
             if (type === "change" && name) {
                 console.log(currentValues.content, cleanFormState.content)
-                const hasActualChanges =
+                const hasFormChanges =
                     currentValues.title !== cleanFormState.title ||
                     JSON.stringify(currentValues.categories) !==
                         JSON.stringify(cleanFormState.categories) ||
@@ -206,6 +233,18 @@ export default function NewIdea() {
                     // New: form-based tags detection
                     JSON.stringify(currentValues.tags) !==
                         JSON.stringify(cleanFormState.tags || [])
+
+                // Check for widget changes
+                const hasWidgetChanges =
+                    JSON.stringify(widgets) !==
+                        JSON.stringify(initialWidgetState.widgets) ||
+                    JSON.stringify(summaries) !==
+                        JSON.stringify(initialWidgetState.summaries) ||
+                    JSON.stringify(pollData) !==
+                        JSON.stringify(initialWidgetState.pollData) ||
+                    callToComment !== initialWidgetState.callToComment
+
+                const hasActualChanges = hasFormChanges || hasWidgetChanges
 
                 if (hasActualChanges) {
                     setHasInteracted(true)
@@ -218,7 +257,59 @@ export default function NewIdea() {
         })
 
         return () => subscription.unsubscribe()
-    }, [form, cleanFormState])
+    }, [
+        form,
+        cleanFormState,
+        initialWidgetState,
+        widgets,
+        summaries,
+        pollData,
+        callToComment,
+    ])
+
+    // Watch for widget changes separately (since they're not in the form)
+    useEffect(() => {
+        if (!initialWidgetState || !cleanFormState) return
+
+        const hasWidgetChanges =
+            JSON.stringify(widgets) !==
+                JSON.stringify(initialWidgetState.widgets) ||
+            JSON.stringify(summaries) !==
+                JSON.stringify(initialWidgetState.summaries) ||
+            JSON.stringify(pollData) !==
+                JSON.stringify(initialWidgetState.pollData) ||
+            callToComment !== initialWidgetState.callToComment
+
+        // Also check for form changes to determine overall state
+        const currentFormValues = form.getValues()
+        const hasFormChanges =
+            currentFormValues.title !== cleanFormState.title ||
+            JSON.stringify(currentFormValues.categories) !==
+                JSON.stringify(cleanFormState.categories) ||
+            currentFormValues.content !== cleanFormState.content ||
+            JSON.stringify(currentFormValues.advancedSettings) !==
+                JSON.stringify(cleanFormState.advancedSettings) ||
+            JSON.stringify(currentFormValues.tags) !==
+                JSON.stringify(cleanFormState.tags || [])
+
+        const hasAnyChanges = hasWidgetChanges || hasFormChanges
+
+        if (hasAnyChanges) {
+            setHasInteracted(true)
+            setHasUnsavedChanges(true)
+        } else {
+            // If no changes at all, clear unsaved changes
+            setHasUnsavedChanges(false)
+        }
+    }, [
+        widgets,
+        summaries,
+        pollData,
+        callToComment,
+        initialWidgetState,
+        cleanFormState,
+        form,
+    ])
 
     if (loading || submitting || loadingDraft) {
         return <Loading />
@@ -240,7 +331,7 @@ export default function NewIdea() {
 
                             {/* Widget and Related posts */}
                             <div className='md:hidden space-y-4'>
-                                {/* <Widgets /> */}
+                                <Widgets />
                                 <AdvancedSettings control={form.control} />
                             </div>
                             {error && (
@@ -255,7 +346,7 @@ export default function NewIdea() {
                         <div className='hidden md:block w-72'>
                             <div className='sticky'>
                                 <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                    {/* <Widgets /> */}
+                                    <Widgets />
                                     <AdvancedSettings control={form.control} />
                                 </div>
                             </div>

@@ -60,9 +60,7 @@ export async function getWidgets(post: IPostPopulated) {
 
     // Get profile for widget profile if widget profile is visible
     let profile: IProfile | undefined = undefined
-    const profileWidget = widgets?.widgets.some(
-        (widget) => widget.type === "profile"
-    )
+    const profileWidget = widgets?.type === "profile"
     if (profileWidget) {
         profile = (await Profile.findById(post.author._id)) ?? undefined
     }

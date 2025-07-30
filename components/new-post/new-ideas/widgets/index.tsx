@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Plus } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -36,13 +35,20 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useWidgetForm } from "../provider"
-import { WidgetData, WidgetType } from "@/database/Widget"
+import { WidgetType } from "@/database/Widget"
+
+// UI Widget interface for local state management (includes id but not saved to database)
+interface UIWidget {
+    id: string
+    type: WidgetType
+}
 
 export default function Widgets() {
     const { widgets, setWidgets } = useWidgetForm()
+    // const [widgets, setWidgets] = useState<UIWidget[]>([])
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [activeId, setActiveId] = useState<string | null>(null)
-    const [activeWidget, setActiveWidget] = useState<WidgetData | null>(null)
+    const [activeWidget, setActiveWidget] = useState<UIWidget | null>(null)
 
     // Set up sensors for drag and drop
     const sensors = useSensors(
@@ -64,7 +70,7 @@ export default function Widgets() {
     )
 
     // Check if we can add more widgets
-    const canAddWidget = widgets.length < 2
+    const canAddWidget = widgets.length < 1
 
     // Check if a specific widget type is already added
     const isWidgetAdded = (type: WidgetType) =>
@@ -72,8 +78,8 @@ export default function Widgets() {
 
     // Add a new widget
     const addWidget = (type: WidgetType) => {
-        if (widgets.length < 2 && !isWidgetAdded(type)) {
-            const newWidget = {
+        if (widgets.length < 1 && !isWidgetAdded(type)) {
+            const newWidget: UIWidget = {
                 id: `widget-${Date.now()}`,
                 type,
             }
@@ -117,7 +123,7 @@ export default function Widgets() {
     }
 
     // Render the appropriate widget component based on type
-    const renderWidget = (widget: WidgetData, isDragOverlay = false) => {
+    const renderWidget = (widget: UIWidget, isDragOverlay = false) => {
         const commonProps = {
             id: widget.id,
             onRemove: () => removeWidget(widget.id),
@@ -212,7 +218,7 @@ export default function Widgets() {
                         </DialogTitle>
                         <DialogDescription className='text-white/70'>
                             Choose a widget to add to your dashboard. You can
-                            add up to 2 different widgets.
+                            add 1 widget.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -249,7 +255,7 @@ export default function Widgets() {
 }
 
 interface SortableWidgetProps {
-    widget: WidgetData
+    widget: UIWidget
     onRemove: () => void
     isActive: boolean
 }

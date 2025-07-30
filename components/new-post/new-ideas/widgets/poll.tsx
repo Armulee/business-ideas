@@ -24,24 +24,22 @@ export default function QuickPollWidget({
     isDragging,
 }: QuickPollWidgetProps) {
     const { pollData, setPollData } = useWidgetForm()
-    const generateId = (key: string) =>
-        `${key}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
     const handleAddNewOption = () => {
         setPollData((prev) => ({
             ...prev,
             options: prev.options.length < 4 ? [
                 ...prev.options,
-                { id: generateId("poll-value"), value: "", vote: [] },
+                { value: "", vote: [] },
             ] : prev.options,
         }))
     }
 
     // Delete a individual option
-    const handleDeleteOption = (id: string) => {
+    const handleDeleteOption = (index: number) => {
         setPollData((prev) => ({
             ...prev,
-            options: prev.options.filter((option) => option.id !== id),
+            options: prev.options.filter((_, i) => i !== index),
         }))
     }
 
@@ -67,8 +65,8 @@ export default function QuickPollWidget({
                 value={pollData.question}
             />
 
-            {pollData.options.map((option) => (
-                <div key={option.id} className='flex'>
+            {pollData.options.map((option, index) => (
+                <div key={index} className='flex'>
                     <Input
                         required
                         value={option.value}
@@ -77,8 +75,8 @@ export default function QuickPollWidget({
                         onChange={(e) => {
                             setPollData((prev) => ({
                                 ...prev,
-                                options: prev.options.map((opt) =>
-                                    option.id === opt.id
+                                options: prev.options.map((opt, i) =>
+                                    i === index
                                         ? {
                                               ...opt,
                                               value: e.target.value,
@@ -92,7 +90,7 @@ export default function QuickPollWidget({
                         type='button'
                         variant={"ghost"}
                         className='px-2 ml-1 bg-transparent hover:bg-transparent'
-                        onClick={() => handleDeleteOption(option.id)}
+                        onClick={() => handleDeleteOption(index)}
                     >
                         <Trash2 className='text-red-400' />
                     </Button>

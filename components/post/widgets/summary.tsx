@@ -16,16 +16,16 @@ export default function SummaryWidget({
             </div>
             {data ? (
                 data.map((summary, index) => (
-                    <div className='flex flex-col items-start' key={summary.id}>
+                    <div className='flex flex-col items-start' key={index}>
                         <h6 className='font-bold mb-2'>{summary.topic}</h6>
                         <ul
                             className={`list-disc ${
                                 index + 1 !== data.length ? "mb-3" : ""
                             }`}
                         >
-                            {summary.values.map(({ id, value }) => (
+                            {summary.values.map((value, valueIndex) => (
                                 <li
-                                    key={id}
+                                    key={valueIndex}
                                     className='flex items-center mb-2 text-sm'
                                 >
                                     <div className='flex-shrink-0 text-blue-400 mr-2'>

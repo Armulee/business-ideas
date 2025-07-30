@@ -20,7 +20,9 @@ export default function ProfileWidget() {
     const router = useRouter()
     const pathname = usePathname()
     const { data: session } = useSession()
-    const { profile } = usePostData()
+    const { post } = usePostData()
+    // TODO: Fetch profile data separately
+    const profile = post?.author
     const [stats, setStats] = useState<
         { title: string; amount: number }[] | null
     >(null)

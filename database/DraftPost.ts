@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose"
 import { IProfile } from "./Profile"
-import { Widget } from "./Widget"
+import { IWidgets } from "./Widget"
 
 export interface IDraftPost extends Document<Schema.Types.ObjectId> {
     title?: string
@@ -22,7 +22,7 @@ export interface IDraftPost extends Document<Schema.Types.ObjectId> {
         targetRegion?: string
         targetCountry?: string
     }
-    widgets?: Widget[]
+    widgets?: IWidgets[]
 }
 
 // ✅ Interface for Populated DraftPost

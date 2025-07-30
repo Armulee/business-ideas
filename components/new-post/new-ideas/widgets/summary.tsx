@@ -23,62 +23,61 @@ export default function SummaryWidget({
     isDragOverlay,
 }: SummaryWidgetProps) {
     const { summaries, setSummaries } = useWidgetForm()
-    const generateId = (key: string) =>
-        `${key}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    // Removed generateId as we're using indices now
 
     const inputRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({})
 
     const handleAdd = () => {
-        setSummaries((prev) => prev.length < 1 ? [
-            ...prev,
-            {
-                id: generateId("summary"),
-                topic: "",
-                values: [],
-            },
-        ] : prev)
+        setSummaries((prev) =>
+            prev.length < 1
+                ? [
+                      ...prev,
+                      {
+                          topic: "",
+                          values: [],
+                      },
+                  ]
+                : prev
+        )
     }
 
-    const handleAddItem = (summaryId: string) => {
+    const handleAddItem = (summaryIndex: number) => {
         setSummaries((prev) => {
-            const newId = generateId("value")
-            const newSummaries = prev.map((summary) =>
-                summary.id === summaryId
+            const newSummaries = prev.map((summary, index) =>
+                index === summaryIndex
                     ? {
                           ...summary,
-                          values: summary.values.length < 5 ? [
-                              ...summary.values,
-                              { id: newId, value: "" }, // New value added
-                          ] : summary.values,
+                          values:
+                              summary.values.length < 5
+                                  ? [
+                                        ...summary.values,
+                                        "", // New empty string value
+                                    ]
+                                  : summary.values,
                       }
                     : summary
             )
-
-            // Wait for state to update, then focus the new input
-            setTimeout(() => {
-                inputRefs.current[newId]?.focus()
-            }, 0)
 
             return newSummaries
         })
     }
 
     // Delete a summary topic
-    const handleDeleteTopic = (summaryId: string) => {
+    const handleDeleteTopic = (summaryIndex: number) => {
         setSummaries((prevSummaries) =>
-            prevSummaries.filter((summary) => summary.id !== summaryId)
+            prevSummaries.filter((_, index) => index !== summaryIndex)
         )
     }
 
     // Delete a individual value
-    const handleDeleteValue = (summaryId: string, valueId: string) => {
+    const handleDeleteValue = (summaryIndex: number, valueIndex: number) => {
         setSummaries((prevSummaries) =>
-            prevSummaries.map((summary) =>
-                summary.id === summaryId
+            prevSummaries.map((summary, index) =>
+                index === summaryIndex
                     ? {
                           ...summary,
                           values: summary.values.filter(
-                              (value) => value.id !== valueId
+                              (_, i) => i !== valueIndex
                           ),
                       }
                     : summary
@@ -95,8 +94,8 @@ export default function SummaryWidget({
             isDragging={isDragOverlay}
         >
             <WidgetTab>Quick Summarized</WidgetTab>
-            {summaries.map((summary) => (
-                <div key={summary.id}>
+            {summaries.map((summary, summaryIndex) => (
+                <div key={`summary-${summaryIndex}`}>
                     <div className='w-full flex justify-center items-center gap-1 mb-2'>
                         <Input
                             name='summary.topic'
@@ -110,8 +109,8 @@ export default function SummaryWidget({
                             }}
                             onChange={(e) =>
                                 setSummaries((prev) =>
-                                    prev.map((s) =>
-                                        s.id === summary.id
+                                    prev.map((s, index) =>
+                                        index === summaryIndex
                                             ? { ...s, topic: e.target.value }
                                             : s
                                     )
@@ -123,15 +122,15 @@ export default function SummaryWidget({
                             type='button'
                             variant={"ghost"}
                             className='px-2 ml-1 bg-transparent hover:bg-transparent'
-                            onClick={() => handleDeleteTopic(summary.id)}
+                            onClick={() => handleDeleteTopic(summaryIndex)}
                         >
                             <Trash2 className='text-red-400' />
                         </Button>
                     </div>
                     <div className='mb-5'>
-                        {summary.values.map((value) => (
+                        {summary.values.map((value, valueIndex) => (
                             <div
-                                key={value.id}
+                                key={`summary-${summaryIndex}-value-${valueIndex}`}
                                 className='flex items-start mb-2'
                             >
                                 <div className='flex-shrink-0 text-blue-400 mt-2 mr-2'>
@@ -139,8 +138,11 @@ export default function SummaryWidget({
                                 </div>
                                 <Textarea
                                     ref={(el) => {
-                                        inputRefs.current[value.id] = el
+                                        inputRefs.current[
+                                            `${summaryIndex}-${valueIndex}`
+                                        ] = el
                                     }}
+                                    value={value}
                                     placeholder='Enter your detail'
                                     name='summary.detail'
                                     className='max-w-full min-h-[36px] h-[36px] glassmorphism placeholder:text-white/50 text-white overflow-hidden resize-none'
@@ -153,34 +155,30 @@ export default function SummaryWidget({
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                             e.preventDefault()
-                                            handleAddItem(summary.id) // Add new detail when Enter is pressed
+                                            handleAddItem(summaryIndex) // Add new detail when Enter is pressed
                                         } else if (
                                             e.key === "Backspace" &&
-                                            value.value === ""
+                                            value === ""
                                         ) {
                                             e.preventDefault()
                                             handleDeleteValue(
-                                                summary.id,
-                                                value.id
+                                                summaryIndex,
+                                                valueIndex
                                             ) // Delete the detail when empty and Backspace is pressed
                                         }
                                     }}
                                     onChange={(e) =>
                                         setSummaries((prev) =>
-                                            prev.map((s) =>
-                                                s.id === summary.id
+                                            prev.map((s, index) =>
+                                                index === summaryIndex
                                                     ? {
                                                           ...s,
                                                           values: s.values.map(
-                                                              (v) =>
-                                                                  v.id ===
-                                                                  value.id
-                                                                      ? {
-                                                                            ...v,
-                                                                            value: e
-                                                                                .target
-                                                                                .value,
-                                                                        }
+                                                              (v, i) =>
+                                                                  i ===
+                                                                  valueIndex
+                                                                      ? e.target
+                                                                            .value
                                                                       : v
                                                           ),
                                                       }
@@ -195,7 +193,10 @@ export default function SummaryWidget({
                                     variant={"ghost"}
                                     className='px-2 ml-1 bg-transparent hover:bg-transparent'
                                     onClick={() =>
-                                        handleDeleteValue(summary.id, value.id)
+                                        handleDeleteValue(
+                                            summaryIndex,
+                                            valueIndex
+                                        )
                                     }
                                 >
                                     <Trash2 className='text-red-400' />
@@ -209,7 +210,7 @@ export default function SummaryWidget({
                                     className='px-4 text-center glassmorphism text-white bg-transparent hover:bg-white/10 transition duration-300'
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        handleAddItem(summary.id)
+                                        handleAddItem(summaryIndex)
                                     }}
                                 >
                                     <Plus />
