@@ -48,6 +48,7 @@ import {
     Bookmark,
     FlaskConical,
     Pickaxe,
+    MessageSquare,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 
@@ -331,6 +332,16 @@ export const useCollapsibleMenus = () => {
                     name: "Terms & Conditions",
                     icon: FileText,
                 }, // 🔔 Alerts
+            ],
+        },
+        {
+            section: "Contact Us",
+            items: [
+                {
+                    href: "#feedback",
+                    name: "Give Feedback",
+                    icon: MessageSquare,
+                }, // 💬 Feedback
             ],
         },
     ]

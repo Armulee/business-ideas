@@ -15,11 +15,12 @@ import {
 import { Button } from "../../ui/button"
 import { Label } from "../../ui/label"
 import { Separator } from "../../ui/separator"
-import React from "react"
+import React, { useState } from "react"
 import { menus, useCollapsibleMenus } from "./menus"
 import { ScrollArea } from "../../ui/scroll-area"
 import { Logo } from "../../logo"
 import { LoadingLink } from "../../loading-link"
+import { FeedbackDialog } from "../feedback-dialog"
 
 const MobileSidebar = ({
     setOpen,
@@ -28,6 +29,7 @@ const MobileSidebar = ({
 }) => {
     const pathname = usePathname()
     const { data: session } = useSession()
+    const [feedbackOpen, setFeedbackOpen] = useState(false)
     const collapsibleMenus = useCollapsibleMenus()
 
     const filteredCollapsibleMenus = collapsibleMenus.filter(
@@ -37,110 +39,145 @@ const MobileSidebar = ({
     const searchParams = useSearchParams()
     const params = searchParams.toString()
     const url = `${pathname}${params ? `?${params}` : ""}`
+
+    const handleFeedbackClick = () => {
+        setFeedbackOpen(true)
+        setOpen(false) // Close mobile sidebar when feedback is opened
+    }
     return (
-        <SheetContent
-            side='left'
-            className='w-[300px] sm:w-[400px] p-0 glassmorphism bg-blue-900/50 !rounded-none h-full border-0'
-        >
-            <Logo className='text-2xl absolute top-8 w-fit ml-10' />
-            <div className='w-full h-3/4 mt-20 relative'>
-                <ScrollArea className='w-full h-full flex flex-col justify-center items-center'>
-                    <SheetHeader className='hidden'>
-                        <SheetTitle>BlueBizHub</SheetTitle>
-                        <SheetDescription>
-                            This is sidebar navigation for BlueBizHub website
-                            application
-                        </SheetDescription>
-                    </SheetHeader>
+        <>
+            <SheetContent
+                side='left'
+                className='w-[300px] sm:w-[400px] p-0 glassmorphism bg-blue-900/50 !rounded-none h-full border-0'
+            >
+                <Logo className='text-2xl absolute top-8 w-fit ml-10' />
+                <div className='w-full h-3/4 mt-20 relative'>
+                    <ScrollArea className='w-full h-full flex flex-col justify-center items-center'>
+                        <SheetHeader className='hidden'>
+                            <SheetTitle>BlueBizHub</SheetTitle>
+                            <SheetDescription>
+                                This is sidebar navigation for BlueBizHub
+                                website application
+                            </SheetDescription>
+                        </SheetHeader>
 
-                    <ul className='w-3/4 mx-auto mt-4 flex flex-col flex-shrink-0 justify-center items-center gap-1'>
-                        {menus.map((item) => (
-                            <li className='w-full' key={item.name}>
-                                <Button
-                                    asChild
-                                    variant={"ghost"}
-                                    className={`w-full justify-start hover:text-white hover:bg-white/20 ${
-                                        url === item.href
-                                            ? "bg-white text-blue-600"
-                                            : "text-white"
-                                    }`}
-                                    onClick={() => setOpen(false)}
+                        <ul className='w-3/4 mx-auto mt-4 flex flex-col flex-shrink-0 justify-center items-center gap-1'>
+                            {menus.map((item) => (
+                                <li className='w-full' key={item.name}>
+                                    <Button
+                                        asChild
+                                        variant={"ghost"}
+                                        className={`w-full justify-start hover:text-white hover:bg-white/20 ${
+                                            url === item.href
+                                                ? "bg-white text-blue-600"
+                                                : "text-white"
+                                        }`}
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        <LoadingLink href={item.href}>
+                                            <item.icon className='mr-2 h-4 w-4' />
+                                            {item.name}
+                                        </LoadingLink>
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <Separator className='w-3/4 mx-auto mt-2 mb-4 bg-white/20' />
+
+                        {filteredCollapsibleMenus.map(
+                            ({ items, section }, index) => (
+                                <React.Fragment
+                                    key={`mobile-sidebar-menu-${section}`}
                                 >
-                                    <LoadingLink href={item.href}>
-                                        <item.icon className='mr-2 h-4 w-4' />
-                                        {item.name}
-                                    </LoadingLink>
-                                </Button>
-                            </li>
-                        ))}
-                    </ul>
+                                    <Collapsible
+                                        defaultOpen={section !== "Categories"}
+                                        className='w-3/4 mx-auto mb-4'
+                                    >
+                                        <CollapsibleTrigger className='flex items-start justify-start w-full text-white/70 mb-2 hover:text-white'>
+                                            <Label className='flex gap-2'>
+                                                {section}
+                                                <ChevronDown className='h-4 w-4' />
+                                            </Label>
+                                        </CollapsibleTrigger>
 
-                    <Separator className='w-3/4 mx-auto mt-2 mb-4 bg-white/20' />
-
-                    {filteredCollapsibleMenus.map(
-                        ({ items, section }, index) => (
-                            <React.Fragment
-                                key={`mobile-sidebar-menu-${section}`}
-                            >
-                                <Collapsible
-                                    defaultOpen={section !== "Categories"}
-                                    className='w-3/4 mx-auto mb-4'
-                                >
-                                    <CollapsibleTrigger className='flex items-start justify-start w-full text-white/70 mb-2 hover:text-white'>
-                                        <Label className='flex gap-2'>
-                                            {section}
-                                            <ChevronDown className='h-4 w-4' />
-                                        </Label>
-                                    </CollapsibleTrigger>
-
-                                    <CollapsibleContent>
-                                        <ul>
-                                            {items.map((item) => (
-                                                <li
-                                                    className='mb-1'
-                                                    key={item.name}
-                                                >
-                                                    <Button
-                                                        asChild
-                                                        variant={"ghost"}
-                                                        className={`w-full justify-start hover:text-white hover:bg-white/20 ${
-                                                            url === item.href
-                                                                ? "bg-white text-blue-600"
-                                                                : "text-white"
-                                                        }`}
-                                                        onClick={() =>
-                                                            setOpen(false)
-                                                        }
+                                        <CollapsibleContent>
+                                            <ul>
+                                                {items.map((item) => (
+                                                    <li
+                                                        className='mb-1'
+                                                        key={item.name}
                                                     >
-                                                        <LoadingLink
-                                                            href={item.href}
-                                                        >
-                                                            <item.icon className='mr-2 h-4 w-4' />
-                                                            {item.name}
-                                                        </LoadingLink>
-                                                    </Button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </CollapsibleContent>
-                                </Collapsible>
+                                                        {item.href ===
+                                                        "#feedback" ? (
+                                                            <Button
+                                                                variant={
+                                                                    "ghost"
+                                                                }
+                                                                className='w-full justify-start hover:text-white hover:bg-white/20 text-white'
+                                                                onClick={
+                                                                    handleFeedbackClick
+                                                                }
+                                                            >
+                                                                <item.icon className='mr-2 h-4 w-4' />
+                                                                {item.name}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                asChild
+                                                                variant={
+                                                                    "ghost"
+                                                                }
+                                                                className={`w-full justify-start hover:text-white hover:bg-white/20 ${
+                                                                    url ===
+                                                                    item.href
+                                                                        ? "bg-white text-blue-600"
+                                                                        : "text-white"
+                                                                }`}
+                                                                onClick={() =>
+                                                                    setOpen(
+                                                                        false
+                                                                    )
+                                                                }
+                                                            >
+                                                                <LoadingLink
+                                                                    href={
+                                                                        item.href
+                                                                    }
+                                                                >
+                                                                    <item.icon className='mr-2 h-4 w-4' />
+                                                                    {item.name}
+                                                                </LoadingLink>
+                                                            </Button>
+                                                        )}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </CollapsibleContent>
+                                    </Collapsible>
 
-                                {index + 1 ===
-                                filteredCollapsibleMenus.length ? null : (
-                                    <Separator className='w-3/4 mx-auto mt-2 mb-4 bg-white/20' />
-                                )}
-                            </React.Fragment>
-                        )
-                    )}
-                </ScrollArea>
-                <Separator className='absolute bottom-0 bg-white/20' />
-            </div>
+                                    {index + 1 ===
+                                    filteredCollapsibleMenus.length ? null : (
+                                        <Separator className='w-3/4 mx-auto mt-2 mb-4 bg-white/20' />
+                                    )}
+                                </React.Fragment>
+                            )
+                        )}
+                    </ScrollArea>
+                    <Separator className='absolute bottom-0 bg-white/20' />
+                </div>
 
-            <p className='mt-2 text-sm text-white absolute bottom-6 w-full text-center'>
-                © {new Date().getFullYear()} BusinessIdeas. <br />
-                All rights reserved.
-            </p>
-        </SheetContent>
+                <p className='mt-2 text-sm text-white absolute bottom-6 w-full text-center'>
+                    © {new Date().getFullYear()} BusinessIdeas. <br />
+                    All rights reserved.
+                </p>
+            </SheetContent>
+
+            <FeedbackDialog
+                open={feedbackOpen}
+                onOpenChange={setFeedbackOpen}
+            />
+        </>
     )
 }
 

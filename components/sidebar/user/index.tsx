@@ -13,17 +13,19 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
-import React from "react"
+import React, { useState } from "react"
 import { Collapsible, CollapsibleContent } from "../../ui/collapsible"
 import { CollapsibleTrigger } from "@radix-ui/react-collapsible"
 import { useSession } from "next-auth/react"
 import { ChevronDown } from "lucide-react"
 import { menus, useCollapsibleMenus } from "./menus"
 import { ScrollArea } from "../../ui/scroll-area"
+import { FeedbackDialog } from "../feedback-dialog"
 
 export default function UserSidebar() {
     const pathname = usePathname()
     const { data: session } = useSession()
+    const [feedbackOpen, setFeedbackOpen] = useState(false)
     const collapsibleMenus = useCollapsibleMenus()
 
     const filteredCollapsibleMenus = collapsibleMenus.filter(
@@ -35,6 +37,10 @@ export default function UserSidebar() {
     const searchParams = useSearchParams()
     const params = searchParams.toString()
     const url = `${pathname}${params ? `?${params}` : ""}`
+
+    const handleFeedbackClick = () => {
+        setFeedbackOpen(true)
+    }
     return (
         <>
             {hide ? null : (
@@ -102,18 +108,12 @@ export default function UserSidebar() {
                                                                         <SidebarMenuItem
                                                                             key={`sidebar-menu-${item.name}`}
                                                                         >
-                                                                            <SidebarMenuButton
-                                                                                className={`text-white hover:bg-white/20 hover:text-white mb-1 ${
-                                                                                    url ===
-                                                                                    item.href
-                                                                                        ? "bg-white text-blue-600 hover:bg-white hover:text-blue-600"
-                                                                                        : ""
-                                                                                }`}
-                                                                                asChild
-                                                                            >
-                                                                                <Link
-                                                                                    href={
-                                                                                        item.href
+                                                                            {item.href ===
+                                                                            "#feedback" ? (
+                                                                                <SidebarMenuButton
+                                                                                    className='text-white hover:bg-white/20 hover:text-white mb-1'
+                                                                                    onClick={
+                                                                                        handleFeedbackClick
                                                                                     }
                                                                                 >
                                                                                     <item.icon />
@@ -122,8 +122,31 @@ export default function UserSidebar() {
                                                                                             item.name
                                                                                         }
                                                                                     </span>
-                                                                                </Link>
-                                                                            </SidebarMenuButton>
+                                                                                </SidebarMenuButton>
+                                                                            ) : (
+                                                                                <SidebarMenuButton
+                                                                                    className={`text-white hover:bg-white/20 hover:text-white mb-1 ${
+                                                                                        url ===
+                                                                                        item.href
+                                                                                            ? "bg-white text-blue-600 hover:bg-white hover:text-blue-600"
+                                                                                            : ""
+                                                                                    }`}
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link
+                                                                                        href={
+                                                                                            item.href
+                                                                                        }
+                                                                                    >
+                                                                                        <item.icon />
+                                                                                        <span>
+                                                                                            {
+                                                                                                item.name
+                                                                                            }
+                                                                                        </span>
+                                                                                    </Link>
+                                                                                </SidebarMenuButton>
+                                                                            )}
                                                                         </SidebarMenuItem>
                                                                     )
                                                                 )}
@@ -144,6 +167,11 @@ export default function UserSidebar() {
                     </Sidebar>
                 </aside>
             )}
+
+            <FeedbackDialog
+                open={feedbackOpen}
+                onOpenChange={setFeedbackOpen}
+            />
         </>
     )
 }
