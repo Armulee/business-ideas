@@ -5,7 +5,7 @@ import Feedback from "@/database/Feedback"
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth()
@@ -19,7 +19,7 @@ export async function GET(
 
         await connectToDB()
 
-        const { id } = params
+        const { id } = await params
 
         // Get specific feedback with user profile populated (if exists)
         const feedback = await Feedback.findById(id).populate({
@@ -46,7 +46,7 @@ export async function GET(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth()
@@ -60,7 +60,7 @@ export async function DELETE(
 
         await connectToDB()
 
-        const { id } = params
+        const { id } = await params
 
         // Delete the feedback
         const deletedFeedback = await Feedback.findByIdAndDelete(id)
