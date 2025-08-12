@@ -19,7 +19,7 @@ import AdvancedSettings from "./advanced-settings"
 import AnimatedStatus from "./animated-status"
 import FloatingAction from "./floating-action"
 import { toast } from "sonner"
-import Widgets from "./widgets"
+// import Widgets from "./widgets"
 
 export default function NewIdea() {
     const router = useRouter()
@@ -331,7 +331,7 @@ export default function NewIdea() {
 
                             {/* Widget and Related posts */}
                             <div className='md:hidden space-y-4'>
-                                <Widgets />
+                                {/* <Widgets /> */}
                                 <AdvancedSettings control={form.control} />
                             </div>
                             {error && (
@@ -346,7 +346,7 @@ export default function NewIdea() {
                         <div className='hidden md:block w-72'>
                             <div className='sticky'>
                                 <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                    <Widgets />
+                                    {/* <Widgets /> */}
                                     <AdvancedSettings control={form.control} />
                                 </div>
                             </div>

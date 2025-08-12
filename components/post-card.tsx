@@ -63,6 +63,7 @@ export default function PostCard({
             }
         }
     }
+
     return (
         <LoadingLink href={post.postLink}>
             <Card
@@ -72,7 +73,10 @@ export default function PostCard({
                     <div className='flex justify-between items-center mb-2'>
                         {post.categories?.length ? (
                             post.categories.map((category, index) => (
-                                <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                                <Badge
+                                    key={index}
+                                    className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'
+                                >
                                     {category}
                                 </Badge>
                             ))

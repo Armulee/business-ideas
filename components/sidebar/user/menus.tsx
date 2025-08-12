@@ -314,6 +314,21 @@ export const useCollapsibleMenus = () => {
             ],
         },
         {
+            section: "Partner Program",
+            items: [
+                {
+                    href: "/partner/monetization",
+                    name: "Monetization",
+                    icon: DollarSign,
+                }, // Monetization
+                {
+                    href: "/partner/registration",
+                    name: "Registration",
+                    icon: UserPlus,
+                }, // Registration
+            ],
+        },
+        {
             section: "Resources",
             items: [
                 {

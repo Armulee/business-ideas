@@ -26,9 +26,17 @@ export default function UserSidebar() {
     const { data: session } = useSession()
     const collapsibleMenus = useCollapsibleMenus()
 
-    const filteredCollapsibleMenus = collapsibleMenus.filter(
-        (menu) => menu.section !== "Post" || session?.user // Remove 'Post' section when the user is logged in
-    )
+    const filteredCollapsibleMenus = collapsibleMenus
+        .map((menu) => ({
+            ...menu,
+            items:
+                menu.section === "Partner Program" && !session?.user
+                    ? menu.items.filter((item) => item.name !== "Registration")
+                    : menu.items,
+        })) // Remove 'Registration' in the Partner Program section out when user is not login
+        .filter(
+            (menu) => menu.section !== "Post" || session?.user // Remove 'Post' section when the user is not login
+        )
 
     const hide = pathname.startsWith("/auth")
 

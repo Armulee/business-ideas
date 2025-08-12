@@ -13,8 +13,10 @@ import { useSession } from "next-auth/react"
 import { Dialog, DialogTrigger } from "../ui/dialog"
 import ReportForm from "./report-form"
 import { useSWRConfig } from "swr"
+import BoostPost from "./boost-post"
 
 const PostTitle = () => {
+    const router = useRouter()
     const { post, showButton, setShowButton, isEditing, setIsEditing } =
         usePostData()
 
@@ -25,7 +27,8 @@ const PostTitle = () => {
         setIsEditing(true)
     }
 
-    const router = useRouter()
+    const [openBoostDialog, setOpenBoostDialog] = useState<boolean>(false)
+
     const { mutate } = useSWRConfig()
     const handleDelete = async () => {
         const confirmation = confirm(
@@ -61,7 +64,10 @@ const PostTitle = () => {
             <div className='flex flex-wrap items-center gap-3 mb-4'>
                 {post!.categories?.length ? (
                     post!.categories.map((category, index) => (
-                        <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                        <Badge
+                            key={index}
+                            className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'
+                        >
                             {category}
                         </Badge>
                     ))
@@ -131,18 +137,23 @@ const PostTitle = () => {
                             {permission ? (
                                 <>
                                     <li
-                                        className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
+                                        className='w-full text-sm flex justify-start items-center gap-2 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
                                         onClick={handleEdit}
                                     >
-                                        <span>Edit</span>
                                         <Edit size={18} />
+                                        <span>Edit</span>
                                     </li>
+                                    <BoostPost
+                                        post={post}
+                                        openBoostDialog={openBoostDialog}
+                                        setOpenBoostDialog={setOpenBoostDialog}
+                                    />
                                     <li
-                                        className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
+                                        className='w-full text-sm flex justify-start items-center gap-2 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
                                         onClick={handleDelete}
                                     >
-                                        <span>Delete</span>
                                         <Trash size={18} />
+                                        <span>Delete</span>
                                     </li>
                                 </>
                             ) : (

@@ -42,10 +42,10 @@ export async function GET(
         }
 
         // 2️⃣ If no related posts found by tags, try finding by category
-        if (relatedPosts.length === 0 && post.category) {
+        if (relatedPosts.length === 0 && post.categories) {
             relatedPosts = await Post.find({
                 _id: { $ne: postId },
-                category: post.category,
+                categories: { $in: post.category },
             })
                 .populate("author", "name avatar")
                 .sort({ upvotes: -1, createdAt: -1 })
@@ -72,6 +72,7 @@ export async function GET(
                     $project: {
                         title: 1,
                         content: 1,
+                        categories: 1,
                         upvoteCount: 1,
                         createdAt: 1,
                         downvoteCount: 1,

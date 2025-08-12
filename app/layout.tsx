@@ -22,7 +22,7 @@ import { LoadingProvider } from "@/components/loading-provider"
 
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
-import GoogleOneTap from "@/auth/google-one-tap"
+// import GoogleOneTap from "@/auth/google-one-tap"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -81,20 +81,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang='en'>
-            <head>
-                <script
-                    src='https://accounts.google.com/gsi/client'
-                    async
-                    defer
-                ></script>
-            </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden relative h-full`}
             >
                 <div className='moving-gradient'>
                     <Provider session={session}>
                         <LoadingProvider>
-                            <GoogleOneTap />
+                            {/* <GoogleOneTap /> */}
                             <Suspense>
                                 <Navbar />
                                 <Main>{children}</Main>
