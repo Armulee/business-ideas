@@ -49,6 +49,7 @@ import {
     FlaskConical,
     Pickaxe,
     MessageSquare,
+    Mail,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 
@@ -337,6 +338,11 @@ export const useCollapsibleMenus = () => {
         {
             section: "Contact Us",
             items: [
+                {
+                    href: "/contact-us",
+                    name: "Contact Us",
+                    icon: Mail,
+                }, // ✉️ Contact
                 {
                     href: "#feedback",
                     name: "Give Feedback",

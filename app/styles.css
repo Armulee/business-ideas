@@ -12,7 +12,7 @@ body {
 }
 
 .input {
-    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60
+    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60 text-white
 }
 
 .select {
