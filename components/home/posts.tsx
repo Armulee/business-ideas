@@ -1,3 +1,5 @@
+"use client"
+
 import { IPostPopulated } from "@/database/Post"
 import FlowCarousel from "../ui/flow-carousel"
 import { SwiperSlide } from "swiper/react"

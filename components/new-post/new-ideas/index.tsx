@@ -15,11 +15,11 @@ import { Form } from "@/components/ui/form"
 import { useWidgetForm } from "./provider"
 import { PollData, SummaryData } from "@/database/Widget"
 import axios from "axios"
-import AdvancedSettings from "./advanced-settings"
+// import AdvancedSettings from "./advanced-settings"
 import AnimatedStatus from "./animated-status"
 import FloatingAction from "./floating-action"
 import { toast } from "sonner"
-import Widgets from "./widgets"
+// import Widgets from "./widgets"
 
 export default function NewIdea() {
     const router = useRouter()
@@ -331,8 +331,8 @@ export default function NewIdea() {
 
                             {/* Widget and Related posts */}
                             <div className='md:hidden space-y-4'>
-                                <Widgets />
-                                <AdvancedSettings control={form.control} />
+                                {/* <Widgets />
+                                <AdvancedSettings control={form.control} /> */}
                             </div>
                             {error && (
                                 <div className='text-red-500 text-sm mb-4 text-center'>
@@ -346,8 +346,8 @@ export default function NewIdea() {
                         <div className='hidden md:block w-72'>
                             <div className='sticky'>
                                 <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                    <Widgets />
-                                    <AdvancedSettings control={form.control} />
+                                    {/* <Widgets />
+                                    <AdvancedSettings control={form.control} /> */}
                                 </div>
                             </div>
                         </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import { Lightbulb, MessageCircle, StickyNote, TrendingUp } from "lucide-react"
 import { motion } from "framer-motion"
 
