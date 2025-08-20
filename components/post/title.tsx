@@ -18,6 +18,7 @@ const PostTitle = () => {
     const { post, showButton, setShowButton, isEditing, setIsEditing } =
         usePostData()
 
+    console.log(post)
     const { data: session } = useSession()
     const permission = session?.user.id === post?.author._id.toString()
 
@@ -61,7 +62,10 @@ const PostTitle = () => {
             <div className='flex flex-wrap items-center gap-3 mb-4'>
                 {post!.categories?.length ? (
                     post!.categories.map((category, index) => (
-                        <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                        <Badge
+                            key={index}
+                            className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'
+                        >
                             {category}
                         </Badge>
                     ))

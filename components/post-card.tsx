@@ -64,15 +64,18 @@ export default function PostCard({
         }
     }
     return (
-        <LoadingLink href={post.postLink}>
-            <Card
-                className={`${className} border-0 glassmorphism bg-transparent max-w-full text-white shadow-lg hover:bg-blue-900 cursor-pointer transition duration-500 relative`}
-            >
+        <Card
+            className={`${className} relative border-0 glassmorphism bg-transparent max-w-full text-white shadow-lg hover:bg-blue-900 cursor-pointer transition duration-500 relative`}
+        >
+            <LoadingLink href={post.postLink}>
                 <CardHeader className='border-0 border-b border-white/10 pb-2 mb-2 h-[100px]'>
                     <div className='flex justify-between items-center mb-2'>
                         {post.categories?.length ? (
                             post.categories.map((category, index) => (
-                                <Badge key={index} className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'>
+                                <Badge
+                                    key={index}
+                                    className='text-xs font-normal px-3 py-1 text-white bg-transparent glassmorphism w-fit cursor-pointer hover:bg-white/30'
+                                >
                                     {category}
                                 </Badge>
                             ))
@@ -81,56 +84,6 @@ export default function PostCard({
                                 Uncategorized
                             </Badge>
                         )}
-                        <div className='flex items-center gap-2'>
-                            <span
-                                className={`text-xs text-white/50 ${
-                                    permission && showMoreButton
-                                        ? "mr-[1.5rem]"
-                                        : ""
-                                }`}
-                            >
-                                {post.viewCount} Views
-                            </span>
-
-                            {permission && showMoreButton ? (
-                                <Popover>
-                                    <PopoverTrigger
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                        }}
-                                        asChild
-                                        className='bg-transparent rounded-full absolute top-5 right-3 border-0 hover:bg-white/20 hover:text-white transition duration-500'
-                                    >
-                                        <Button
-                                            type='button'
-                                            size={"icon"}
-                                            variant='outline'
-                                        >
-                                            <Ellipsis />
-                                        </Button>
-                                    </PopoverTrigger>
-
-                                    <PopoverContent className='w-52 glassmorphism bg-black/20 p-2 border !border-white/50'>
-                                        <ul className='grid gap-1'>
-                                            <li
-                                                className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
-                                                onClick={handleEdit}
-                                            >
-                                                <span>Edit</span>
-                                                <Edit size={18} />
-                                            </li>
-                                            <li
-                                                className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
-                                                onClick={handleDelete}
-                                            >
-                                                <span>Delete</span>
-                                                <Trash size={18} />
-                                            </li>
-                                        </ul>
-                                    </PopoverContent>
-                                </Popover>
-                            ) : null}
-                        </div>
                     </div>
 
                     <CardTitle className='text-xl flex items-center h-[28px] line-clamp-1'>
@@ -180,7 +133,52 @@ export default function PostCard({
                         </div>
                     </div>
                 </CardFooter>
-            </Card>
-        </LoadingLink>
+            </LoadingLink>
+
+            <div className='flex items-center gap-1 absolute top-5 right-3'>
+                <span className={`text-xs text-white/50`}>
+                    {post.viewCount} Views
+                </span>
+
+                {permission && showMoreButton ? (
+                    <Popover>
+                        <PopoverTrigger
+                            onClick={(e) => {
+                                e.stopPropagation()
+                            }}
+                            asChild
+                            className='bg-transparent rounded-full border-0 hover:bg-white/20 hover:text-white transition duration-500'
+                        >
+                            <Button
+                                type='button'
+                                size={"icon"}
+                                variant='outline'
+                            >
+                                <Ellipsis />
+                            </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className='w-52 glassmorphism bg-black/20 p-2 border !border-white/50'>
+                            <ul className='grid gap-1'>
+                                <li
+                                    className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer hover:bg-white/20 rounded text-white transition duration-500'
+                                    onClick={handleEdit}
+                                >
+                                    <span>Edit</span>
+                                    <Edit size={18} />
+                                </li>
+                                <li
+                                    className='w-full text-sm flex justify-start items-center gap-4 px-4 py-2 cursor-pointer bg-red-500 hover:bg-red-600 hover:text-red-100 transition duration-500 rounded text-white'
+                                    onClick={handleDelete}
+                                >
+                                    <span>Delete</span>
+                                    <Trash size={18} />
+                                </li>
+                            </ul>
+                        </PopoverContent>
+                    </Popover>
+                ) : null}
+            </div>
+        </Card>
     )
 }

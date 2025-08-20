@@ -12,10 +12,12 @@ export default function RelatedPosts() {
     const { post, showButton } = usePostData()
 
     const { data: relatedPosts }: { data: IPostPopulated[] | null } = useSWR(
-        `/api/posts/related/${post?._id}`,
+        `/api/post/related/${post?._id}`,
         fetcher,
         { revalidateOnFocus: false, revalidateIfStale: false }
     )
+
+    console.log(relatedPosts)
     return (
         <div className='space-y-4 mt-4'>
             <h3 className='text-xl font-semibold text-white'>Related Posts</h3>

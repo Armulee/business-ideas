@@ -343,14 +343,14 @@ export default function NewIdea() {
                         </div>
 
                         {/* Sidebar - right side on desktop, hidden on mobile */}
-                        <div className='hidden md:block w-72'>
+                        {/* <div className='hidden md:block w-72'>
                             <div className='sticky'>
                                 <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                    {/* <Widgets />
-                                    <AdvancedSettings control={form.control} /> */}
+                                    <Widgets />
+                                    <AdvancedSettings control={form.control} />
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </form>
             </Form>

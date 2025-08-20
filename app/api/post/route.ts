@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         const {
             author,
             title,
-            category,
+            categories,
             content,
             tags,
             community,
@@ -26,11 +26,14 @@ export async function POST(req: Request) {
         const targetRegions = targetRegion ? [targetRegion] : []
         const targetCountries = targetCountry ? [targetCountry] : []
 
+        // Filter out empty categories
+        const filteredCategories = categories ? categories.filter((cat: string) => cat && cat.trim() !== '') : []
+
         // Create new post
         const newPost = await Post.create({
             author,
             title,
-            category,
+            categories: filteredCategories,
             content,
             tags,
             community,
