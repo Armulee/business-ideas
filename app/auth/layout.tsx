@@ -5,9 +5,5 @@ export default function AuthLayout({
 }: {
     children: React.ReactNode
 }) {
-    return (
-        <AuthGuard>
-            <div className='w-[90%] mx-auto mt-12 mb-10'>{children}</div>
-        </AuthGuard>
-    )
+    return <AuthGuard>{children}</AuthGuard>
 }

@@ -24,6 +24,7 @@ export const ShortLogo = ({ className = "" }: { className?: string }) => {
     return (
         <h1 className={`text-xl font-extrabold ${className}`}>
             <Link href='/' className='group'>
+                <Image width={20} height={20} src={logo} alt='BlueBizHub' />
                 <span className='text-blue-400 group-hover:text-white transitions duration-500'>
                     B
                 </span>

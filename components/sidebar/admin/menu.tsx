@@ -11,6 +11,7 @@ import {
     Database,
     Star,
     Mail,
+    Megaphone,
 } from "lucide-react"
 
 // Main menu items (non-collapsible)
@@ -40,6 +41,16 @@ export const collapsibleMenus = [
         items: [
             { href: "/admin/users", name: "Users", icon: Users },
             { href: "/admin/moderators", name: "Moderators", icon: Shield },
+        ],
+    },
+    {
+        section: "Orchestration Management",
+        items: [
+            {
+                href: "/admin/orchestration/content",
+                name: "Content",
+                icon: Megaphone,
+            },
         ],
     },
     {

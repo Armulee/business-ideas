@@ -23,7 +23,10 @@ import { LoadingProvider } from "@/components/loading-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
 // import GoogleOneTap from "@/auth/google-one-tap"
-import { createOrganizationSchema, createWebSiteSchema } from "@/lib/seo/schemas"
+import {
+    createOrganizationSchema,
+    createWebSiteSchema,
+} from "@/lib/seo/schemas"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -36,21 +39,23 @@ const geistMono = Geist_Mono({
 })
 
 export const viewport: Viewport = {
-    width: 'device-width',
+    width: "device-width",
     initialScale: 1,
     maximumScale: 5,
     userScalable: true,
     themeColor: [
-        { media: '(prefers-color-scheme: light)', color: '#3b82f6' },
-        { media: '(prefers-color-scheme: dark)', color: '#1e40af' }
-    ]
+        { media: "(prefers-color-scheme: light)", color: "#3b82f6" },
+        { media: "(prefers-color-scheme: dark)", color: "#1e40af" },
+    ],
 }
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bluebizhub.com'),
+    metadataBase: new URL(
+        process.env.NEXT_PUBLIC_SITE_URL || "https://bluebizhub.com"
+    ),
     title: {
         default: "BlueBizHub – Business Idea Refinement Platform",
-        template: "%s | BlueBizHub"
+        template: "%s | BlueBizHub",
     },
     description:
         "BlueBizHub connects visionary entrepreneurs with a vibrant community to share, discuss, and refine innovative business ideas into successful ventures.",
@@ -63,7 +68,7 @@ export const metadata: Metadata = {
         "startup development",
         "business networking",
         "startup incubator",
-        "innovation platform"
+        "innovation platform",
     ],
     authors: [{ name: "BlueBizHub", url: "https://bluebizhub.com" }],
     creator: "BlueBizHub",
@@ -79,17 +84,17 @@ export const metadata: Metadata = {
         googleBot: {
             index: true,
             follow: true,
-            'max-video-preview': -1,
-            'max-image-preview': 'large',
-            'max-snippet': -1,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
         },
     },
     alternates: {
-        canonical: '/',
+        canonical: "/",
     },
     openGraph: {
         type: "website",
-        locale: 'en_US',
+        locale: "en_US",
         url: "https://bluebizhub.com/",
         siteName: "BlueBizHub",
         title: "BlueBizHub – Community-Powered Business Idea Refinement Platform",
@@ -117,7 +122,7 @@ export const metadata: Metadata = {
     verification: {
         google: process.env.GOOGLE_SITE_VERIFICATION,
     },
-    category: 'business',
+    category: "business",
 }
 
 export default function RootLayout({
@@ -133,24 +138,24 @@ export default function RootLayout({
     return (
         <html lang='en' dir='ltr'>
             <head>
-                <link rel="icon" href="/favicon.ico" sizes="32x32" />
-                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                <link rel="manifest" href="/manifest.json" />
-                
+                <link rel='icon' href='/favicon.ico' sizes='32x32' />
+                <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+                <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+                <link rel='manifest' href='/manifest.json' />
+
                 <script
-                    type="application/ld+json"
+                    type='application/ld+json'
                     dangerouslySetInnerHTML={{
                         __html: JSON.stringify(organizationSchema),
                     }}
                 />
                 <script
-                    type="application/ld+json"
+                    type='application/ld+json'
                     dangerouslySetInnerHTML={{
                         __html: JSON.stringify(websiteSchema),
                     }}
                 />
-                
+
                 <script
                     src='https://accounts.google.com/gsi/client'
                     async
@@ -160,18 +165,18 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden relative h-full`}
             >
-                <div className='moving-gradient'>
-                    <Provider session={session}>
-                        <LoadingProvider>
-                            {/* <GoogleOneTap /> */}
-                            <Suspense>
-                                <Navbar />
-                                <Main>{children}</Main>
-                            </Suspense>
-                            <Toaster className='bg-black' />
-                        </LoadingProvider>
-                    </Provider>
-                </div>
+                {/* <div className='moving-gradient'> */}
+                <Provider session={session}>
+                    <LoadingProvider>
+                        {/* <GoogleOneTap /> */}
+                        <Suspense>
+                            <Navbar />
+                            <Main>{children}</Main>
+                        </Suspense>
+                        <Toaster className='bg-black' />
+                    </LoadingProvider>
+                </Provider>
+                {/* </div> */}
             </body>
         </html>
     )

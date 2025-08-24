@@ -5,7 +5,7 @@ import { PropagateLoader } from "react-spinners"
 
 export default function Loading() {
     return (
-        <div className='flex items-center justify-center pb-20 w-screen min-h-screen fixed top-0 left-0 moving-gradient z-[100]'>
+        <div className='flex items-center justify-center pb-20 w-screen min-h-screen fixed top-0 left-0 z-[100]'>
             <motion.div
                 className='flex flex-col items-center'
                 initial={{ opacity: 0 }}

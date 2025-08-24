@@ -1,5 +1,7 @@
 import NextAuth from "next-auth"
 import Twitter from "next-auth/providers/twitter"
+import LinkedIn from "next-auth/providers/linkedin"
+import Facebook from "next-auth/providers/facebook"
 // import Passkey from "next-auth/providers/passkey"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
@@ -20,6 +22,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     providers: [
         Google,
         Twitter,
+        LinkedIn,
+        Facebook,
         Resend,
         // Passkey,
         Credentials,

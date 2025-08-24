@@ -325,7 +325,7 @@ export default function AdminDashboard() {
                     const Icon = stat.icon
                     return (
                         <Link key={stat.key} href={stat.link}>
-                            <Card className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'>
+                            <Card className='bg-white/10 backdrop-blur-md border-white/20 h-full shadow-xl'>
                                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                                     <CardTitle className='text-sm font-medium text-white'>
                                         {stat.title}
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
                     return (
                         <Card
                             key={stat.key}
-                            className='bg-white/10 backdrop-blur-md border-white/20 shadow-xl'
+                            className='bg-white/10 backdrop-blur-md border-white/20 h-full shadow-xl'
                         >
                             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                                 <CardTitle className='text-sm font-medium text-white'>
