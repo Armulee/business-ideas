@@ -27,6 +27,8 @@ import {
     createOrganizationSchema,
     createWebSiteSchema,
 } from "@/lib/seo/schemas"
+import CookiesConsent from "@/components/cookies-consent"
+// import NewCookieConsent from "@/components/cookies"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -174,6 +176,8 @@ export default function RootLayout({
                             <Main>{children}</Main>
                         </Suspense>
                         <Toaster className='bg-black' />
+                        <CookiesConsent />
+                        {/* <NewCookieConsent /> */}
                     </LoadingProvider>
                 </Provider>
                 {/* </div> */}

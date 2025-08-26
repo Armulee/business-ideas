@@ -50,12 +50,14 @@ import {
     Pickaxe,
     MessageSquare,
     Mail,
+    // Info,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 
 export const menus = [
     { href: "/", name: "Home", icon: Home }, // 🏠 Homepage
     { href: "/post", name: "Explore", icon: Compass }, // 🔍 Discover ideas
+    // { href: "/about", name: "About", icon: Info }, // ℹ️ About page
 ]
 
 export const useCollapsibleMenus = () => {

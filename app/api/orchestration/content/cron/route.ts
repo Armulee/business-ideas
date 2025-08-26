@@ -34,7 +34,6 @@ async function refineWithClaude(
             system: platformData.systemPrompt,
             prompt: `${platformData.userPrompt}
 
-Original Content to Refine:
 ${originalContent}`,
         })
 
@@ -165,28 +164,85 @@ export async function POST() {
         let linkedinContent = linkedinRawContent
         let linkedinImage = null
 
-        const parsedContent = parseJSONContentFromClaude(linkedinRawContent)
+        const parsedLinkedinContent = parseJSONContentFromClaude(linkedinRawContent)
 
-        if (parsedContent) {
+        if (parsedLinkedinContent) {
             // Generate image if required
-            if (parsedContent.image_required && parsedContent.image_brief) {
-                console.log("Generating image with Leonardo AI...")
+            if (parsedLinkedinContent.image_required && parsedLinkedinContent.image_brief) {
                 linkedinImage = await generateImageWithLeonardo(
-                    parsedContent.image_brief
+                    parsedLinkedinContent.image_brief
                 )
             }
 
             // Return the parsed JSON object directly
-            linkedinContent = parsedContent
+            linkedinContent = parsedLinkedinContent
+        }
+
+        // Refine the main content for X (Twitter)
+        const xRawContent = await refineWithClaude(
+            mainContent,
+            data.x
+        )
+
+        // Parse X JSON response
+        let xContent = xRawContent
+        let xImage = null
+
+        const parsedXContent = parseJSONContentFromClaude(xRawContent)
+
+        if (parsedXContent) {
+            // Generate image if required
+            if (parsedXContent.image_required && parsedXContent.image_brief) {
+                xImage = await generateImageWithLeonardo(
+                    parsedXContent.image_brief
+                )
+            }
+
+            // Return the parsed JSON object directly
+            xContent = parsedXContent
+        }
+
+        // Refine the main content for Meta (Facebook/Instagram)
+        const metaRawContent = await refineWithClaude(
+            mainContent,
+            data.meta
+        )
+
+        // Parse Meta JSON response
+        let metaContent = metaRawContent
+        let metaImage = null
+
+        const parsedMetaContent = parseJSONContentFromClaude(metaRawContent)
+
+        if (parsedMetaContent) {
+            // Generate image if required
+            if (parsedMetaContent.image_required && parsedMetaContent.image_brief) {
+                metaImage = await generateImageWithLeonardo(
+                    parsedMetaContent.image_brief
+                )
+            }
+
+            // Return the parsed JSON object directly
+            metaContent = parsedMetaContent
         }
 
         const responseData: Record<string, unknown> = {
             main: mainContent,
             linkedin: linkedinContent,
+            x: xContent,
+            meta: metaContent,
         }
 
         if (linkedinImage) {
             responseData.linkedinImage = linkedinImage
+        }
+
+        if (xImage) {
+            responseData.xImage = xImage
+        }
+
+        if (metaImage) {
+            responseData.metaImage = metaImage
         }
 
         return NextResponse.json({

@@ -9,13 +9,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import {
     Accordion,
@@ -25,10 +18,13 @@ import {
 } from "@/components/ui/accordion"
 import { toast } from "sonner"
 import axios from "axios"
-import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 import { FaLinkedin, FaMeta, FaXTwitter } from "react-icons/fa6"
 import { Flame } from "lucide-react"
-import Image from "next/image"
+import EditDialog from "@/components/admin/orchestration/content/edit-dialog"
+// import MainContent from "@/components/admin/orchestration/content/generated-content/main"
+// import LinkedinContent from "@/components/admin/orchestration/content/generated-content/linkedin"
+// import XContent from "@/components/admin/orchestration/content/generated-content/x"
+// import MetaContent from "@/components/admin/orchestration/content/generated-content/meta"
 // import InfiniteCanvas from "@/components/admin/orchestration/content/infinite-canvas"
 
 interface PlatformPrompts {
@@ -43,7 +39,7 @@ interface OrchestrationData {
     meta: PlatformPrompts
 }
 
-interface LinkedinContent {
+interface PlatformContent {
     content?: string
     text?: string
     image_required?: boolean
@@ -52,10 +48,12 @@ interface LinkedinContent {
 
 interface GeneratedContent {
     main?: string
-    linkedin?: string | LinkedinContent
+    linkedin?: string | PlatformContent
     linkedinImage?: string
-    x?: string
-    meta?: string
+    x?: string | PlatformContent
+    xImage?: string
+    meta?: string | PlatformContent
+    metaImage?: string
 }
 
 export default function ContentOrchestrationPage() {
@@ -126,6 +124,16 @@ export default function ContentOrchestrationPage() {
         }
     }
 
+    const handleEditDialogChange = (open: boolean) => {
+        if (!open) {
+            setEditDialog({ open: false, platform: "", type: "", value: "" })
+        }
+    }
+
+    const handleEditValueChange = (value: string) => {
+        setEditDialog({ ...editDialog, value })
+    }
+
     const handleGenerateContent = async () => {
         try {
             setLoading(true)
@@ -150,9 +158,11 @@ export default function ContentOrchestrationPage() {
     const openEditDialog = (platform: string, type: string, value: string) => {
         setEditDialog({ open: true, platform, type, value })
     }
+
+    console.log(generatedContent)
     return (
-        <div className='container mx-auto py-8 space-y-6'>
-            <Card className='glassmorphism max-w-4xl mx-auto bg-transparent'>
+        <div className='py-8 space-y-6'>
+            <Card className='glassmorphism max-w-lg mx-auto bg-transparent'>
                 <CardHeader>
                     <CardTitle className='text-white text-2xl'>
                         Content Orchestration
@@ -289,212 +299,41 @@ export default function ContentOrchestrationPage() {
             </p>
 
             {/* Generated Content Display */}
-            {generatedContent && (
+            {/* {generatedContent && (
                 <div className='mt-8 space-y-4'>
                     <h3 className='text-white text-lg font-semibold'>
                         Generated Content
                     </h3>
 
-                    {generatedContent.main && (
-                        <Card className='bg-gray-800/50 border-gray-700'>
-                            <CardHeader className='pb-3'>
-                                <CardTitle className='text-white text-sm flex items-center gap-2'>
-                                    <Flame className='w-4 h-4 text-blue-500' />
-                                    Main Platform Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className='text-gray-300 text-sm whitespace-pre-wrap break-words'>
-                                    {generatedContent.main}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {generatedContent.linkedin && typeof generatedContent.linkedin === 'object' && (
-                        <Card className='bg-gray-800/50 border-gray-700'>
-                            <CardHeader className='pb-3'>
-                                <CardTitle className='text-white text-sm flex items-center gap-2'>
-                                    <FaLinkedin className='w-4 h-4 text-blue-500' />
-                                    LinkedIn Content (Refined)
-                                    {generatedContent.linkedinImage && (
-                                        <span className='ml-auto text-xs text-green-400'>
-                                            🖼️ Image Generated
-                                        </span>
-                                    )}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                {/* Content Box */}
-                                <div className='space-y-2'>
-                                    <h4 className='text-white text-xs font-medium'>Content:</h4>
-                                    <Card className='bg-gray-700/50 border-gray-600'>
-                                        <CardContent className='p-3'>
-                                            <div className='text-gray-300 text-sm whitespace-pre-wrap break-words'>
-                                                {generatedContent.linkedin.content || generatedContent.linkedin.text || "No content"}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Image Required Box */}
-                                <div className='space-y-2'>
-                                    <h4 className='text-white text-xs font-medium'>Image Required:</h4>
-                                    <Card className='bg-gray-700/50 border-gray-600'>
-                                        <CardContent className='p-3'>
-                                            <div className={`text-sm font-medium ${
-                                                generatedContent.linkedin.image_required ? "text-green-400" : "text-gray-400"
-                                            }`}>
-                                                {generatedContent.linkedin.image_required ? "true" : "false"}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Image Brief Box */}
-                                <div className='space-y-2'>
-                                    <h4 className='text-white text-xs font-medium'>Image Brief:</h4>
-                                    <Card className='bg-gray-700/50 border-gray-600'>
-                                        <CardContent className='p-3'>
-                                            <div className='text-gray-300 text-sm whitespace-pre-wrap break-words'>
-                                                {generatedContent.linkedin.image_brief || "null"}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Generated Image Display */}
-                                {generatedContent.linkedinImage && (
-                                    <div className='mt-6 space-y-2'>
-                                        <h4 className='text-white text-xs font-medium'>Generated Image:</h4>
-                                        <Card className='bg-gray-700/50 border-gray-600'>
-                                            <CardContent className='p-3'>
-                                                <Image
-                                                    src={generatedContent.linkedinImage}
-                                                    alt='Generated LinkedIn Image'
-                                                    width={512}
-                                                    height={512}
-                                                    className='w-full max-w-md mx-auto rounded-lg shadow-lg'
-                                                    onError={(e) => {
-                                                        console.error("Failed to load image:", generatedContent.linkedinImage)
-                                                        e.currentTarget.style.display = "none"
-                                                    }}
-                                                />
-                                                <p className='text-xs text-gray-500 text-center mt-2'>
-                                                    Generated by Leonardo AI (Lucid Origin)
-                                                </p>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {generatedContent.x && (
-                        <Card className='bg-gray-800/50 border-gray-700'>
-                            <CardHeader className='pb-3'>
-                                <CardTitle className='text-white text-sm flex items-center gap-2'>
-                                    <FaXTwitter className='w-4 h-4 text-white' />
-                                    X (Twitter) Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className='text-gray-300 text-sm whitespace-pre-wrap break-words'>
-                                    {generatedContent.x}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {generatedContent.meta && (
-                        <Card className='bg-gray-800/50 border-gray-700'>
-                            <CardHeader className='pb-3'>
-                                <CardTitle className='text-white text-sm flex items-center gap-2'>
-                                    <FaMeta className='w-4 h-4 text-blue-500' />
-                                    Meta (Facebook) Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className='text-gray-300 text-sm whitespace-pre-wrap break-words'>
-                                    {generatedContent.meta}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                    <MainContent content={generatedContent.main} />
+                    
+                    <LinkedinContent 
+                        content={generatedContent.linkedin} 
+                        image={generatedContent.linkedinImage} 
+                    />
+                    
+                    <XContent 
+                        content={generatedContent.x} 
+                        image={generatedContent.xImage} 
+                    />
+                    
+                    <MetaContent 
+                        content={generatedContent.meta} 
+                        image={generatedContent.metaImage} 
+                    />
                 </div>
-            )}
-            {/* Edit Dialog */}
-            <Dialog
+            )} */}
+
+            <EditDialog
                 open={editDialog.open}
-                onOpenChange={(open) =>
-                    !open &&
-                    setEditDialog({
-                        open: false,
-                        platform: "",
-                        type: "",
-                        value: "",
-                    })
-                }
-            >
-                <DialogContent className='bg-gray-900 border-gray-700 text-white max-w-2xl'>
-                    <DialogHeader>
-                        <DialogTitle>
-                            Edit{" "}
-                            {editDialog.type === "systemPrompt"
-                                ? "System"
-                                : "User"}{" "}
-                            Prompt
-                            {editDialog.platform && (
-                                <span className='text-sm font-normal text-gray-400 block'>
-                                    for{" "}
-                                    {
-                                        platformConfig[
-                                            editDialog.platform as keyof typeof platformConfig
-                                        ]?.name
-                                    }
-                                </span>
-                            )}
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className='space-y-4'>
-                        <AutoHeightTextarea
-                            value={editDialog.value}
-                            onChange={(e) =>
-                                setEditDialog({
-                                    ...editDialog,
-                                    value: e.target.value,
-                                })
-                            }
-                            placeholder={`Enter ${editDialog.type === "systemPrompt" ? "system" : "user"} prompt for ${editDialog.platform}...`}
-                            className='min-h-[200px] bg-gray-800 border-gray-600 text-white'
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant='outline'
-                            onClick={() =>
-                                setEditDialog({
-                                    open: false,
-                                    platform: "",
-                                    type: "",
-                                    value: "",
-                                })
-                            }
-                            className='border-gray-600 button text-white hover:bg-gray-800 md:mt-0 mt-2'
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleSavePrompt}
-                            disabled={loading}
-                            className='bg-blue-600 hover:bg-blue-700'
-                        >
-                            {loading ? "Saving..." : "Save"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                platform={editDialog.platform}
+                type={editDialog.type}
+                value={editDialog.value}
+                loading={loading}
+                onOpenChange={handleEditDialogChange}
+                onValueChange={handleEditValueChange}
+                onSave={handleSavePrompt}
+            />
         </div>
     )
 }
