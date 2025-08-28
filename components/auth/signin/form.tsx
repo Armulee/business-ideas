@@ -281,7 +281,7 @@ const SignInForm = () => {
                                     <FormLabel className='text-sm text-gray-200 !mt-0'>
                                         I agree to the{" "}
                                         <Link
-                                            href='/terms'
+                                            href='/terms-conditions'
                                             className='text-white hover:text-blue-200 underline'
                                         >
                                             User agreement

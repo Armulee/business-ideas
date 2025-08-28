@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Cookie } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -14,10 +15,33 @@ interface CookiesConsentProps {
 export default function CookiesConsent({ className }: CookiesConsentProps) {
     const [isVisible, setIsVisible] = useState(false)
     const [isClosing, setIsClosing] = useState(false)
+    const pathname = usePathname()
+
+    // Pages where cookies consent should be hidden
+    const hiddenOnPages = [
+        '/privacy-policy',
+        '/terms-conditions',
+        '/auth/signin',
+        '/auth/signup',
+        '/auth/forget-password',
+        '/auth/reset-password',
+        '/auth/setup-account',
+        '/auth/privacy'
+    ]
+
+    // Check if current page should hide cookies consent
+    const shouldHide = hiddenOnPages.some(page => pathname === page) || 
+        pathname.startsWith('/auth/reset-password/') ||
+        pathname.startsWith('/auth/setup-account/') ||
+        pathname.startsWith('/admin')
 
     useEffect(() => {
-        setIsVisible(CookieManager.shouldShowConsent())
-    }, [])
+        if (shouldHide) {
+            setIsVisible(false)
+        } else {
+            setIsVisible(CookieManager.shouldShowConsent())
+        }
+    }, [shouldHide])
 
     const handleAccept = () => {
         CookieManager.setConsent(true)

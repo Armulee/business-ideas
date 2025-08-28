@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from "mongoose"
 export interface PlatformPrompts {
     systemPrompt: string
     userPrompt: string
+    imagePrompt?: string
 }
 
 export interface IOrchestration extends Document<Schema.Types.ObjectId> {
@@ -24,6 +25,10 @@ const PlatformPromptsSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    imagePrompt: {
+        type: String,
+        default: "",
+    },
 }, { _id: false })
 
 const OrchestrationSchema = new mongoose.Schema<IOrchestration>({
@@ -38,6 +43,7 @@ const OrchestrationSchema = new mongoose.Schema<IOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
+            imagePrompt: "",
         }),
     },
     linkedin: {
@@ -45,6 +51,7 @@ const OrchestrationSchema = new mongoose.Schema<IOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
+            imagePrompt: "",
         }),
     },
     x: {
@@ -52,6 +59,7 @@ const OrchestrationSchema = new mongoose.Schema<IOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
+            imagePrompt: "",
         }),
     },
     meta: {
@@ -59,6 +67,7 @@ const OrchestrationSchema = new mongoose.Schema<IOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
+            imagePrompt: "",
         }),
     },
     createdAt: {

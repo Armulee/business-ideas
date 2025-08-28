@@ -40,10 +40,10 @@ export async function PATCH(request: NextRequest) {
         if (!orchestration) {
             orchestration = await Orchestration.create({
                 type: "content",
-                main: updateData.main || { systemPrompt: "", userPrompt: "" },
-                linkedin: updateData.linkedin || { systemPrompt: "", userPrompt: "" },
-                x: updateData.x || { systemPrompt: "", userPrompt: "" },
-                meta: updateData.meta || { systemPrompt: "", userPrompt: "" },
+                main: updateData.main || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+                linkedin: updateData.linkedin || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+                x: updateData.x || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+                meta: updateData.meta || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
             })
         } else {
             // Update platforms - merge with existing data

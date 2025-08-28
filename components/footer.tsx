@@ -92,7 +92,7 @@ export default function Footer() {
                         </div>
                         <div className='px-5 py-2'>
                             <Link
-                                href='/terms'
+                                href='/terms-conditions'
                                 className='text-base text-gray-500 hover:text-gray-900'
                             >
                                 Terms of Service

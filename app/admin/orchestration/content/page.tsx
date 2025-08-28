@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import {
     Card,
     CardContent,
@@ -30,6 +31,7 @@ import EditDialog from "@/components/admin/orchestration/content/edit-dialog"
 interface PlatformPrompts {
     systemPrompt: string
     userPrompt: string
+    imagePrompt?: string
 }
 
 interface OrchestrationData {
@@ -39,29 +41,22 @@ interface OrchestrationData {
     meta: PlatformPrompts
 }
 
-interface PlatformContent {
-    content?: string
-    text?: string
-    image_required?: boolean
-    image_brief?: string
-}
-
 interface GeneratedContent {
     main?: string
-    linkedin?: string | PlatformContent
+    linkedin?: string
     linkedinImage?: string
-    x?: string | PlatformContent
+    x?: string
     xImage?: string
-    meta?: string | PlatformContent
+    meta?: string
     metaImage?: string
 }
 
 export default function ContentOrchestrationPage() {
     const [data, setData] = useState<OrchestrationData>({
-        main: { systemPrompt: "", userPrompt: "" },
-        linkedin: { systemPrompt: "", userPrompt: "" },
-        x: { systemPrompt: "", userPrompt: "" },
-        meta: { systemPrompt: "", userPrompt: "" },
+        main: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+        linkedin: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+        x: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+        meta: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
     })
     const [loading, setLoading] = useState(false)
     const [generatedContent, setGeneratedContent] =
@@ -250,6 +245,35 @@ export default function ContentOrchestrationPage() {
                                                     </CardContent>
                                                 </Card>
                                             </div>
+
+                                            {/* Image Prompt Section - Only show for social media platforms, not main */}
+                                            {platform !== "main" && (
+                                                <div className='space-y-2'>
+                                                    <div className='flex items-center justify-between'>
+                                                        <Label className='text-white text-sm font-medium'>
+                                                            Image Prompt
+                                                        </Label>
+                                                    </div>
+                                                    <Card
+                                                        onClick={() =>
+                                                            openEditDialog(
+                                                                platform,
+                                                                "imagePrompt",
+                                                                platformData.imagePrompt ||
+                                                                    ""
+                                                            )
+                                                        }
+                                                        className='bg-gray-800/50 border-gray-700 input hover:bg-white/20 cursor-pointer'
+                                                    >
+                                                        <CardContent className='p-3'>
+                                                            <div className='text-gray-300 text-sm whitespace-pre-wrap break-words line-clamp-4'>
+                                                                {platformData.imagePrompt ||
+                                                                    "No image prompt configured"}
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+                                            )}
                                         </AccordionContent>
                                     </AccordionItem>
                                 )
@@ -299,30 +323,123 @@ export default function ContentOrchestrationPage() {
             </p>
 
             {/* Generated Content Display */}
-            {/* {generatedContent && (
-                <div className='mt-8 space-y-4'>
-                    <h3 className='text-white text-lg font-semibold'>
+            {generatedContent && (
+                <div className='mt-8 space-y-6 max-w-4xl mx-auto'>
+                    <h3 className='text-white text-xl font-bold text-center'>
                         Generated Content
                     </h3>
 
-                    <MainContent content={generatedContent.main} />
-                    
-                    <LinkedinContent 
-                        content={generatedContent.linkedin} 
-                        image={generatedContent.linkedinImage} 
-                    />
-                    
-                    <XContent 
-                        content={generatedContent.x} 
-                        image={generatedContent.xImage} 
-                    />
-                    
-                    <MetaContent 
-                        content={generatedContent.meta} 
-                        image={generatedContent.metaImage} 
-                    />
+                    {/* Main Content */}
+                    {generatedContent.main && (
+                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
+                            <CardHeader>
+                                <CardTitle className='text-white flex items-center gap-2'>
+                                    <Flame className='w-5 h-5 text-orange-500' />
+                                    Main Platform Content
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
+                                    {generatedContent.main}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* LinkedIn Content */}
+                    {generatedContent.linkedin && (
+                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
+                            <CardHeader>
+                                <CardTitle className='text-white flex items-center gap-2'>
+                                    <FaLinkedin className='w-5 h-5 text-blue-500' />
+                                    LinkedIn Content
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
+                                    {generatedContent.linkedin}
+                                </div>
+                                {generatedContent.linkedinImage && (
+                                    <div className='space-y-2'>
+                                        <Label className='text-white text-sm font-medium'>
+                                            Generated Image:
+                                        </Label>
+                                        <Image
+                                            src={generatedContent.linkedinImage}
+                                            alt='LinkedIn generated image'
+                                            width={400}
+                                            height={400}
+                                            className='w-full max-w-md mx-auto rounded-lg'
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* X (Twitter) Content */}
+                    {generatedContent.x && (
+                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
+                            <CardHeader>
+                                <CardTitle className='text-white flex items-center gap-2'>
+                                    <FaXTwitter className='w-5 h-5 text-white' />
+                                    X (Twitter) Content
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
+                                    {generatedContent.x}
+                                </div>
+                                {generatedContent.xImage && (
+                                    <div className='space-y-2'>
+                                        <Label className='text-white text-sm font-medium'>
+                                            Generated Image:
+                                        </Label>
+                                        <Image
+                                            src={generatedContent.xImage}
+                                            alt='X generated image'
+                                            width={400}
+                                            height={400}
+                                            className='w-full max-w-md mx-auto rounded-lg'
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Meta Content */}
+                    {generatedContent.meta && (
+                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
+                            <CardHeader>
+                                <CardTitle className='text-white flex items-center gap-2'>
+                                    <FaMeta className='w-5 h-5 text-blue-500' />
+                                    Meta (Facebook) Content
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
+                                    {generatedContent.meta}
+                                </div>
+                                {generatedContent.metaImage && (
+                                    <div className='space-y-2'>
+                                        <Label className='text-white text-sm font-medium'>
+                                            Generated Image:
+                                        </Label>
+                                        <Image
+                                            src={generatedContent.metaImage}
+                                            alt='Meta generated image'
+                                            width={400}
+                                            height={400}
+                                            className='w-full max-w-md mx-auto rounded-lg'
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
-            )} */}
+            )}
 
             <EditDialog
                 open={editDialog.open}

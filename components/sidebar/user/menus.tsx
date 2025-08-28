@@ -331,7 +331,7 @@ export const useCollapsibleMenus = () => {
                     icon: Lock,
                 }, // ⚙️ Preferences
                 {
-                    href: "/terms",
+                    href: "/terms-conditions",
                     name: "Terms & Conditions",
                     icon: FileText,
                 }, // 🔔 Alerts

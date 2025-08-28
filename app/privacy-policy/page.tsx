@@ -1,146 +1,217 @@
-// app/privacy-policy/page.tsx
-
-import { FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Metadata } from "next"
+import Link from "next/link"
+
+interface PolicySection {
+    title: string
+    content: string
+    list?: string[]
+}
+
+interface Policy {
+    _id?: string
+    type?: string
+    sections: PolicySection[]
+    lastUpdated?: Date
+}
+
+async function getPrivacyPolicy(): Promise<Policy | null> {
+    try {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/policies/privacy`,
+            {
+                cache: "no-store", // Always fetch fresh data
+            }
+        )
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch privacy policy")
+        }
+
+        const data = await response.json()
+        return Array.isArray(data) ? data[0] : data
+    } catch (error) {
+        console.error("Error fetching privacy policy:", error)
+        return null
+    }
+}
 
 export const metadata: Metadata = {
     title: "Privacy Policy | BlueBizHub",
     description:
-        "Our commitment to your privacy under which we operate at BlueBizHub.",
+        "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
 }
 
-// Structured content arrays for policy sections
-const privacySections = [
-    {
-        title: "Introduction",
-        content:
-            'BlueBizHub ("we," "us," or "our") respects your privacy and is dedicated to safeguarding the confidentiality and security of your personal information. This Privacy Policy details the types of information we collect, the purposes for collecting such information, the methods we utilize to manage and protect your information, and your rights regarding your personal data.',
-    },
-    {
-        title: "Information We Collect",
-        content:
-            "We collect personal information provided directly by you when registering an account, posting content, or engaging with our community. Such information may include but is not limited to your name, email address, user profile information, and any content, ideas, feedback, or comments you voluntarily share on our platform. Additionally, we automatically collect technical information, including IP addresses, browser type, operating system, and usage data via cookies and similar tracking technologies.",
-    },
-    {
-        title: "Use of Information",
-        content:
-            "We utilize the collected data to operate, manage, enhance, and personalize your experience on our platform. This includes verifying user identity, providing user support, sending important notifications, analyzing user engagement and interactions, facilitating communication within our community, improving website functionality, and ensuring compliance with applicable laws and regulations.",
-    },
-    {
-        title: "Cookies and Tracking Technologies",
-        content:
-            "BlueBizHub uses cookies and other tracking technologies to improve functionality, personalize user experience, analyze user activity, and deliver targeted advertising. Users may control cookie preferences or disable cookies entirely through browser settings. However, disabling cookies may affect functionality and limit the user experience.",
-    },
-    {
-        title: "Information Sharing",
-        content:
-            "We do not sell, lease, or trade your personal information. However, we may share anonymized or aggregated data with third-party partners for analytics, research, and advertising purposes. Additionally, we reserve the right to disclose personal information if required by law, legal process, or regulatory request, or if we believe disclosure is necessary to protect our rights, safety, or the safety of others.",
-    },
-    {
-        title: "Data Security",
-        content:
-            "We implement industry-standard security measures designed to protect your personal information from unauthorized access, misuse, alteration, loss, or destruction. Nevertheless, please be aware that no method of electronic transmission or storage is completely secure, and we cannot guarantee absolute security.",
-    },
-    {
-        title: "Children’s Privacy",
-        content:
-            "Our platform is not intended for individuals under the age of thirteen (13). We do not knowingly collect personal data from minors. If we discover that we have unintentionally collected personal information from a minor, we will take immediate steps to delete such information.",
-    },
-    {
-        title: "Changes to This Privacy Policy",
-        content:
-            "We reserve the right to modify this Privacy Policy at any time. Any revisions will be communicated by updating the effective date listed herein. Continued use of our service following such updates indicates acceptance of the amended Privacy Policy.",
-    },
-    {
-        title: "Contact Information",
-        content:
-            "For any questions or concerns regarding this Privacy Policy, please contact us at privacy@bluebizhub.com.",
-    },
-]
+export default async function PrivacyPolicyPage() {
+    const policy = await getPrivacyPolicy()
 
-const termsSections = [
-    {
-        title: "Acceptance of Terms",
-        content:
-            'By accessing or utilizing the BlueBizHub platform ("Service"), you acknowledge and agree to comply with these Terms of Service. If you do not accept these terms, refrain from using our Service.',
-    },
-    {
-        title: "User Conduct",
-        content:
-            "Users agree to comply with all applicable laws and our established Community Guidelines. You bear full responsibility for all content and communications posted by your account.",
-    },
-    {
-        title: "Intellectual Property Rights",
-        content:
-            "All materials, content, and intellectual property available on the BlueBizHub platform are owned exclusively by us or our licensors. Users may not copy, distribute, reproduce, or create derivative works from our content without prior express written permission.",
-    },
-    {
-        title: "Disclaimers and Liability Limitations",
-        content:
-            'The BlueBizHub service is provided "as is" without warranties of any kind, either expressed or implied. We expressly disclaim all warranties regarding accuracy, reliability, completeness, or suitability of the Service for any particular purpose. To the fullest extent permissible under applicable law, we shall not be liable for indirect, incidental, consequential, special, or punitive damages arising from or related to your use of or inability to use our Service.',
-    },
-    {
-        title: "Termination",
-        content:
-            "We reserve the right, at our sole discretion, to suspend or terminate user access and account privileges without notice for violations of these Terms of Service or any other reason deemed appropriate.",
-    },
-    {
-        title: "Amendaments to Terms",
-        content:
-            "We reserve the right to amend these Terms of Service at any time, with notice of significant amendments communicated clearly to users. Continued use of our Service after amendments become effective signifies user acceptance of the revised terms.",
-    },
-    {
-        title: "Governing Law",
-        content:
-            "These Terms of Service are governed and interpreted under the laws of Thailand, irrespective of conflicts of law principles.",
-    },
-]
+    // If no policy found, show beautiful error message
+    if (!policy || !policy.sections || policy.sections.length === 0) {
+        return (
+            <>
+                <div className='container mx-auto px-4 py-16'>
+                    <Card className='max-w-2xl mx-auto glassmorphism bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30'>
+                        <CardHeader className='text-center pb-8'>
+                            <div className='mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6'>
+                                <svg
+                                    className='w-12 h-12 text-white'
+                                    fill='none'
+                                    stroke='currentColor'
+                                    viewBox='0 0 24 24'
+                                >
+                                    <path
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                        strokeWidth='2'
+                                        d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
+                                    />
+                                </svg>
+                            </div>
+                            <CardTitle>
+                                <h1 className='text-4xl font-bold text-white mb-4'>
+                                    Privacy Policy
+                                </h1>
+                            </CardTitle>
+                        </CardHeader>
 
-export default function PolicyPage() {
+                        <CardContent className='text-center space-y-6'>
+                            <div className='space-y-4'>
+                                <h2 className='text-2xl font-semibold text-blue-200'>
+                                    Content Not Available
+                                </h2>
+                                <p className='text-lg text-gray-300 leading-relaxed'>
+                                    Our privacy policy content is currently
+                                    being updated to serve you better.
+                                    We&apos;re working hard to make sure you
+                                    have access to the most comprehensive and
+                                    transparent privacy information.
+                                </p>
+                            </div>
+
+                            <div className='bg-blue-900/30 border border-blue-500/50 rounded-lg p-6 space-y-4'>
+                                <h3 className='text-xl font-semibold text-white'>
+                                    In the meantime
+                                </h3>
+                                <p className='text-gray-300'>
+                                    We are committed to protecting your privacy
+                                    and handling your data responsibly. For any
+                                    privacy-related questions or concerns,
+                                    please don&apos;t hesitate to reach out.
+                                </p>
+
+                                <div className='flex flex-col sm:flex-row gap-4 justify-center mt-6'>
+                                    <a
+                                        href='mailto:privacy@bluebizhub.com'
+                                        className='inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl'
+                                    >
+                                        <svg
+                                            className='w-5 h-5 mr-2'
+                                            fill='none'
+                                            stroke='currentColor'
+                                            viewBox='0 0 24 24'
+                                        >
+                                            <path
+                                                strokeLinecap='round'
+                                                strokeLinejoin='round'
+                                                strokeWidth='2'
+                                                d='M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+                                            />
+                                        </svg>
+                                        Contact Privacy Team
+                                    </a>
+
+                                    <Link
+                                        href='/'
+                                        className='inline-flex items-center justify-center px-6 py-3 border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white font-medium rounded-lg transition-all duration-200'
+                                    >
+                                        <svg
+                                            className='w-5 h-5 mr-2'
+                                            fill='none'
+                                            stroke='currentColor'
+                                            viewBox='0 0 24 24'
+                                        >
+                                            <path
+                                                strokeLinecap='round'
+                                                strokeLinejoin='round'
+                                                strokeWidth='2'
+                                                d='M10 19l-7-7m0 0l7-7m-7 7h18'
+                                            />
+                                        </svg>
+                                        Back to Home
+                                    </Link>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </>
+        )
+    }
+
+    // Render policy content if available
     return (
         <>
-            <Card className='max-w-3xl mx-auto mt-20 bg-transparent border-0 shadow-none'>
-                <CardHeader>
-                    <CardTitle className='text-blue-200 flex items-center space-x-2 text-2xl font-extrabold'>
-                        <FileText className='w-6 h-6' />
-                        <span>Privacy Policy</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-6 text-gray-700'>
-                    {privacySections.map((section) => (
-                        <div key={section.title}>
-                            <h3 className='text-blue-200 font-bold glassmorphism mb-2 px-4 py-2 w-fit'>
-                                {section.title}
-                            </h3>
-                            <p className='mt-1 text-white text-sm'>
-                                {section.content}
-                            </p>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+            {/* SEO structured data */}
+            <script
+                type='application/ld+json'
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "WebPage",
+                        name: "Privacy Policy",
+                        description:
+                            "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
+                        url: "https://bluebizhub.com/privacy-policy",
+                        publisher: {
+                            "@type": "Organization",
+                            name: "BlueBizHub",
+                        },
+                        dateModified:
+                            policy.lastUpdated || new Date().toISOString(),
+                    }),
+                }}
+            />
 
-            <Card className='max-w-3xl mx-auto mb-28 bg-transparent border-0 shadow-none'>
-                <CardHeader>
-                    <CardTitle className='text-blue-200 flex items-center space-x-2 text-2xl font-extrabold'>
-                        <FileText className='w-6 h-6' />
-                        <span>Terms of Service</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-6 text-gray-700'>
-                    {termsSections.map((section) => (
-                        <div key={section.title}>
-                            <h3 className='text-blue-200 font-bold glassmorphism mb-2 px-4 py-2 w-fit'>
-                                {section.title}
-                            </h3>
-                            <p className='mt-1 text-white text-sm'>
-                                {section.content}
-                            </p>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+            <div className='container mx-auto px-4 py-16'>
+                <Card className='max-w-4xl mx-auto bg-transparent border-none'>
+                    <CardHeader className='text-center pb-8'>
+                        <CardTitle>
+                            <h1 className='text-4xl md:text-5xl font-bold text-blue-200 mb-4'>
+                                Privacy Policy
+                            </h1>
+                            {policy.lastUpdated && (
+                                <p className='text-sm text-gray-400'>
+                                    Last updated:{" "}
+                                    {new Date(
+                                        policy.lastUpdated
+                                    ).toLocaleDateString()}
+                                </p>
+                            )}
+                        </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className='space-y-8 mb-20'>
+                        {policy.sections.map((section, index) => (
+                            <section key={index} className='space-y-4'>
+                                <h2 className='text-2xl font-bold text-white border-b border-gray-600 pb-2'>
+                                    {section.title}
+                                </h2>
+                                <div className='text-gray-300 leading-relaxed'>
+                                    {section.content}
+                                </div>
+
+                                {section.list && section.list.length > 0 && (
+                                    <ul className='list-disc list-inside space-y-2 text-gray-300 ml-4'>
+                                        {section.list.map((item, listIndex) => (
+                                            <li key={listIndex}>{item}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </section>
+                        ))}
+                    </CardContent>
+                </Card>
+            </div>
         </>
     )
 }

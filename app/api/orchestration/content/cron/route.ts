@@ -44,24 +44,6 @@ ${originalContent}`,
     }
 }
 
-function parseJSONContentFromClaude(rawContent: string) {
-    // Remove markdown code blocks and clean up the JSON
-    let jsonString = rawContent.trim()
-    if (jsonString.startsWith("```json")) {
-        jsonString = jsonString
-            .replace(/^```json\s*/, "")
-            .replace(/\s*```$/, "")
-    } else if (jsonString.startsWith("```")) {
-        jsonString = jsonString.replace(/^```\s*/, "").replace(/\s*```$/, "")
-    }
-
-    try {
-        return JSON.parse(jsonString)
-    } catch (parseError) {
-        console.error("JSON parsing error:", parseError)
-        return null
-    }
-}
 
 async function generateImageWithLeonardo(prompt: string) {
     if (!process.env.LEONARDO_API) {
@@ -155,75 +137,39 @@ export async function POST() {
         const mainContent = await generateContentWithAI(data.main)
 
         // Refine the main content for LinkedIn
-        const linkedinRawContent = await refineWithClaude(
+        const linkedinContent = await refineWithClaude(
             mainContent,
             data.linkedin
         )
 
-        // Parse LinkedIn JSON response
-        let linkedinContent = linkedinRawContent
+        // Generate LinkedIn image using imagePrompt from settings
         let linkedinImage = null
-
-        const parsedLinkedinContent = parseJSONContentFromClaude(linkedinRawContent)
-
-        if (parsedLinkedinContent) {
-            // Generate image if required
-            if (parsedLinkedinContent.image_required && parsedLinkedinContent.image_brief) {
-                linkedinImage = await generateImageWithLeonardo(
-                    parsedLinkedinContent.image_brief
-                )
-            }
-
-            // Return the parsed JSON object directly
-            linkedinContent = parsedLinkedinContent
+        if (data.linkedin.imagePrompt && data.linkedin.imagePrompt.trim()) {
+            linkedinImage = await generateImageWithLeonardo(data.linkedin.imagePrompt)
         }
 
         // Refine the main content for X (Twitter)
-        const xRawContent = await refineWithClaude(
+        const xContent = await refineWithClaude(
             mainContent,
             data.x
         )
 
-        // Parse X JSON response
-        let xContent = xRawContent
+        // Generate X image using imagePrompt from settings
         let xImage = null
-
-        const parsedXContent = parseJSONContentFromClaude(xRawContent)
-
-        if (parsedXContent) {
-            // Generate image if required
-            if (parsedXContent.image_required && parsedXContent.image_brief) {
-                xImage = await generateImageWithLeonardo(
-                    parsedXContent.image_brief
-                )
-            }
-
-            // Return the parsed JSON object directly
-            xContent = parsedXContent
+        if (data.x.imagePrompt && data.x.imagePrompt.trim()) {
+            xImage = await generateImageWithLeonardo(data.x.imagePrompt)
         }
 
         // Refine the main content for Meta (Facebook/Instagram)
-        const metaRawContent = await refineWithClaude(
+        const metaContent = await refineWithClaude(
             mainContent,
             data.meta
         )
 
-        // Parse Meta JSON response
-        let metaContent = metaRawContent
+        // Generate Meta image using imagePrompt from settings
         let metaImage = null
-
-        const parsedMetaContent = parseJSONContentFromClaude(metaRawContent)
-
-        if (parsedMetaContent) {
-            // Generate image if required
-            if (parsedMetaContent.image_required && parsedMetaContent.image_brief) {
-                metaImage = await generateImageWithLeonardo(
-                    parsedMetaContent.image_brief
-                )
-            }
-
-            // Return the parsed JSON object directly
-            metaContent = parsedMetaContent
+        if (data.meta.imagePrompt && data.meta.imagePrompt.trim()) {
+            metaImage = await generateImageWithLeonardo(data.meta.imagePrompt)
         }
 
         const responseData: Record<string, unknown> = {
