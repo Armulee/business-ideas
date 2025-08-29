@@ -18,7 +18,7 @@ interface Policy {
 async function getTermsConditions(): Promise<Policy | null> {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://bluebizhub.com/api"}/policies/terms`,
+            `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/terms`,
             {
                 cache: "no-store", // Always fetch fresh data
             }

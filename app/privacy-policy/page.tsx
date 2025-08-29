@@ -18,7 +18,7 @@ interface Policy {
 async function getPrivacyPolicy(): Promise<Policy | null> {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/policies/privacy`,
+            `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/privacy`,
             {
                 cache: "no-store", // Always fetch fresh data
             }
