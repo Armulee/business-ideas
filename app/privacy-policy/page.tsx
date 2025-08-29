@@ -18,7 +18,7 @@ interface Policy {
 async function getPrivacyPolicy(): Promise<Policy | null> {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/policies/privacy`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"}/policies/privacy`,
             {
                 cache: "no-store", // Always fetch fresh data
             }
@@ -49,8 +49,8 @@ export default async function PrivacyPolicyPage() {
     if (!policy || !policy.sections || policy.sections.length === 0) {
         return (
             <>
-                <div className='container mx-auto px-4 py-16'>
-                    <Card className='max-w-2xl mx-auto glassmorphism bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30'>
+                <div className='container mx-auto px-4 pt-20 pb-28'>
+                    <Card className='max-w-2xl mx-auto glassmorphism bg-transparent border-0'>
                         <CardHeader className='text-center pb-8'>
                             <div className='mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6'>
                                 <svg
