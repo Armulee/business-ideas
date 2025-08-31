@@ -1,8 +1,3 @@
-body {
-    color: #ffffff;
-    overscroll-behavior-x: none;
-}
-
 .button {
    @apply glassmorphism bg-transparent hover:bg-blue-600 text-white font-medium p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500
 }
@@ -12,7 +7,7 @@ body {
 }
 
 .input {
-    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60
+    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60 text-white
 }
 
 .select {

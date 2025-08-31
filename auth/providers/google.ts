@@ -4,9 +4,8 @@ export default function Google() {
     return GoogleProvider({
         authorization: {
             params: {
-                prompt: "select_account",
-                access_type: "offline",
-                response_type: "code",
+                prompt: "consent",
+                scope: "openid email profile",
             },
         },
     })

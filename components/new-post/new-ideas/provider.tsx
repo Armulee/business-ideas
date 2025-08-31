@@ -1,39 +1,31 @@
 "use client"
-import { createContext, useContext, useEffect, useState } from "react"
-import { PollData, SummaryData, WidgetType } from "@/database/Widget"
-
-// UI Widget interface for provider state management
-interface UIWidget {
-    id: string
-    type: WidgetType
-}
+import { createContext, useContext, useEffect, useState, useRef } from "react"
 import { IProfilePopulated } from "@/database/Profile"
 import { useSession } from "next-auth/react"
 import axios from "axios"
+import { Widget } from "@/components/widgets"
 
 export type NewPost = {
-    widgets: UIWidget[]
-    setWidgets: React.Dispatch<React.SetStateAction<UIWidget[]>>
-    summaries: SummaryData[]
-    setSummaries: React.Dispatch<React.SetStateAction<SummaryData[]>>
+    // New widget system
+    widget: Widget | null
+    setWidget: React.Dispatch<React.SetStateAction<Widget | null>>
     profile: IProfilePopulated | null
-    pollData: PollData
-    setPollData: React.Dispatch<React.SetStateAction<PollData>>
-    callToComment: string
-    setCallToComment: React.Dispatch<React.SetStateAction<string>>
     // Change notification callback
     notifyChange: () => void
     // Track initial state for change detection
     getWidgetState: () => {
-        widgets: UIWidget[]
-        summaries: SummaryData[]
-        pollData: PollData
-        callToComment: string
+        widget: Widget | null
     }
 }
 
 const WidgetForm = createContext<NewPost | null>(null)
-export const useWidgetForm = () => useContext(WidgetForm) as NewPost
+export const useWidgetForm = () => {
+    const context = useContext(WidgetForm)
+    if (!context) {
+        throw new Error('useWidgetForm must be used within a WidgetFormProvider')
+    }
+    return context
+}
 
 interface ProviderProps {
     children: React.ReactNode
@@ -41,54 +33,47 @@ interface ProviderProps {
 }
 
 const Provider = ({ children, onChangeNotification }: ProviderProps) => {
-    // get required profile data for profile widget, in order to prevent the state change and unnecessary fetch api, the fetch logic will be place outside the ProfileWidget component due to the sorting widget action.
+    // get required profile data for profile widget
     const { data: session } = useSession()
     const [profile, setProfile] = useState<IProfilePopulated | null>(null)
-    const [widgets, setWidgets] = useState<UIWidget[]>([])
-    const [summaries, setSummaries] = useState<SummaryData[]>([])
-    const [callToComment, setCallToComment] = useState<string>("")
-    const [pollData, setPollData] = useState<PollData>({
-        question: "",
-        options: [],
-    })
+    const hasProfileFetchedRef = useRef(false)
+    
+    // New widget system state
+    const [widget, setWidget] = useState<Widget | null>(null)
 
     useEffect(() => {
-        if (session) {
+        if (session?.user.profile && !profile && !hasProfileFetchedRef.current) {
+            hasProfileFetchedRef.current = true
             const setupProfile = async () => {
-                const { data, status } = await axios.get(
-                    `/api/profile/${
-                        session.user.profile
-                    }/${session.user.name?.toLowerCase()}`
-                )
-                if (status === 200) {
-                    const { profile } = data
-                    setProfile(profile)
+                try {
+                    const { data, status } = await axios.get(
+                        `/api/profile/full/${session.user.profile}`
+                    )
+                    if (status === 200) {
+                        const { profile } = data
+                        setProfile(profile)
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch profile:', error)
+                    hasProfileFetchedRef.current = false // Reset on error to allow retry
                 }
             }
 
-            if (!profile) {
-                setupProfile()
-            }
+            setupProfile()
         }
-    }, [profile, session])
+    }, [session?.user.profile, profile])
     return (
         <WidgetForm.Provider
             value={{
-                widgets,
-                setWidgets,
-                summaries,
-                setSummaries,
+                widget,
+                setWidget: (newWidget) => {
+                    setWidget(newWidget)
+                    onChangeNotification?.()
+                },
                 profile,
-                pollData,
-                setPollData,
-                callToComment,
-                setCallToComment,
                 notifyChange: () => onChangeNotification?.(),
                 getWidgetState: () => ({
-                    widgets,
-                    summaries,
-                    pollData,
-                    callToComment,
+                    widget,
                 }),
             }}
         >

@@ -11,11 +11,14 @@ import { SidebarTrigger, useSidebar } from "../../ui/sidebar"
 import { Sheet, SheetTrigger } from "../../ui/sheet"
 import Notification from "./notification"
 import NewPostButton from "./new-post-button"
+import { NewPostActions } from "./new-post-actions"
 import { Logo } from "../../logo"
 import { Skeleton } from "../../ui/skeleton"
 import MobileSidebar from "@/components/sidebar/user/mobile"
+import { useNewPostContext } from "@/components/new-post/context"
 
 export default function UserNavbar() {
+    const { newPostData } = useNewPostContext()
     const { isMobile } = useSidebar()
 
     const { status } = useSession()
@@ -23,6 +26,7 @@ export default function UserNavbar() {
     // hide navbar for the auth page
     const pathname = usePathname()
     const hide = pathname.startsWith("/auth")
+    const isNewPostRoute = pathname.startsWith("/new-post")
 
     // Track previous URL
     const [previousPath, setPreviousPath] = useState<string | null>(null)
@@ -65,16 +69,22 @@ export default function UserNavbar() {
                                 </div>
 
                                 <div className='md:w-[65%] w-[calc(100%-10rem)] flex justify-center items-center gap-2'>
-                                    <Link
-                                        href='/post?search'
-                                        className='w-full'
-                                    >
-                                        <Button className='w-full flex justify-start items-center gap-2 button'>
-                                            <Search />
-                                            Search
-                                        </Button>
-                                    </Link>
-                                    <NewPostButton />
+                                    {isNewPostRoute && newPostData ? (
+                                        <NewPostActions {...newPostData} />
+                                    ) : (
+                                        <>
+                                            <Link
+                                                href='/post?search'
+                                                className='w-full'
+                                            >
+                                                <Button className='w-full flex justify-start items-center gap-2 button'>
+                                                    <Search />
+                                                    Search
+                                                </Button>
+                                            </Link>
+                                            <NewPostButton />
+                                        </>
+                                    )}
                                 </div>
 
                                 {status === "authenticated" ? (

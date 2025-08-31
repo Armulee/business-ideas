@@ -11,15 +11,16 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { formSchema, NewPostSchema, PostData } from "./types"
 import { useForm } from "react-hook-form"
 import { Form } from "@/components/ui/form"
-// import Widgets from "./widgets"
 import { useWidgetForm } from "./provider"
-import { PollData, SummaryData } from "@/database/Widget"
 import axios from "axios"
-import AdvancedSettings from "./advanced-settings"
 import AnimatedStatus from "./animated-status"
-import FloatingAction from "./floating-action"
 import { toast } from "sonner"
-// import Widgets from "./widgets"
+import { useNewPostContext } from "../context"
+import {
+    AddWidgetButton,
+    PreviewEditableRenderer,
+    Widget,
+} from "@/components/widgets"
 
 export default function NewIdea() {
     const router = useRouter()
@@ -39,6 +40,8 @@ export default function NewIdea() {
     // Widget change tracking removed - using direct state comparison instead
 
     const { data: session, status } = useSession()
+    const { widget, setWidget } = useWidgetForm()
+    const { setNewPostData } = useNewPostContext()
 
     // Initialize form with react-hook-form and zod validation
     const form = useForm<NewPostSchema>({
@@ -87,9 +90,13 @@ export default function NewIdea() {
                 // Populate form with draft data
                 form.reset(draftFormData)
 
-                // Set tags and widgets (form-based approach)
+                // Set tags and form data
                 form.setValue("tags", draft.tags || [])
-                // TODO: Set widgets from draft.widgets
+
+                // Set widget from draft if exists
+                if (draft.widgets && draft.widgets.length > 0) {
+                    setWidget(draft.widgets[0]) // Use first widget since we now support single widget
+                }
 
                 setDraftId(draftId)
 
@@ -97,12 +104,11 @@ export default function NewIdea() {
                 setCleanFormState(draftFormData)
 
                 // Set initial widget state from draft
-                // TODO: Load widget data from draft.widgets
                 setInitialWidgetState({
-                    widgets: [],
-                    summaries: [],
-                    pollData: { question: "", options: [] },
-                    callToComment: "",
+                    widget:
+                        draft.widgets && draft.widgets.length > 0
+                            ? draft.widgets[0]
+                            : null,
                 })
 
                 // Don't set hasInteracted to true for loaded drafts
@@ -121,7 +127,7 @@ export default function NewIdea() {
                 setLoadingDraft(false)
             }
         },
-        [form]
+        [form, setWidget]
     )
 
     useEffect(() => {
@@ -138,23 +144,15 @@ export default function NewIdea() {
                 setCleanFormState(form.getValues())
                 // Set initial widget state
                 setInitialWidgetState({
-                    widgets: [],
-                    summaries: [],
-                    pollData: { question: "", options: [] },
-                    callToComment: "",
+                    widget: null,
                 })
             }
         }
     }, [status, router, searchParams, loadDraft, form])
 
-    const { widgets, summaries, pollData, callToComment } = useWidgetForm()
-
     // Track initial widget state for change detection
     const [initialWidgetState, setInitialWidgetState] = useState<{
-        widgets: ReturnType<typeof useWidgetForm>["widgets"]
-        summaries: SummaryData[]
-        pollData: PollData
-        callToComment: string
+        widget: Widget | null
     } | null>(null)
 
     const submitPost = useCallback(
@@ -171,30 +169,15 @@ export default function NewIdea() {
                 status: isDraft ? "draft" : "published",
             }
 
-            const widgetData = widgets
-                .map((widget) => {
-                    if (widget.type === "summary") {
-                        return { ...widget, data: summaries }
-                    }
-                    if (widget.type === "callToComment") {
-                        return { ...widget, data: callToComment }
-                    }
-                    if (widget.type === "quickPoll") {
-                        return { ...widget, data: pollData }
-                    }
-                    return widget
-                })
-                .filter(Boolean)
-
-            if (widgetData.length > 0) {
-                console.log(widgetData)
-                postData.widgets = widgetData
+            // Add widget to post if exists
+            if (widget) {
+                postData.widgets = [widget]
             }
 
             const { data } = await axios.post("/api/post", postData)
             return data
         },
-        [session?.user.id, widgets, summaries, callToComment, pollData]
+        [session?.user.id, widget]
     )
 
     const onSubmit = async (values: NewPostSchema) => {
@@ -230,19 +213,13 @@ export default function NewIdea() {
                     currentValues.content !== cleanFormState.content ||
                     JSON.stringify(currentValues.advancedSettings) !==
                         JSON.stringify(cleanFormState.advancedSettings) ||
-                    // New: form-based tags detection
                     JSON.stringify(currentValues.tags) !==
                         JSON.stringify(cleanFormState.tags || [])
 
                 // Check for widget changes
                 const hasWidgetChanges =
-                    JSON.stringify(widgets) !==
-                        JSON.stringify(initialWidgetState.widgets) ||
-                    JSON.stringify(summaries) !==
-                        JSON.stringify(initialWidgetState.summaries) ||
-                    JSON.stringify(pollData) !==
-                        JSON.stringify(initialWidgetState.pollData) ||
-                    callToComment !== initialWidgetState.callToComment
+                    JSON.stringify(widget) !==
+                    JSON.stringify(initialWidgetState.widget)
 
                 const hasActualChanges = hasFormChanges || hasWidgetChanges
 
@@ -257,28 +234,14 @@ export default function NewIdea() {
         })
 
         return () => subscription.unsubscribe()
-    }, [
-        form,
-        cleanFormState,
-        initialWidgetState,
-        widgets,
-        summaries,
-        pollData,
-        callToComment,
-    ])
+    }, [form, cleanFormState, initialWidgetState, widget])
 
     // Watch for widget changes separately (since they're not in the form)
     useEffect(() => {
         if (!initialWidgetState || !cleanFormState) return
 
         const hasWidgetChanges =
-            JSON.stringify(widgets) !==
-                JSON.stringify(initialWidgetState.widgets) ||
-            JSON.stringify(summaries) !==
-                JSON.stringify(initialWidgetState.summaries) ||
-            JSON.stringify(pollData) !==
-                JSON.stringify(initialWidgetState.pollData) ||
-            callToComment !== initialWidgetState.callToComment
+            JSON.stringify(widget) !== JSON.stringify(initialWidgetState.widget)
 
         // Also check for form changes to determine overall state
         const currentFormValues = form.getValues()
@@ -301,15 +264,46 @@ export default function NewIdea() {
             // If no changes at all, clear unsaved changes
             setHasUnsavedChanges(false)
         }
+    }, [widget, initialWidgetState, cleanFormState, form])
+
+    // Update context with current newPostData
+    useEffect(() => {
+        setNewPostData({
+            hasUnsavedChanges,
+            hasInteracted,
+            savingDraft,
+            submitting,
+            error,
+            form,
+            setSavingDraft,
+            setHasUnsavedChanges,
+            setShowSaved,
+            _draftId,
+            setDraftId,
+            setCleanFormState,
+            widget,
+        })
     }, [
-        widgets,
-        summaries,
-        pollData,
-        callToComment,
-        initialWidgetState,
-        cleanFormState,
+        hasUnsavedChanges,
+        hasInteracted,
+        savingDraft,
+        submitting,
+        error,
         form,
+        setSavingDraft,
+        setHasUnsavedChanges,
+        setShowSaved,
+        _draftId,
+        setDraftId,
+        setCleanFormState,
+        widget,
+        setNewPostData,
     ])
+
+    // Clear context when component unmounts
+    useEffect(() => {
+        return () => setNewPostData(null)
+    }, [setNewPostData])
 
     if (loading || submitting || loadingDraft) {
         return <Loading />
@@ -329,10 +323,21 @@ export default function NewIdea() {
                             <PostTitle control={form.control} />
                             <PostDescription control={form.control} />
 
-                            {/* Widget and Related posts */}
+                            {/* Widget Section */}
                             <div className='md:hidden space-y-4'>
-                                {/* <Widgets /> */}
-                                <AdvancedSettings control={form.control} />
+                                {!widget ? (
+                                    <AddWidgetButton
+                                        onWidgetSelect={setWidget}
+                                        className='w-full'
+                                    />
+                                ) : (
+                                    <PreviewEditableRenderer
+                                        widget={widget}
+                                        onChange={setWidget}
+                                        onRemove={() => setWidget(null)}
+                                        className='mb-4'
+                                    />
+                                )}
                             </div>
                             {error && (
                                 <div className='text-red-500 text-sm mb-4 text-center'>
@@ -344,10 +349,20 @@ export default function NewIdea() {
 
                         {/* Sidebar - right side on desktop, hidden on mobile */}
                         <div className='hidden md:block w-72'>
-                            <div className='sticky'>
+                            <div className='sticky top-4'>
                                 <div className='h-screen pb-28 overflow-y-scroll space-y-4'>
-                                    {/* <Widgets /> */}
-                                    <AdvancedSettings control={form.control} />
+                                    {!widget ? (
+                                        <AddWidgetButton
+                                            onWidgetSelect={setWidget}
+                                            className='w-full'
+                                        />
+                                    ) : (
+                                        <PreviewEditableRenderer
+                                            widget={widget}
+                                            onChange={setWidget}
+                                            onRemove={() => setWidget(null)}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -360,22 +375,6 @@ export default function NewIdea() {
                 hasUnsavedChanges={hasUnsavedChanges}
                 hasInteracted={hasInteracted}
                 showSaved={showSaved}
-            />
-
-            {/* Fixed Floating Action Panel */}
-            <FloatingAction
-                hasUnsavedChanges={hasUnsavedChanges}
-                hasInteracted={hasInteracted}
-                savingDraft={savingDraft}
-                submitting={submitting}
-                error={error}
-                form={form}
-                setSavingDraft={setSavingDraft}
-                setHasUnsavedChanges={setHasUnsavedChanges}
-                setShowSaved={setShowSaved}
-                _draftId={_draftId}
-                setDraftId={setDraftId}
-                setCleanFormState={setCleanFormState}
             />
         </>
     )

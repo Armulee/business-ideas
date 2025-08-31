@@ -40,5 +40,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     // User is not authenticated, show the auth form with original layout styling
-    return <div className='w-[90%] mx-auto mt-12 mb-10'>{children}</div>
+    return (
+        <div className='pt-10 overflow-y-hidden'>
+            <div className='w-[90%] mx-auto'>{children}</div>
+        </div>
+    )
 }

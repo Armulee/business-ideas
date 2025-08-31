@@ -7,10 +7,10 @@ import PostTitle from "./title"
 import PostContent from "./content"
 import RelatedPosts from "./related-posts"
 import axios from "axios"
-import Widgets from "./widgets"
+// import Widgets from "./widgets"
 import useSWR from "swr"
 import { PostData, PostDataContextType } from "./types"
-import { PostSkeleton } from "../skeletons"
+import { PostSkeleton } from "@/components/skeletons"
 import { getPost, getRawComments } from "./utils"
 import { notFound } from "next/navigation"
 
@@ -167,7 +167,7 @@ const Post = ({ id, slug }: { id?: string; slug?: string }) => {
                         {/* only on mobile, above comments */}
                         <div className='my-6 md:hidden'>
                             {/* <Author /> */}
-                            <Widgets />
+                            {/* <Widgets /> */}
                         </div>
 
                         <CommentSection />
@@ -182,7 +182,7 @@ const Post = ({ id, slug }: { id?: string; slug?: string }) => {
                         <div className='sticky top-20'>
                             <div className='h-screen pb-28 overflow-y-scroll'>
                                 {/* <Author /> */}
-                                <Widgets />
+                                {/* <Widgets /> */}
                                 <RelatedPosts />
                             </div>
                         </div>

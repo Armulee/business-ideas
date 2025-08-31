@@ -1,10 +1,11 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa"
+import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa"
 import { useSidebar } from "./ui/sidebar"
 import { Logo } from "./logo"
 import { useSession } from "next-auth/react"
+import { FaXTwitter } from "react-icons/fa6"
 
 export default function Footer() {
     // hide footer for the auth page
@@ -47,7 +48,7 @@ export default function Footer() {
                                     </Link>
                                     <Link href='#'>
                                         <span className='sr-only'>Twitter</span>
-                                        <FaTwitter className='h-6 w-6' />
+                                        <FaXTwitter className='h-6 w-6' />
                                     </Link>
                                     <Link href='#'>
                                         <span className='sr-only'>
@@ -91,7 +92,7 @@ export default function Footer() {
                         </div>
                         <div className='px-5 py-2'>
                             <Link
-                                href='/terms'
+                                href='/terms-conditions'
                                 className='text-base text-gray-500 hover:text-gray-900'
                             >
                                 Terms of Service
@@ -102,7 +103,7 @@ export default function Footer() {
                         </div>
                     </div>
                     {/* BACKROUND CUTTER */}
-                    <div className='w-full h-full absolute top-0 left-0 moving-gradient -z-10' />
+                    {/* <div className='w-full h-full absolute top-0 left-0 moving-gradient -z-10' /> */}
                 </footer>
             )}
         </>

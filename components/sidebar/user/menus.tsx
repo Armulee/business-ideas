@@ -48,12 +48,16 @@ import {
     Bookmark,
     FlaskConical,
     Pickaxe,
+    MessageSquare,
+    Mail,
+    // Info,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 
 export const menus = [
     { href: "/", name: "Home", icon: Home }, // 🏠 Homepage
     { href: "/post", name: "Explore", icon: Compass }, // 🔍 Discover ideas
+    // { href: "/about", name: "About", icon: Info }, // ℹ️ About page
 ]
 
 export const useCollapsibleMenus = () => {
@@ -342,10 +346,25 @@ export const useCollapsibleMenus = () => {
                     icon: Lock,
                 }, // ⚙️ Preferences
                 {
-                    href: "/terms",
+                    href: "/terms-conditions",
                     name: "Terms & Conditions",
                     icon: FileText,
                 }, // 🔔 Alerts
+            ],
+        },
+        {
+            section: "Contact Us",
+            items: [
+                {
+                    href: "/contact-us",
+                    name: "Contact Us",
+                    icon: Mail,
+                }, // ✉️ Contact
+                {
+                    href: "#feedback",
+                    name: "Give Feedback",
+                    icon: MessageSquare,
+                }, // 💬 Feedback
             ],
         },
     ]

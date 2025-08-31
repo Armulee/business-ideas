@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import PostCard from "../post-card"
 import { useProfile } from "."
 import { IPostPopulated } from "@/database/Post"
-import { PostCardSkeleton } from "../skeletons"
+import { PostCardSkeleton } from "@/components/skeletons"
 
 export default function PostsList({
     type,

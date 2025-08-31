@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         filter.title = { $regex: new RegExp(`\\b${escapeRegExp}`, "i") }
 
         if (category !== "All") {
-            filter.category = category
+            filter.categories = { $in: [category] }
         }
 
         // 2) Start aggregation pipeline
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
             .project({
                 title: 1,
                 content: 1,
-                category: 1,
+                categories: 1,
                 viewCount: 1,
                 upvoteCount: 1,
                 downvoteCount: 1,

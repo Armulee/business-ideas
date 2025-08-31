@@ -28,7 +28,7 @@ const Consent = ({ control }: { control: Control<FormValues> }) => {
                         <FormLabel className='text-sm text-gray-200 !mt-0'>
                             I agree to the{" "}
                             <Link
-                                href='/terms'
+                                href='/terms-conditions'
                                 target='_blank'
                                 className='text-white hover:text-blue-200 underline'
                             >

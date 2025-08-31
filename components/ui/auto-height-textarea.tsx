@@ -24,7 +24,7 @@ export default function AutoHeightTextarea({
         <Textarea
             {...props}
             ref={ref}
-            className={`${className} input min-h-[40px] resize-none overflow-hidden`}
+            className={`${className} input min-h-[40px] max-h-[500px] resize-none overflow-hidden-x`}
         />
     )
 }

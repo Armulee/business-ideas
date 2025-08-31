@@ -9,6 +9,10 @@ import {
     Flag,
     Activity,
     Database,
+    Star,
+    Mail,
+    Megaphone,
+    ScrollText,
 } from "lucide-react"
 
 // Main menu items (non-collapsible)
@@ -41,8 +45,21 @@ export const collapsibleMenus = [
         ],
     },
     {
+        section: "Orchestration Management",
+        items: [
+            {
+                href: "/admin/orchestration/content",
+                name: "Content",
+                icon: Megaphone,
+            },
+        ],
+    },
+    {
         section: "System",
         items: [
+            { href: "/admin/policies", name: "Policies", icon: ScrollText },
+            { href: "/admin/contact-us", name: "Contact", icon: Mail },
+            { href: "/admin/feedback", name: "Feedback", icon: Star },
             { href: "/admin/databases", name: "Databases", icon: Database },
             { href: "/admin/settings", name: "Settings", icon: Settings },
         ],
