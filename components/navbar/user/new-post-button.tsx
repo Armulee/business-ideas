@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "../../ui/dropdown-menu"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import axios from "axios"
 
 interface Draft {
@@ -29,6 +29,7 @@ export default function NewPostButton() {
     const alert = useAlert()
     const [drafts, setDrafts] = useState<Draft[]>([])
     const [isLoading, setIsLoading] = useState(false)
+    const hasFetchedRef = useRef(false)
 
     const fetchDrafts = useCallback(async () => {
         try {
@@ -43,12 +44,13 @@ export default function NewPostButton() {
         }
     }, [])
 
-    // Fetch drafts when user is authenticated
+    // Fetch drafts when user is authenticated (only once)
     useEffect(() => {
-        if (session?.user) {
+        if (session?.user && !hasFetchedRef.current) {
+            hasFetchedRef.current = true
             fetchDrafts()
         }
-    }, [session, fetchDrafts])
+    }, [session?.user, fetchDrafts])
 
     const handleNewPost = () => {
         if (!session?.user) {

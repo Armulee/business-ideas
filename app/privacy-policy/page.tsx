@@ -12,28 +12,20 @@ interface Policy {
     _id?: string
     type?: string
     sections: PolicySection[]
-    lastUpdated?: Date
+    updatedAt?: Date
 }
 
-async function getPrivacyPolicy(): Promise<Policy | null> {
-    try {
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/privacy`,
-            {
-                cache: "no-store", // Always fetch fresh data
-            }
-        )
-
-        if (!response.ok) {
-            throw new Error("Failed to fetch privacy policy")
-        }
-
-        const data = await response.json()
-        return Array.isArray(data) ? data[0] : data
-    } catch (error) {
-        console.error("Error fetching privacy policy:", error)
-        return null
-    }
+const schemaInformation = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Privacy Policy",
+    description:
+        "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
+    url: "https://bluebizhub.com/privacy-policy",
+    publisher: {
+        "@type": "Organization",
+        name: "BlueBizHub",
+    },
 }
 
 export const metadata: Metadata = {
@@ -49,6 +41,16 @@ export default async function PrivacyPolicyPage() {
     if (!policy || !policy.sections || policy.sections.length === 0) {
         return (
             <>
+                {/* SEO structured data */}
+                <script
+                    type='application/ld+json'
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            ...schemaInformation,
+                        }),
+                    }}
+                />
+
                 <div className='container mx-auto px-4 pt-20 pb-28'>
                     <Card className='max-w-2xl mx-auto glassmorphism bg-transparent border-0'>
                         <CardHeader className='text-center pb-8'>
@@ -101,7 +103,7 @@ export default async function PrivacyPolicyPage() {
 
                                 <div className='flex flex-col sm:flex-row gap-4 justify-center mt-6'>
                                     <a
-                                        href='mailto:privacy@bluebizhub.com'
+                                        href='mailto:admin@bluebizhub.com'
                                         className='inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl'
                                     >
                                         <svg
@@ -117,7 +119,7 @@ export default async function PrivacyPolicyPage() {
                                                 d='M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
                                             />
                                         </svg>
-                                        Contact Privacy Team
+                                        Contact Us
                                     </a>
 
                                     <Link
@@ -156,34 +158,25 @@ export default async function PrivacyPolicyPage() {
                 type='application/ld+json'
                 dangerouslySetInnerHTML={{
                     __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "WebPage",
-                        name: "Privacy Policy",
-                        description:
-                            "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
-                        url: "https://bluebizhub.com/privacy-policy",
-                        publisher: {
-                            "@type": "Organization",
-                            name: "BlueBizHub",
-                        },
+                        ...schemaInformation,
                         dateModified:
-                            policy.lastUpdated || new Date().toISOString(),
+                            policy.updatedAt || new Date().toISOString(),
                     }),
                 }}
             />
 
             <div className='container mx-auto px-4 py-16'>
                 <Card className='max-w-4xl mx-auto bg-transparent border-none'>
-                    <CardHeader className='text-center pb-8'>
+                    <CardHeader className='text-center pb-4'>
                         <CardTitle>
                             <h1 className='text-4xl md:text-5xl font-bold text-blue-200 mb-4'>
                                 Privacy Policy
                             </h1>
-                            {policy.lastUpdated && (
-                                <p className='text-sm text-gray-400'>
+                            {policy.updatedAt && (
+                                <p className='text-sm text-white/80'>
                                     Last updated:{" "}
                                     {new Date(
-                                        policy.lastUpdated
+                                        policy.updatedAt
                                     ).toLocaleDateString()}
                                 </p>
                             )}
@@ -196,12 +189,12 @@ export default async function PrivacyPolicyPage() {
                                 <h2 className='text-2xl font-bold text-white border-b border-gray-600 pb-2'>
                                     {section.title}
                                 </h2>
-                                <div className='text-gray-300 leading-relaxed'>
+                                <div className='text-white/70 leading-relaxed'>
                                     {section.content}
                                 </div>
 
                                 {section.list && section.list.length > 0 && (
-                                    <ul className='list-disc list-inside space-y-2 text-gray-300 ml-4'>
+                                    <ul className='list-disc list-inside space-y-2 text-white/70 ml-4'>
                                         {section.list.map((item, listIndex) => (
                                             <li key={listIndex}>{item}</li>
                                         ))}
@@ -214,4 +207,25 @@ export default async function PrivacyPolicyPage() {
             </div>
         </>
     )
+}
+
+async function getPrivacyPolicy(): Promise<Policy | null> {
+    try {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/privacy`,
+            {
+                cache: "no-store", // Always fetch fresh data
+            }
+        )
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch privacy policy")
+        }
+
+        const data = await response.json()
+        return Array.isArray(data) ? data[0] : data
+    } catch (error) {
+        console.error("Error fetching privacy policy:", error)
+        return null
+    }
 }

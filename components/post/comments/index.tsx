@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import Comment from "./comment"
 import { usePostData } from ".."
 import AddNewComment from "./add-new-comment"
-import { CommentsSkeleton } from "../../skeletons"
+import { CommentsSkeleton } from "@/components/skeletons"
 
 export default function CommentSection() {
     const { comments } = usePostData()

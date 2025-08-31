@@ -4,8 +4,7 @@ import { IPostPopulated } from "@/database/Post"
 import FlowCarousel from "../ui/flow-carousel"
 import { SwiperSlide } from "swiper/react"
 import PostCard from "../post-card"
-import { PostCardSkeleton } from "../skeletons"
-import { useEffect, useState } from "react"
+import { ResponsivePostListSkeletons } from "@/components/skeletons"
 // import { useEffect, useState } from "react"
 
 const Posts = ({
@@ -49,7 +48,7 @@ const Posts = ({
                     ))}
                 </FlowCarousel>
             ) : (
-                <ResponsivePostSkeletons />
+                <ResponsivePostListSkeletons />
             )}
 
             {/* Recent Posts */}
@@ -81,40 +80,9 @@ const Posts = ({
                     ))}
                 </FlowCarousel>
             ) : (
-                <ResponsivePostSkeletons />
+                <ResponsivePostListSkeletons />
             )}
         </>
     )
 }
 export default Posts
-
-// Responsive skeleton component that matches FlowCarousel breakpoints
-const ResponsivePostSkeletons = ({ className }: { className?: string }) => {
-    const [showThird, setShowThird] = useState(false)
-
-    useEffect(() => {
-        const handleResize = () => {
-            setShowThird(window.innerWidth >= 1350)
-        }
-
-        // Set initial value
-        handleResize()
-
-        // Add event listener
-        window.addEventListener("resize", handleResize)
-
-        // Cleanup
-        return () => window.removeEventListener("resize", handleResize)
-    }, [])
-
-    return (
-        <div className={`${className} w-[90%] mx-auto flex gap-5`}>
-            {/* Always show 1 skeleton */}
-            <PostCardSkeleton className='flex-1' />
-            {/* Show 2nd skeleton on md+ (768px) */}
-            <PostCardSkeleton className='hidden md:block flex-1' />
-            {/* Show 3rd skeleton on custom breakpoint (1350px) */}
-            {showThird && <PostCardSkeleton className='flex-1' />}
-        </div>
-    )
-}

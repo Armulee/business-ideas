@@ -4,6 +4,7 @@ import { Session } from "next-auth"
 import { SessionProvider } from "next-auth/react"
 import { SidebarProvider } from "../ui/sidebar"
 import { AlertProvider } from "./alert"
+import { NewPostProvider } from "../new-post/context"
 
 const Provider = ({
     children,
@@ -15,7 +16,9 @@ const Provider = ({
     return (
         <SessionProvider session={session}>
             <SidebarProvider>
-                <AlertProvider>{children}</AlertProvider>
+                <NewPostProvider>
+                    <AlertProvider>{children}</AlertProvider>
+                </NewPostProvider>
             </SidebarProvider>
         </SessionProvider>
     )

@@ -36,7 +36,7 @@ export default function FloatingAction({
     setDraftId,
     setCleanFormState,
 }: FloatingActionProps) {
-    const { widgets, summaries, pollData, callToComment } = useWidgetForm()
+    const { widget } = useWidgetForm()
 
     const saveDraft = useCallback(async () => {
         if (!hasInteracted || savingDraft) return
@@ -63,20 +63,7 @@ export default function FloatingAction({
                 content: formValues.content?.trim() || undefined,
                 community: "new-ideas",
                 advancedSettings: formValues.advancedSettings,
-                widgets: widgets
-                    .map((widget) => {
-                        if (widget.type === "summary") {
-                            return { ...widget, data: summaries }
-                        }
-                        if (widget.type === "callToComment") {
-                            return { ...widget, data: callToComment }
-                        }
-                        if (widget.type === "quickPoll") {
-                            return { ...widget, data: pollData }
-                        }
-                        return widget
-                    })
-                    .filter(Boolean),
+                widgets: widget ? [widget] : [],
             }
 
             let response
@@ -116,10 +103,7 @@ export default function FloatingAction({
         }
     }, [
         form,
-        widgets,
-        summaries,
-        callToComment,
-        pollData,
+        widget,
         hasInteracted,
         savingDraft,
         _draftId,
@@ -131,7 +115,7 @@ export default function FloatingAction({
     ])
     return (
         <div className='fixed bottom-6 left-1/2 -translate-x-1/2 z-50'>
-            <div className='w-full glassmorphism bg-black/50 !rounded-full px-8 py-3 shadow-2xl'>
+            <div className='w-full glassmorphism bg-blue-600/20 !rounded-full px-8 py-3 shadow-2xl'>
                 {/* Action Buttons */}
                 <div className='flex items-center justify-center gap-2'>
                     {/* Save Draft Button */}
@@ -160,7 +144,7 @@ export default function FloatingAction({
                         className={`w-full flex items-center gap-2 text-sm transition-all duration-200 rounded-full ${
                             error
                                 ? "bg-red-600/80 hover:bg-red-600 border-red-500/50"
-                                : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-900 text-white"
+                                : "bg-white text-blue-600"
                         }`}
                     >
                         <Rocket className='w-4 h-4' />

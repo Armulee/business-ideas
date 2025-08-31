@@ -10,7 +10,7 @@ import axios from "axios"
 // import Widgets from "./widgets"
 import useSWR from "swr"
 import { PostData, PostDataContextType } from "./types"
-import { PostSkeleton } from "../skeletons"
+import { PostSkeleton } from "@/components/skeletons"
 import { getPost, getRawComments } from "./utils"
 import { notFound } from "next/navigation"
 

@@ -1,3 +1,5 @@
+"use client"
+
 import { Swiper } from "swiper/react"
 import { Autoplay, FreeMode, Mousewheel, Scrollbar } from "swiper/modules"
 import { MousewheelOptions } from "swiper/types"

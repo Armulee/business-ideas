@@ -11,7 +11,7 @@ import About from "@/components/home/about"
 import WhyJoinUs from "@/components/home/why-join-us"
 import HowItWorks from "@/components/home/how-it-works"
 import CTA from "@/components/home/cta"
-import Posts from "@/components/home/posts"
+import PostsSection from "@/components/home/posts-section"
 
 export const metadata: Metadata = createBaseMetadata({
     title: "BlueBizHub - Share & Refine Business Ideas",
@@ -33,7 +33,7 @@ export const metadata: Metadata = createBaseMetadata({
 
 export default async function Homepage() {
     // Server-side data fetching
-    const initialData = await getInitialHomePosts()
+    const { topVotedPosts, latestPosts } = await getInitialHomePosts()
 
     // Create structured data
     const organizationSchema = createOrganizationSchema()
@@ -66,12 +66,10 @@ export default async function Homepage() {
                 </section>
 
                 {/* Posts Section */}
-                <section className='relative z-10 py-12'>
-                    <Posts
-                        latestPosts={initialData?.latestPosts || []}
-                        topVotedPosts={initialData?.topVotedPosts || []}
-                    />
-                </section>
+                <PostsSection 
+                    topVotedPosts={topVotedPosts} 
+                    latestPosts={latestPosts} 
+                />
 
                 {/* Features Section - Static server components */}
                 <section className='relative py-16'>
