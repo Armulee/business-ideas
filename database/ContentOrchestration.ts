@@ -11,7 +11,6 @@ export interface SocialPlatformPrompts {
     purpose?: string
     systemPrompt: string
     userPrompt: string
-    imagePrompt?: string
 }
 
 export interface IContentOrchestration extends Document<Schema.Types.ObjectId> {
@@ -28,6 +27,11 @@ export interface IContentOrchestration extends Document<Schema.Types.ObjectId> {
     generatedXImage?: string
     generatedMeta?: string
     generatedMetaImage?: string
+    // Generated image prompts for all platforms
+    generatedMainImagePrompt?: string
+    generatedLinkedinImagePrompt?: string
+    generatedXImagePrompt?: string
+    generatedMetaImagePrompt?: string
     generatedAt?: Date
     contentExpiresAt?: Date
     updatedAt: Date
@@ -62,10 +66,6 @@ const SocialPlatformPromptsSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-    imagePrompt: {
-        type: String,
-        default: "",
-    },
 }, { _id: false })
 
 const ContentOrchestrationSchema = new mongoose.Schema<IContentOrchestration>({
@@ -89,7 +89,6 @@ const ContentOrchestrationSchema = new mongoose.Schema<IContentOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
-            imagePrompt: "",
         }),
     },
     x: {
@@ -97,7 +96,6 @@ const ContentOrchestrationSchema = new mongoose.Schema<IContentOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
-            imagePrompt: "",
         }),
     },
     meta: {
@@ -105,7 +103,6 @@ const ContentOrchestrationSchema = new mongoose.Schema<IContentOrchestration>({
         default: () => ({
             systemPrompt: "",
             userPrompt: "",
-            imagePrompt: "",
         }),
     },
     // Generated content fields
@@ -130,6 +127,19 @@ const ContentOrchestrationSchema = new mongoose.Schema<IContentOrchestration>({
     generatedMetaImage: {
         type: String,
     },
+    // Generated image prompts for all platforms
+    generatedMainImagePrompt: {
+        type: String,
+    },
+    generatedLinkedinImagePrompt: {
+        type: String,
+    },
+    generatedXImagePrompt: {
+        type: String,
+    },
+    generatedMetaImagePrompt: {
+        type: String,
+    },
     generatedAt: {
         type: Date,
     },
@@ -152,8 +162,6 @@ ContentOrchestrationSchema.pre<IContentOrchestration>("save", function (next) {
     next()
 })
 
-// Create TTL index for automatic deletion of generated content
-ContentOrchestrationSchema.index({ contentExpiresAt: 1 }, { expireAfterSeconds: 0 })
 
 const ContentOrchestration =
     mongoose.models.ContentOrchestration ||

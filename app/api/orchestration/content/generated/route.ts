@@ -10,13 +10,13 @@ export async function GET() {
         // Find the most recent generated content that hasn't expired
         const content = await ContentOrchestration.findOne({
             type: "content",
-            contentExpiresAt: { $gt: new Date() }
+            contentExpiresAt: { $gt: new Date() },
         }).sort({ createdAt: -1 })
 
         if (!content) {
             return NextResponse.json({
                 exists: false,
-                content: null
+                content: null,
             })
         }
 
@@ -30,8 +30,13 @@ export async function GET() {
                 xImage: content.generatedXImage,
                 meta: content.generatedMeta,
                 metaImage: content.generatedMetaImage,
-                generatedAt: content.generatedAt
-            }
+                // Include generated image prompts
+                mainImagePrompt: content.generatedMainImagePrompt,
+                linkedinImagePrompt: content.generatedLinkedinImagePrompt,
+                xImagePrompt: content.generatedXImagePrompt,
+                metaImagePrompt: content.generatedMetaImagePrompt,
+                generatedAt: content.generatedAt,
+            },
         })
     } catch (error) {
         console.error("Error fetching generated content:", error)
@@ -42,51 +47,81 @@ export async function GET() {
     }
 }
 
-// POST - Save generated content to database
-export async function POST(request: Request) {
+// PUT - Update generated content in database
+export async function PUT(request: Request) {
     try {
         await connectDB()
 
-        const { main, linkedin, linkedinImage, x, xImage, meta, metaImage } = await request.json()
+        const {
+            main,
+            linkedin,
+            linkedinImage,
+            x,
+            xImage,
+            meta,
+            metaImage,
+            mainImagePrompt,
+            linkedinImagePrompt,
+            xImagePrompt,
+            metaImagePrompt,
+        } = await request.json()
 
-        // Delete any existing content first
-        await ContentOrchestration.deleteMany({ type: "content" })
-
-        // Set expiration time to 8pm today (20:00)
-        const now = new Date()
-        const contentExpiresAt = new Date()
-        contentExpiresAt.setHours(20, 0, 0, 0) // Set to 8pm today
-        
-        // If current time is after 8pm, set expiration to 8pm tomorrow
-        if (now.getHours() >= 20) {
-            contentExpiresAt.setDate(contentExpiresAt.getDate() + 1)
-        }
-
-        // Create new content entry
-        const content = new ContentOrchestration({
+        // Find existing content and update it
+        const existingContent = await ContentOrchestration.findOne({
             type: "content",
-            generatedMain: main,
-            generatedLinkedin: linkedin,
-            generatedLinkedinImage: linkedinImage,
-            generatedX: x,
-            generatedXImage: xImage,
-            generatedMeta: meta,
-            generatedMetaImage: metaImage,
-            generatedAt: new Date(),
-            contentExpiresAt
         })
 
-        await content.save()
+        if (!existingContent) {
+            return NextResponse.json(
+                { error: "No content found to update" },
+                { status: 404 }
+            )
+        }
+
+        // Update the existing content
+        existingContent.generatedMain = main
+        existingContent.generatedLinkedin = linkedin
+        existingContent.generatedLinkedinImage = linkedinImage
+        existingContent.generatedX = x
+        existingContent.generatedXImage = xImage
+        existingContent.generatedMeta = meta
+        existingContent.generatedMetaImage = metaImage
+        existingContent.generatedMainImagePrompt = mainImagePrompt
+        existingContent.generatedLinkedinImagePrompt = linkedinImagePrompt
+        existingContent.generatedXImagePrompt = xImagePrompt
+        existingContent.generatedMetaImagePrompt = metaImagePrompt
+
+        await existingContent.save()
 
         return NextResponse.json({
             success: true,
-            message: "Content saved successfully",
-            expiresAt: contentExpiresAt
+            message: "Content updated successfully",
         })
     } catch (error) {
-        console.error("Error saving generated content:", error)
+        console.error("Error updating generated content:", error)
         return NextResponse.json(
-            { error: "Failed to save generated content" },
+            { error: "Failed to update generated content" },
+            { status: 500 }
+        )
+    }
+}
+
+// DELETE - Delete generated content from database
+export async function DELETE() {
+    try {
+        await connectDB()
+
+        // Delete all generated content
+        await ContentOrchestration.deleteMany({ type: "content" })
+
+        return NextResponse.json({
+            success: true,
+            message: "Content deleted successfully",
+        })
+    } catch (error) {
+        console.error("Error deleting generated content:", error)
+        return NextResponse.json(
+            { error: "Failed to delete generated content" },
             { status: 500 }
         )
     }

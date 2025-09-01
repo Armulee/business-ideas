@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import {
     Card,
     CardContent,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 import {
     Select,
     SelectContent,
@@ -27,13 +27,10 @@ import {
 import { toast } from "sonner"
 import axios from "axios"
 import { FaLinkedin, FaMeta, FaXTwitter } from "react-icons/fa6"
-import { Flame, Eye, EyeOff } from "lucide-react"
+import { Flame } from "lucide-react"
 import EditDialog from "@/components/admin/orchestration/content/edit-dialog"
-// import MainContent from "@/components/admin/orchestration/content/generated-content/main"
-// import LinkedinContent from "@/components/admin/orchestration/content/generated-content/linkedin"
-// import XContent from "@/components/admin/orchestration/content/generated-content/x"
-// import MetaContent from "@/components/admin/orchestration/content/generated-content/meta"
-// import InfiniteCanvas from "@/components/admin/orchestration/content/infinite-canvas"
+import ActionButtons from "@/components/admin/orchestration/content/ActionButtons"
+import PreviewLink from "@/components/admin/orchestration/content/PreviewLink"
 
 interface MainPlatformPrompts {
     purpose: string
@@ -179,26 +176,30 @@ export default function ContentOrchestrationPage() {
         }
     }
 
-    const handleSocialPurposeChange = async (
+    const handlePromptChange = (
         platform: string,
-        purpose: string
+        field: "systemPrompt" | "userPrompt",
+        value: string
     ) => {
+        setData((prevData) => ({
+            ...prevData,
+            [platform]: {
+                ...prevData[platform as keyof OrchestrationData],
+                [field]: value,
+            },
+        }))
+    }
+
+    const handleSavePlatformPrompts = async (platform: string) => {
         try {
             setLoading(true)
-            const updatedData = {
-                ...data,
-                [platform]: {
-                    ...data[platform as keyof OrchestrationData],
-                    purpose,
-                },
-            }
-
-            await axios.patch("/api/orchestration/content", updatedData)
-            setData(updatedData)
-            toast.success("Purpose updated successfully")
+            await axios.patch("/api/orchestration/content", data)
+            toast.success(
+                `${platformConfig[platform as keyof typeof platformConfig].name} prompts saved successfully`
+            )
         } catch (error) {
-            console.error("Failed to update purpose:", error)
-            toast.error("Failed to update purpose")
+            console.error(`Failed to save ${platform} prompts:`, error)
+            toast.error(`Failed to save ${platform} prompts`)
         } finally {
             setLoading(false)
         }
@@ -211,12 +212,7 @@ export default function ContentOrchestrationPage() {
                 "/api/orchestration/content/cron/generate"
             )
 
-            // Save the generated content to database instead of showing it
-            if (response.data.data) {
-                await axios.post(
-                    "/api/orchestration/content/generated",
-                    response.data.data
-                )
+            if (response.status === 200) {
                 setHasGeneratedContent(true)
                 toast.success(
                     "Content generated and saved successfully! You can now view it in the preview."
@@ -238,34 +234,10 @@ export default function ContentOrchestrationPage() {
     return (
         <div className='max-w-lg mx-auto py-3'>
             {/* Preview Link */}
-            <div className='w-full text-right mb-2'>
-                <Button
-                    disabled={checkingContent || !hasGeneratedContent}
-                    variant='outline'
-                    className={`button ${
-                        hasGeneratedContent
-                            ? "hover:bg-white/10 text-white"
-                            : "opacity-50 cursor-not-allowed text-white/50"
-                    }`}
-                >
-                    <Link
-                        href='/admin/orchestration/content/preview'
-                        className='flex items-center gap-2'
-                    >
-                        {hasGeneratedContent ? (
-                            <>
-                                <Eye className='w-4 h-4' />
-                                View Preview
-                            </>
-                        ) : (
-                            <>
-                                <EyeOff className='w-4 h-4' />
-                                No Preview
-                            </>
-                        )}
-                    </Link>
-                </Button>
-            </div>
+            <PreviewLink
+                checkingContent={checkingContent}
+                hasGeneratedContent={hasGeneratedContent}
+            />
 
             {/* Content Orchestration */}
             <Card className='glassmorphism mx-auto bg-transparent'>
@@ -365,68 +337,74 @@ export default function ContentOrchestrationPage() {
                                                 </div>
                                             )}
 
-                                            {/* For Social Platforms - Purpose Selection and Edit Button */}
+                                            {/* For Social Platforms - Show Editable System and User Prompts */}
                                             {platform !== "main" && (
-                                                <div className='flex justify-between items-end'>
-                                                    <div className='space-y-2 flex-1 mr-4'>
+                                                <div className='space-y-4'>
+                                                    <div className='space-y-2'>
                                                         <Label className='text-white text-sm font-medium'>
-                                                            Content Purpose
+                                                            System Prompt
                                                         </Label>
-                                                        <Select
+                                                        <AutoHeightTextarea
                                                             value={
-                                                                (
-                                                                    platformData as SocialPlatformPrompts
-                                                                ).purpose ||
-                                                                "Introduction"
+                                                                platformData.systemPrompt ||
+                                                                ""
                                                             }
-                                                            onValueChange={(
-                                                                purpose
+                                                            onChange={(
+                                                                e: React.ChangeEvent<HTMLTextAreaElement>
                                                             ) =>
-                                                                handleSocialPurposeChange(
+                                                                handlePromptChange(
                                                                     platform,
-                                                                    purpose
+                                                                    "systemPrompt",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            placeholder='Enter system prompt for this platform...'
+                                                            className='input'
+                                                            disabled={loading}
+                                                        />
+                                                    </div>
+                                                    <div className='space-y-2'>
+                                                        <Label className='text-white text-sm font-medium'>
+                                                            User Prompt
+                                                        </Label>
+                                                        <AutoHeightTextarea
+                                                            value={
+                                                                platformData.userPrompt ||
+                                                                ""
+                                                            }
+                                                            onChange={(
+                                                                e: React.ChangeEvent<HTMLTextAreaElement>
+                                                            ) =>
+                                                                handlePromptChange(
+                                                                    platform,
+                                                                    "userPrompt",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            placeholder='Enter user prompt for this platform...'
+                                                            className='input'
+                                                            disabled={loading}
+                                                        />
+                                                    </div>
+                                                    <div className='flex justify-end pt-2'>
+                                                        <Button
+                                                            onClick={() =>
+                                                                handleSavePlatformPrompts(
+                                                                    platform
                                                                 )
                                                             }
                                                             disabled={loading}
+                                                            variant='outline'
+                                                            size='sm'
+                                                            className='button border-green-600 text-green-600 hover:bg-green-600 hover:text-white'
                                                         >
-                                                            <SelectTrigger className='bg-gray-800/50 border-gray-600 text-white'>
-                                                                <SelectValue placeholder='Select purpose' />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {purposeOptions.map(
-                                                                    (
-                                                                        option
-                                                                    ) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                option
-                                                                            }
-                                                                            value={
-                                                                                option
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                option
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            {loading
+                                                                ? "Saving..."
+                                                                : "Save Prompts"}
+                                                        </Button>
                                                     </div>
-                                                    <Button
-                                                        size='sm'
-                                                        variant='outline'
-                                                        onClick={() =>
-                                                            openEditDialog(
-                                                                platform
-                                                            )
-                                                        }
-                                                        className='button border-white/20 text-white hover:bg-white/10'
-                                                        disabled={loading}
-                                                    >
-                                                        Edit
-                                                    </Button>
                                                 </div>
                                             )}
                                         </AccordionContent>
@@ -447,26 +425,11 @@ export default function ContentOrchestrationPage() {
                     </p>
 
                     {/* Action Buttons */}
-                    <div className='pt-2 space-y-3'>
-                        <div className='flex gap-3'>
-                            <Button
-                                onClick={() => handleGenerateContent()}
-                                disabled={loading}
-                                className='flex-1 bg-blue-600 hover:bg-blue-700'
-                            >
-                                {loading ? "Generating..." : "Generate Content"}
-                            </Button>
-                        </div>
-                        <p className='text-white/60 text-xs'>
-                            Generate content and save it to database. Content
-                            expires daily at 8PM.
-                            {!hasGeneratedContent && (
-                                <span className='text-yellow-400 block mt-1'>
-                                    ⚠️ Generate content first to enable preview
-                                </span>
-                            )}
-                        </p>
-                    </div>
+                    <ActionButtons
+                        loading={loading}
+                        hasGeneratedContent={hasGeneratedContent}
+                        onGenerateContent={handleGenerateContent}
+                    />
                 </CardContent>
             </Card>
 
