@@ -23,7 +23,7 @@ export interface IPost extends Document<Schema.Types.ObjectId> {
     bookmarkCount?: number
     repostCount?: number
     viewCount?: number
-    status: "draft" | "published" | "archived"
+    status: "draft" | "published" | "archived" | "restrict"
     targetRegions?: string[]
     targetCountries?: string[]
     globalPost: boolean
@@ -72,7 +72,7 @@ const PostSchema = new mongoose.Schema<IPost>({
     viewCount: { type: Number, default: 0 },
     status: {
         type: String,
-        enum: ["draft", "published", "archived"],
+        enum: ["draft", "published", "archived", "restrict"],
         default: "draft",
     },
     targetRegions: { type: [String] },

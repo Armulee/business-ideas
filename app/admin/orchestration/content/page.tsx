@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import Link from "next/link"
 import {
     Card,
     CardContent,
@@ -12,6 +12,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
     Accordion,
     AccordionContent,
     AccordionItem,
@@ -20,7 +27,7 @@ import {
 import { toast } from "sonner"
 import axios from "axios"
 import { FaLinkedin, FaMeta, FaXTwitter } from "react-icons/fa6"
-import { Flame } from "lucide-react"
+import { Flame, Eye, EyeOff } from "lucide-react"
 import EditDialog from "@/components/admin/orchestration/content/edit-dialog"
 // import MainContent from "@/components/admin/orchestration/content/generated-content/main"
 // import LinkedinContent from "@/components/admin/orchestration/content/generated-content/linkedin"
@@ -28,44 +35,53 @@ import EditDialog from "@/components/admin/orchestration/content/edit-dialog"
 // import MetaContent from "@/components/admin/orchestration/content/generated-content/meta"
 // import InfiniteCanvas from "@/components/admin/orchestration/content/infinite-canvas"
 
-interface PlatformPrompts {
+interface MainPlatformPrompts {
+    purpose: string
+    systemPrompt: string
+    userPrompt: string
+    imagePrompt?: string
+}
+
+interface SocialPlatformPrompts {
+    purpose?: string
     systemPrompt: string
     userPrompt: string
     imagePrompt?: string
 }
 
 interface OrchestrationData {
-    main: PlatformPrompts
-    linkedin: PlatformPrompts
-    x: PlatformPrompts
-    meta: PlatformPrompts
+    main: MainPlatformPrompts
+    linkedin: SocialPlatformPrompts
+    x: SocialPlatformPrompts
+    meta: SocialPlatformPrompts
 }
 
-interface GeneratedContent {
-    main?: string
-    linkedin?: string
-    linkedinImage?: string
-    x?: string
-    xImage?: string
-    meta?: string
-    metaImage?: string
-}
+const purposeOptions = [
+    "Introduction",
+    "Bring Awareness",
+    "Case Study",
+    "Advertisement",
+]
 
 export default function ContentOrchestrationPage() {
     const [data, setData] = useState<OrchestrationData>({
-        main: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+        main: {
+            purpose: "Introduction",
+            systemPrompt: "",
+            userPrompt: "",
+            imagePrompt: "",
+        },
         linkedin: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
         x: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
         meta: { systemPrompt: "", userPrompt: "", imagePrompt: "" },
     })
     const [loading, setLoading] = useState(false)
-    const [generatedContent, setGeneratedContent] =
-        useState<GeneratedContent | null>(null)
+    const [hasGeneratedContent, setHasGeneratedContent] = useState(false)
+    const [checkingContent, setCheckingContent] = useState(true)
     const [editDialog, setEditDialog] = useState({
         open: false,
         platform: "",
-        type: "",
-        value: "",
+        data: null as MainPlatformPrompts | SocialPlatformPrompts | null,
     })
 
     const platformConfig = {
@@ -85,7 +101,23 @@ export default function ContentOrchestrationPage() {
 
     useEffect(() => {
         fetchData()
+        checkGeneratedContent()
     }, [])
+
+    const checkGeneratedContent = async () => {
+        try {
+            setCheckingContent(true)
+            const response = await axios.get(
+                "/api/orchestration/content/generated"
+            )
+            setHasGeneratedContent(response.data.exists)
+        } catch (error) {
+            console.error("Failed to check generated content:", error)
+            setHasGeneratedContent(false)
+        } finally {
+            setCheckingContent(false)
+        }
+    }
 
     const fetchData = async () => {
         try {
@@ -101,19 +133,16 @@ export default function ContentOrchestrationPage() {
             setLoading(true)
             const updatedData = {
                 ...data,
-                [editDialog.platform]: {
-                    ...data[editDialog.platform as keyof OrchestrationData],
-                    [editDialog.type]: editDialog.value,
-                },
+                [editDialog.platform]: editDialog.data,
             }
 
             await axios.patch("/api/orchestration/content", updatedData)
             setData(updatedData)
-            setEditDialog({ open: false, platform: "", type: "", value: "" })
-            toast.success("Prompt updated successfully")
+            setEditDialog({ open: false, platform: "", data: null })
+            toast.success("Platform updated successfully")
         } catch (error) {
             console.error("Failed to save prompt:", error)
-            toast.error("Failed to update prompt")
+            toast.error("Failed to update platform")
         } finally {
             setLoading(false)
         }
@@ -121,43 +150,125 @@ export default function ContentOrchestrationPage() {
 
     const handleEditDialogChange = (open: boolean) => {
         if (!open) {
-            setEditDialog({ open: false, platform: "", type: "", value: "" })
+            setEditDialog({ open: false, platform: "", data: null })
         }
     }
 
-    const handleEditValueChange = (value: string) => {
-        setEditDialog({ ...editDialog, value })
+    const handleDataChange = (
+        newData: MainPlatformPrompts | SocialPlatformPrompts
+    ) => {
+        setEditDialog({ ...editDialog, data: newData })
     }
 
-    const handleGenerateContent = async () => {
+    const handlePurposeChange = async (purpose: string) => {
         try {
             setLoading(true)
-            const response = await axios.post("/api/orchestration/content/cron")
-            console.log(response)
-
-            // Set the generated content from the response
-            if (response.data.data) {
-                setGeneratedContent(response.data.data)
+            const updatedData = {
+                ...data,
+                main: { ...data.main, purpose },
             }
 
-            toast.success("Content generation completed successfully")
+            await axios.patch("/api/orchestration/content", updatedData)
+            setData(updatedData)
+            toast.success("Purpose updated successfully")
         } catch (error) {
-            const err = error as Error
-            console.log("Failed to generate content:", err.message)
-            toast.error("Failed to start content generation")
+            console.error("Failed to update purpose:", error)
+            toast.error("Failed to update purpose")
         } finally {
             setLoading(false)
         }
     }
 
-    const openEditDialog = (platform: string, type: string, value: string) => {
-        setEditDialog({ open: true, platform, type, value })
+    const handleSocialPurposeChange = async (
+        platform: string,
+        purpose: string
+    ) => {
+        try {
+            setLoading(true)
+            const updatedData = {
+                ...data,
+                [platform]: {
+                    ...data[platform as keyof OrchestrationData],
+                    purpose,
+                },
+            }
+
+            await axios.patch("/api/orchestration/content", updatedData)
+            setData(updatedData)
+            toast.success("Purpose updated successfully")
+        } catch (error) {
+            console.error("Failed to update purpose:", error)
+            toast.error("Failed to update purpose")
+        } finally {
+            setLoading(false)
+        }
     }
 
-    console.log(generatedContent)
+    const handleGenerateContent = async () => {
+        try {
+            setLoading(true)
+            const response = await axios.post(
+                "/api/orchestration/content/cron/generate"
+            )
+
+            // Save the generated content to database instead of showing it
+            if (response.data.data) {
+                await axios.post(
+                    "/api/orchestration/content/generated",
+                    response.data.data
+                )
+                setHasGeneratedContent(true)
+                toast.success(
+                    "Content generated and saved successfully! You can now view it in the preview."
+                )
+            }
+        } catch (error) {
+            const err = error as Error
+            console.log("Failed to generate content:", err.message)
+            toast.error("Failed to generate content")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const openEditDialog = (platform: string) => {
+        const platformData = data[platform as keyof OrchestrationData]
+        setEditDialog({ open: true, platform, data: platformData })
+    }
     return (
-        <div className='py-8 space-y-6'>
-            <Card className='glassmorphism max-w-lg mx-auto bg-transparent'>
+        <div className='max-w-lg mx-auto py-3'>
+            {/* Preview Link */}
+            <div className='w-full text-right mb-2'>
+                <Button
+                    disabled={checkingContent || !hasGeneratedContent}
+                    variant='outline'
+                    className={`button ${
+                        hasGeneratedContent
+                            ? "hover:bg-white/10 text-white"
+                            : "opacity-50 cursor-not-allowed text-white/50"
+                    }`}
+                >
+                    <Link
+                        href='/admin/orchestration/content/preview'
+                        className='flex items-center gap-2'
+                    >
+                        {hasGeneratedContent ? (
+                            <>
+                                <Eye className='w-4 h-4' />
+                                View Preview
+                            </>
+                        ) : (
+                            <>
+                                <EyeOff className='w-4 h-4' />
+                                No Preview
+                            </>
+                        )}
+                    </Link>
+                </Button>
+            </div>
+
+            {/* Content Orchestration */}
+            <Card className='glassmorphism mx-auto bg-transparent'>
                 <CardHeader>
                     <CardTitle className='text-white text-2xl'>
                         Content Orchestration
@@ -194,84 +305,128 @@ export default function ContentOrchestrationPage() {
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent className='space-y-4 pt-4 glassmorphism bg-black/30 p-6 mb-6'>
-                                            {/* System Prompt Section */}
-                                            <div className='space-y-2'>
-                                                <div className='flex items-center justify-between'>
-                                                    <Label className='text-white text-sm font-medium'>
-                                                        System Prompt
-                                                    </Label>
-                                                </div>
-                                                <Card
-                                                    onClick={() =>
-                                                        openEditDialog(
-                                                            platform,
-                                                            "systemPrompt",
-                                                            platformData.systemPrompt
-                                                        )
-                                                    }
-                                                    className='bg-gray-800/50 border-gray-700 input hover:bg-white/20 cursor-pointer'
-                                                >
-                                                    <CardContent className='p-3'>
-                                                        <div className='text-gray-300 text-sm whitespace-pre-wrap break-words w-full line-clamp-4'>
-                                                            {platformData.systemPrompt ||
-                                                                "No system prompt configured"}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            </div>
-
-                                            {/* User Prompt Section */}
-                                            <div className='space-y-2'>
-                                                <div className='flex items-center justify-between'>
-                                                    <Label className='text-white text-sm font-medium'>
-                                                        User Prompt
-                                                    </Label>
-                                                </div>
-                                                <Card
-                                                    onClick={() =>
-                                                        openEditDialog(
-                                                            platform,
-                                                            "userPrompt",
-                                                            platformData.userPrompt
-                                                        )
-                                                    }
-                                                    className='bg-gray-800/50 border-gray-700 input hover:bg-white/20 cursor-pointer'
-                                                >
-                                                    <CardContent className='p-3'>
-                                                        <div className='text-gray-300 text-sm whitespace-pre-wrap break-words line-clamp-4'>
-                                                            {platformData.userPrompt ||
-                                                                "No user prompt configured"}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            </div>
-
-                                            {/* Image Prompt Section - Only show for social media platforms, not main */}
-                                            {platform !== "main" && (
-                                                <div className='space-y-2'>
-                                                    <div className='flex items-center justify-between'>
+                                            {/* Purpose Section - Only for Main Platform */}
+                                            {platform === "main" && (
+                                                <div className='flex justify-between items-end'>
+                                                    <div className='space-y-2 flex-1 mr-4'>
                                                         <Label className='text-white text-sm font-medium'>
-                                                            Image Prompt
+                                                            Content Purpose
                                                         </Label>
+                                                        <Select
+                                                            value={
+                                                                (
+                                                                    platformData as MainPlatformPrompts
+                                                                ).purpose ||
+                                                                "Introduction"
+                                                            }
+                                                            onValueChange={
+                                                                handlePurposeChange
+                                                            }
+                                                            disabled={loading}
+                                                        >
+                                                            <SelectTrigger className='select text-white'>
+                                                                <SelectValue placeholder='Select purpose' />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {purposeOptions.map(
+                                                                    (
+                                                                        option
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                option
+                                                                            }
+                                                                            value={
+                                                                                option
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                option
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
                                                     </div>
-                                                    <Card
+                                                    <Button
+                                                        size='sm'
+                                                        variant='outline'
                                                         onClick={() =>
                                                             openEditDialog(
-                                                                platform,
-                                                                "imagePrompt",
-                                                                platformData.imagePrompt ||
-                                                                    ""
+                                                                platform
                                                             )
                                                         }
-                                                        className='bg-gray-800/50 border-gray-700 input hover:bg-white/20 cursor-pointer'
+                                                        className='button border-white/20 text-white hover:bg-white/10'
+                                                        disabled={loading}
                                                     >
-                                                        <CardContent className='p-3'>
-                                                            <div className='text-gray-300 text-sm whitespace-pre-wrap break-words line-clamp-4'>
-                                                                {platformData.imagePrompt ||
-                                                                    "No image prompt configured"}
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
+                                                        Edit
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {/* For Social Platforms - Purpose Selection and Edit Button */}
+                                            {platform !== "main" && (
+                                                <div className='flex justify-between items-end'>
+                                                    <div className='space-y-2 flex-1 mr-4'>
+                                                        <Label className='text-white text-sm font-medium'>
+                                                            Content Purpose
+                                                        </Label>
+                                                        <Select
+                                                            value={
+                                                                (
+                                                                    platformData as SocialPlatformPrompts
+                                                                ).purpose ||
+                                                                "Introduction"
+                                                            }
+                                                            onValueChange={(
+                                                                purpose
+                                                            ) =>
+                                                                handleSocialPurposeChange(
+                                                                    platform,
+                                                                    purpose
+                                                                )
+                                                            }
+                                                            disabled={loading}
+                                                        >
+                                                            <SelectTrigger className='bg-gray-800/50 border-gray-600 text-white'>
+                                                                <SelectValue placeholder='Select purpose' />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {purposeOptions.map(
+                                                                    (
+                                                                        option
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                option
+                                                                            }
+                                                                            value={
+                                                                                option
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                option
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <Button
+                                                        size='sm'
+                                                        variant='outline'
+                                                        onClick={() =>
+                                                            openEditDialog(
+                                                                platform
+                                                            )
+                                                        }
+                                                        className='button border-white/20 text-white hover:bg-white/10'
+                                                        disabled={loading}
+                                                    >
+                                                        Edit
+                                                    </Button>
                                                 </div>
                                             )}
                                         </AccordionContent>
@@ -293,18 +448,23 @@ export default function ContentOrchestrationPage() {
 
                     {/* Action Buttons */}
                     <div className='pt-2 space-y-3'>
-                        <Button
-                            onClick={() => handleGenerateContent()}
-                            disabled={loading}
-                            className='w-full bg-blue-600 hover:bg-blue-700'
-                        >
-                            {loading
-                                ? "Generating..."
-                                : "Instantly generate content for all platforms"}
-                        </Button>
+                        <div className='flex gap-3'>
+                            <Button
+                                onClick={() => handleGenerateContent()}
+                                disabled={loading}
+                                className='flex-1 bg-blue-600 hover:bg-blue-700'
+                            >
+                                {loading ? "Generating..." : "Generate Content"}
+                            </Button>
+                        </div>
                         <p className='text-white/60 text-xs'>
-                            This button will generate content for all configured
-                            platforms and post them instantly.
+                            Generate content and save it to database. Content
+                            expires daily at 8PM.
+                            {!hasGeneratedContent && (
+                                <span className='text-yellow-400 block mt-1'>
+                                    ⚠️ Generate content first to enable preview
+                                </span>
+                            )}
                         </p>
                     </div>
                 </CardContent>
@@ -322,135 +482,17 @@ export default function ContentOrchestrationPage() {
                 (Integromat).
             </p>
 
-            {/* Generated Content Display */}
-            {generatedContent && (
-                <div className='mt-8 space-y-6 max-w-4xl mx-auto'>
-                    <h3 className='text-white text-xl font-bold text-center'>
-                        Generated Content
-                    </h3>
-
-                    {/* Main Content */}
-                    {generatedContent.main && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <CardTitle className='text-white flex items-center gap-2'>
-                                    <Flame className='w-5 h-5 text-orange-500' />
-                                    Main Platform Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
-                                    {generatedContent.main}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* LinkedIn Content */}
-                    {generatedContent.linkedin && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <CardTitle className='text-white flex items-center gap-2'>
-                                    <FaLinkedin className='w-5 h-5 text-blue-500' />
-                                    LinkedIn Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
-                                    {generatedContent.linkedin}
-                                </div>
-                                {generatedContent.linkedinImage && (
-                                    <div className='space-y-2'>
-                                        <Label className='text-white text-sm font-medium'>
-                                            Generated Image:
-                                        </Label>
-                                        <Image
-                                            src={generatedContent.linkedinImage}
-                                            alt='LinkedIn generated image'
-                                            width={400}
-                                            height={400}
-                                            className='w-full max-w-md mx-auto rounded-lg'
-                                        />
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* X (Twitter) Content */}
-                    {generatedContent.x && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <CardTitle className='text-white flex items-center gap-2'>
-                                    <FaXTwitter className='w-5 h-5 text-white' />
-                                    X (Twitter) Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
-                                    {generatedContent.x}
-                                </div>
-                                {generatedContent.xImage && (
-                                    <div className='space-y-2'>
-                                        <Label className='text-white text-sm font-medium'>
-                                            Generated Image:
-                                        </Label>
-                                        <Image
-                                            src={generatedContent.xImage}
-                                            alt='X generated image'
-                                            width={400}
-                                            height={400}
-                                            className='w-full max-w-md mx-auto rounded-lg'
-                                        />
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Meta Content */}
-                    {generatedContent.meta && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <CardTitle className='text-white flex items-center gap-2'>
-                                    <FaMeta className='w-5 h-5 text-blue-500' />
-                                    Meta (Facebook) Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <div className='text-white whitespace-pre-wrap bg-gray-800/30 p-4 rounded-lg'>
-                                    {generatedContent.meta}
-                                </div>
-                                {generatedContent.metaImage && (
-                                    <div className='space-y-2'>
-                                        <Label className='text-white text-sm font-medium'>
-                                            Generated Image:
-                                        </Label>
-                                        <Image
-                                            src={generatedContent.metaImage}
-                                            alt='Meta generated image'
-                                            width={400}
-                                            height={400}
-                                            className='w-full max-w-md mx-auto rounded-lg'
-                                        />
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
+            {editDialog.data && (
+                <EditDialog
+                    open={editDialog.open}
+                    platform={editDialog.platform}
+                    data={editDialog.data}
+                    loading={loading}
+                    onOpenChange={handleEditDialogChange}
+                    onDataChange={handleDataChange}
+                    onSave={handleSavePrompt}
+                />
             )}
-
-            <EditDialog
-                open={editDialog.open}
-                platform={editDialog.platform}
-                type={editDialog.type}
-                value={editDialog.value}
-                loading={loading}
-                onOpenChange={handleEditDialogChange}
-                onValueChange={handleEditValueChange}
-                onSave={handleSavePrompt}
-            />
         </div>
     )
 }

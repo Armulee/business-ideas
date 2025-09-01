@@ -1,5 +1,5 @@
 .button {
-   @apply glassmorphism bg-transparent hover:bg-blue-600 text-white font-medium p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500
+   @apply glassmorphism bg-transparent hover:bg-blue-600 text-white font-medium p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 hover:text-white
 }
 
 .cta-button {
@@ -7,11 +7,11 @@
 }
 
 .input {
-    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60 text-white
+    @apply appearance-none glassmorphism bg-transparent focus:bg-blue-600/50 transition duration-500 placeholder:text-white/60 text-white hover:text-white
 }
 
 .select {
-    @apply text-white/80 glassmorphism bg-transparent transition duration-500 data-[state=open]:bg-blue-600/50
+    @apply text-white/80 glassmorphism bg-transparent transition duration-500 data-[state=open]:bg-blue-600/50 hover:text-white hover:bg-blue-600
 }
 
 .description ol {

@@ -20,11 +20,31 @@ npm start
 npm run lint
 ```
 
-## Architecture Overview
+### General Coding Rules
+
+- Before writing any new code, always read and analyze the existing files relevant to the task.
+- If a file is provided, carefully review its contents before starting implementation.
+- Summarize what you understood about the file, then proceed with changes.
+- Always making server component rather than client component for Next.js except for /admin route.
+- For catching params of Next.js it needs to use async function to await the params to destructure the params we want.
+
+### TypeScript Rules
+
+- Do not use the `any` type under any circumstances.
+- Always prefer explicit, strict types (`unknown`, generics, interfaces, enums, type aliases, etc.) over `any`.
+- If unsure about the correct type, ask clarifying questions instead of using `any`.
+
+### Output Rules
+
+- Explain your reasoning and what you understood before writing final code.
+- Then output the clean, working code solution.
+
+### Architecture Overview
 
 **BlueBizHub** is a full-stack Next.js 15 application for sharing and discussing business ideas.
 
 ### Tech Stack
+
 - **Frontend**: Next.js 15 with React 19, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Next.js API Routes with MongoDB and Mongoose ODM
 - **Authentication**: NextAuth.js with Google, Twitter, and credentials providers
@@ -36,30 +56,30 @@ npm run lint
 ### Key Architecture Patterns
 
 1. **Database Layer** (`/database/`):
-   - Mongoose models for User, Profile, Post, Comment, Reply, etc.
-   - Each model exports both the schema and the model
-   - Connection logic centralized in `database/index.ts`
+    - Mongoose models for User, Profile, Post, Comment, Reply, etc.
+    - Each model exports both the schema and the model
+    - Connection logic centralized in `database/index.ts`
 
 2. **API Routes** (`/app/api/`):
-   - RESTful endpoints organized by resource
-   - Rate limiting implemented for authentication endpoints
-   - Middleware for authentication and slug redirection
+    - RESTful endpoints organized by resource
+    - Rate limiting implemented for authentication endpoints
+    - Middleware for authentication and slug redirection
 
 3. **Authentication Flow**:
-   - NextAuth.js configuration in `lib/auth.ts`
-   - Custom credentials provider with bcrypt password hashing
-   - Rate limiting on login attempts (6 attempts per 15 minutes)
-   - Profile auto-creation for new users
+    - NextAuth.js configuration in `lib/auth.ts`
+    - Custom credentials provider with bcrypt password hashing
+    - Rate limiting on login attempts (6 attempts per 15 minutes)
+    - Profile auto-creation for new users
 
 4. **Component Architecture**:
-   - Feature-based organization (auth, feeds, post, profile, etc.)
-   - Shared UI components in `/components/ui/`
-   - Provider pattern for global state management
+    - Feature-based organization (auth, feeds, post, profile, etc.)
+    - Shared UI components in `/components/ui/`
+    - Provider pattern for global state management
 
 5. **Routing & SEO**:
-   - Dynamic routes with slug-based URLs: `/post/[id]/[slug]`
-   - Middleware handles slug redirection for missing slugs
-   - Profile URLs: `/profile/[id]/[slug]`
+    - Dynamic routes with slug-based URLs: `/post/[id]/[slug]`
+    - Middleware handles slug redirection for missing slugs
+    - Profile URLs: `/profile/[id]/[slug]`
 
 ### Database Models Structure
 

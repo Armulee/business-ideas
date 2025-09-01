@@ -1,9 +1,9 @@
 import connectDB from "@/database"
-import Orchestration, { PlatformPrompts } from "@/database/Orchestration"
+import ContentOrchestration, { MainPlatformPrompts, SocialPlatformPrompts } from "@/database/ContentOrchestration"
 import { NextResponse } from "next/server"
 import { generateText } from "ai"
 
-async function generateContentWithAI(platformData: PlatformPrompts) {
+async function generateContentWithAI(platformData: MainPlatformPrompts | SocialPlatformPrompts) {
     try {
         const { text } = await generateText({
             // ANTHROPIC STYLE
@@ -23,7 +23,7 @@ async function generateContentWithAI(platformData: PlatformPrompts) {
 
 async function refineWithClaude(
     originalContent: string,
-    platformData: PlatformPrompts
+    platformData: SocialPlatformPrompts
 ) {
     try {
         const { text } = await generateText({
@@ -123,8 +123,8 @@ export async function POST() {
     try {
         await connectDB()
 
-        // Fetch Orchestration collection that has type: 'content' from db
-        const data = await Orchestration.findOne({ type: "content" })
+        // Fetch ContentOrchestration collection that has type: 'prompts' from db
+        const data = await ContentOrchestration.findOne({ type: "prompts" })
 
         if (!data) {
             return NextResponse.json(
@@ -189,6 +189,42 @@ export async function POST() {
 
         if (metaImage) {
             responseData.metaImage = metaImage
+        }
+
+        // Save to database for persistence and preview functionality
+        try {
+            // Delete any existing content first
+            await ContentOrchestration.deleteMany({ type: "content" })
+
+            // Set expiration time to 8pm today (20:00)
+            const now = new Date()
+            const contentExpiresAt = new Date()
+            contentExpiresAt.setHours(20, 0, 0, 0) // Set to 8pm today
+            
+            // If current time is after 8pm, set expiration to 8pm tomorrow
+            if (now.getHours() >= 20) {
+                contentExpiresAt.setDate(contentExpiresAt.getDate() + 1)
+            }
+
+            // Create new content entry
+            const content = new ContentOrchestration({
+                type: "content",
+                generatedMain: mainContent,
+                generatedLinkedin: linkedinContent,
+                generatedLinkedinImage: linkedinImage,
+                generatedX: xContent,
+                generatedXImage: xImage,
+                generatedMeta: metaContent,
+                generatedMetaImage: metaImage,
+                generatedAt: new Date(),
+                contentExpiresAt
+            })
+
+            await content.save()
+            console.log("Generated content saved to database successfully")
+        } catch (dbError) {
+            console.error("Failed to save to database:", dbError)
+            // Don't fail the entire request if database save fails
         }
 
         return NextResponse.json({

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import connectToDB from "@/database"
-import Orchestration from "@/database/Orchestration"
+import ContentOrchestration from "@/database/ContentOrchestration"
 
 export async function GET() {
     try {
         await connectToDB()
 
-        let orchestration = await Orchestration.findOne({ type: "content" })
+        let orchestration = await ContentOrchestration.findOne({ type: "prompts" })
 
         if (!orchestration) {
-            orchestration = await Orchestration.create({
-                type: "content",
+            orchestration = await ContentOrchestration.create({
+                type: "prompts",
             })
         }
 
@@ -35,12 +35,12 @@ export async function PATCH(request: NextRequest) {
 
         const updateData = await request.json()
 
-        let orchestration = await Orchestration.findOne({ type: "content" })
+        let orchestration = await ContentOrchestration.findOne({ type: "prompts" })
 
         if (!orchestration) {
-            orchestration = await Orchestration.create({
-                type: "content",
-                main: updateData.main || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
+            orchestration = await ContentOrchestration.create({
+                type: "prompts",
+                main: updateData.main || { purpose: "Introduction", systemPrompt: "", userPrompt: "", imagePrompt: "" },
                 linkedin: updateData.linkedin || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
                 x: updateData.x || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
                 meta: updateData.meta || { systemPrompt: "", userPrompt: "", imagePrompt: "" },
