@@ -56,21 +56,21 @@ export const metadata: Metadata = {
         process.env.NEXT_PUBLIC_SITE_URL || "https://bluebizhub.com"
     ),
     title: {
-        default: "BlueBizHub – Business Idea Refinement Platform",
+        default: "BlueBizHub – Business Advertisement & Lead Generation Platform",
         template: "%s | BlueBizHub",
     },
     description:
-        "BlueBizHub connects visionary entrepreneurs with a vibrant community to share, discuss, and refine innovative business ideas into successful ventures.",
+        "BlueBizHub connects business owners with marketing partners who amplify businesses and earn commissions for generating leads. Join our community-driven advertising platform.",
     keywords: [
-        "business ideas",
-        "startup feedback",
-        "entrepreneur community",
-        "idea validation",
-        "crowdsourcing innovation",
-        "startup development",
+        "business advertising",
+        "lead generation",
+        "marketing partners",
+        "commission marketing",
+        "business promotion",
+        "affiliate marketing",
         "business networking",
-        "startup incubator",
-        "innovation platform",
+        "marketing platform",
+        "lead tracking",
     ],
     authors: [{ name: "BlueBizHub", url: "https://bluebizhub.com" }],
     creator: "BlueBizHub",
@@ -99,15 +99,15 @@ export const metadata: Metadata = {
         locale: "en_US",
         url: "https://bluebizhub.com/",
         siteName: "BlueBizHub",
-        title: "BlueBizHub – Community-Powered Business Idea Refinement Platform",
+        title: "BlueBizHub – Community-Powered Business Advertising & Lead Generation",
         description:
-            "Share your startup vision on BlueBizHub, where entrepreneurs and experts collaborate to transform your ideas into thriving businesses.",
+            "Submit your business to BlueBizHub and let our community of marketing partners amplify your reach while earning commissions for generating leads.",
         images: [
             {
                 url: "/og-image.jpg",
                 width: 1200,
                 height: 630,
-                alt: "BlueBizHub – Innovate, Share, Succeed",
+                alt: "BlueBizHub – Advertise, Amplify, Earn",
                 type: "image/jpeg",
             },
         ],
@@ -116,9 +116,9 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         site: "@BlueBizHub",
         creator: "@BlueBizHub",
-        title: "BlueBizHub – Community-Powered Business Idea Refinement Platform",
+        title: "BlueBizHub – Community-Powered Business Advertising & Lead Generation",
         description:
-            "Unlock your startup's potential with BlueBizHub—get valuable insights and community feedback to accelerate your business journey.",
+            "Connect your business with marketing partners who will amplify your reach and earn commissions for generating qualified leads.",
         images: ["/twitter-card.jpg"],
     },
     verification: {

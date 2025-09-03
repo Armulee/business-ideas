@@ -56,7 +56,7 @@ export default function NewPostButton() {
         if (!session?.user) {
             alert.show({
                 title: "Authentication Required",
-                description: "Please log in to create new post.",
+                description: "Please log in to submit your business.",
                 cancel: "Cancel",
                 action: "Log in",
                 onAction: () => {
@@ -176,7 +176,7 @@ export default function NewPostButton() {
                     className='font-medium'
                 >
                     <Plus className='w-4 h-4 mr-2' />
-                    Create New Post
+                    Submit Business
                 </DropdownMenuItem>
                 {drafts.length > 0 && (
                     <>

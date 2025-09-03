@@ -1,38 +1,37 @@
 # BlueBizHub
 
-> **Validate. Discover. Refine.**
-> A community-driven platform for sharing, discussing, and improving business ideas.
+> **Advertise. Amplify. Earn.**
+> A business advertisement–driven platform powered by community. Business owners/startup founders submit their business information, and partners (anyone who joins the partner program) amplify these businesses via their preferred methods. Partners earn money for generating leads, while BlueBizHub manages submissions, tracking, and fair revenue sharing.
 
 ## 🔍 Project Description
 
-BlueBizHub is a full-stack web application where entrepreneurs, innovators, and dreamers can post their business ideas, gather structured feedback from a supportive community, and iteratively refine their concepts. By combining social features with real-time notifications and engagement metrics, BlueBizHub empowers users to validate market demand, discover new perspectives, and collaborate toward building sustainable ventures.
+BlueBizHub is a full-stack web application that connects business owners with a community of partners who help amplify their businesses through various marketing channels. Business owners submit their business information, and partners earn commissions for generating qualified leads. The platform manages the entire process from business submission to lead tracking and revenue sharing, creating a win-win ecosystem for businesses and marketing partners.
 
 ## 🚀 Key Features
 
--   **User Authentication & Profiles**
+-   **Business Owner Portal**
 
-    -   Sign up/in with email (credential-based or passwordless via NextAuth)
-    -   Maintain a profile with avatar, bio, and activity history
+    -   Submit and manage business information
+    -   Track lead generation and conversion metrics
+    -   Manage commission payouts and partner relationships
 
--   **Idea Submission & Discovery**
+-   **Partner Program**
 
-    -   Post new business ideas with title, description, tags, and category
-    -   Browse, search, and filter ideas by keyword, category, popularity, or recency
-    -   Infinite scrolling with paginated fetch (50 items per batch)
+    -   Join as a marketing partner to earn commissions
+    -   Access business listings and marketing materials
+    -   Track performance and earnings in real-time
 
--   **Community Feedback**
+-   **Lead Generation & Tracking**
 
-    -   Comment, reply, upvote/downvote, bookmark, and repost ideas
-    -   Nested comment threads with real-time optimistic updates via SWR
-    -   Notifications for new comments or reactions on your ideas
+    -   Comprehensive lead tracking system
+    -   Commission calculation and payout management
+    -   Performance analytics and reporting
 
--   **Engagement Analytics**
+-   **Community-Driven Marketing**
 
-    -   Track view counts, vote tallies, bookmark counts, and reposts to gauge idea traction
-
--   **Collaboration Tools**
-
-    -   Connect with co-founders, developers, and marketers via direct messaging (future roadmap)
+    -   Partners choose their preferred marketing methods
+    -   Social sharing, content creation, and referral programs
+    -   Collaborative marketing campaigns
 
 ## 🛠️ Tech Stack
 
@@ -95,11 +94,11 @@ BlueBizHub is a full-stack web application where entrepreneurs, innovators, and 
 
 ## 📈 Roadmap
 
--   Direct messaging and team recruitment
--   Idea validation workshops and polls
--   Analytics dashboard for idea owners
+-   Advanced lead tracking and attribution
+-   Multi-channel marketing automation
+-   Partner marketplace and discovery
 -   Mobile apps (iOS & Android)
--   Gamification: badges, reputation, and leaderboards
+-   Advanced analytics and reporting dashboard
 
 ## 🤝 Contributing
 
@@ -134,4 +133,4 @@ Distributed under the MIT License. See [LICENSE](./LICENSE) for more information
 
 ---
 
-© 2025 BlueBizHub — Turning raw ideas into tomorrow’s successful businesses.
+© 2025 BlueBizHub — Connecting businesses with marketing partners for mutual growth.

@@ -32,11 +32,11 @@ export default function Hero() {
     // Here headline
     const [text] = useTypewriter({
         words: [
-            "Every Billion-Dollar Business Starts With an Idea",
-            "Have an Idea? Share, Validate, and Refine!",
-            "Discover What People Really Think of Your Business Idea",
-            "Turn Your Idea into the Business People Actually Want",
-            "Every Great Business Begins with Audience Feedback",
+            "Amplify Your Business with Community Marketing",
+            "Earn Money by Promoting Amazing Businesses",
+            "Connect Businesses with Marketing Partners",
+            "Turn Your Network into a Revenue Stream",
+            "Business Advertising Powered by Community",
         ],
         loop: true,
         typeSpeed: 50,
@@ -60,7 +60,7 @@ export default function Hero() {
                 >
                     <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm text-white'>
                         <Sparkles className='h-4 w-4 mr-2' />
-                        Idea, Validate, Refine
+                        Advertise, Amplify, Earn
                     </span>
                 </motion.div>
 
@@ -74,8 +74,7 @@ export default function Hero() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.8 }}
                 >
-                    Share your business idea, gain feedback from community, and
-                    refine it to match your audience.
+                    Submit your business or join as a marketing partner. Earn commissions for generating leads while helping businesses grow.
                 </motion.p>
 
                 <motion.div
@@ -86,7 +85,7 @@ export default function Hero() {
                 >
                     <Link href='/post'>
                         <Button size='lg' className='button !px-8'>
-                            Explore Ideas
+                            Explore Businesses
                             <Compass className='h-5 w-5' />
                         </Button>
                     </Link>
@@ -95,7 +94,7 @@ export default function Hero() {
                         onClick={handleNewPost}
                         className='button !px-8'
                     >
-                        Share Your Idea
+                        Submit Your Business
                         <ArrowUp className='h-5 w-5' />
                     </Button>
                 </motion.div>

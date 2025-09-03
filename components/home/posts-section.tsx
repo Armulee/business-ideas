@@ -38,7 +38,7 @@ export default function PostsSection({ topVotedPosts, latestPosts }: PostsSectio
             {/* Visual carousel with server-rendered content */}
             {topVotedPosts.length ? (
                 <PostsCarousel
-                    title="Trending Posts"
+                    title="Trending Businesses"
                     className='!h-[250px]'
                     carouselConfig={{
                         scrollbar: false,
@@ -62,7 +62,7 @@ export default function PostsSection({ topVotedPosts, latestPosts }: PostsSectio
 
             {latestPosts.length ? (
                 <PostsCarousel
-                    title="Latest Posts"
+                    title="Latest Businesses"
                     className='!h-[95%] relative'
                     carouselConfig={{
                         scrollbar: false,

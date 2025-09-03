@@ -12,8 +12,8 @@ export default function ServerPostsContent({ topVotedPosts, latestPosts }: Serve
             {/* Server-rendered content for SEO - Hidden from visual display but accessible to crawlers */}
             <div className="sr-only" aria-label="Posts content for search engines">
                 {/* Top Voted Posts */}
-                <section aria-label="Trending Posts">
-                    <h2>Trending Posts</h2>
+                <section aria-label="Trending Businesses">
+                    <h2>Trending Businesses</h2>
                     {topVotedPosts.map((post, index) => (
                         <PostCard
                             key={`trending-seo-${post._id}-${index}`}
@@ -23,8 +23,8 @@ export default function ServerPostsContent({ topVotedPosts, latestPosts }: Serve
                 </section>
 
                 {/* Latest Posts */}
-                <section aria-label="Latest Posts">
-                    <h2>Latest Posts</h2>
+                <section aria-label="Latest Businesses">
+                    <h2>Latest Businesses</h2>
                     {latestPosts.map((post, index) => (
                         <PostCard
                             key={`latest-seo-${post._id}-${index}`}

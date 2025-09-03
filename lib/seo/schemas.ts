@@ -11,7 +11,7 @@ export function createOrganizationSchema(): WithContext<Organization> {
     alternateName: 'Blue Biz Hub',
     url: 'https://bluebizhub.com',
     logo: 'https://bluebizhub.com/logo.png',
-    description: 'BlueBizHub connects visionary entrepreneurs with a vibrant community to share, discuss, and refine innovative business ideas into successful ventures.',
+    description: 'BlueBizHub connects business owners with marketing partners who amplify businesses and earn commissions for generating leads. Join our community-driven advertising platform.',
     foundingDate: '2024',
     sameAs: [
       'https://twitter.com/BlueBizHub',
@@ -32,7 +32,7 @@ export function createWebSiteSchema(): WithContext<WebSite> {
     '@type': 'WebSite',
     name: 'BlueBizHub',
     url: 'https://bluebizhub.com',
-    description: 'Community-powered platform for sharing and refining business ideas',
+    description: 'Community-powered business advertising and lead generation platform',
     potentialAction: {
       '@type': 'SearchAction',
       target: 'https://bluebizhub.com/post?search={search_term_string}',

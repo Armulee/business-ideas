@@ -22,7 +22,7 @@ npm run lint
 
 ## Architecture Overview
 
-**BlueBizHub** is a full-stack Next.js 15 application for sharing and discussing business ideas.
+**BlueBizHub** is a full-stack Next.js 15 application for business advertising and lead generation through community marketing partners.
 
 ### Tech Stack
 - **Frontend**: Next.js 15 with React 19, TypeScript, Tailwind CSS, shadcn/ui
@@ -65,7 +65,7 @@ npm run lint
 
 - **User**: Authentication data (email, password, provider)
 - **Profile**: User profile data (name, bio, avatar, social links)
-- **Post**: Business ideas with categories, tags, widgets
+- **Post**: Business listings with categories, tags, widgets
 - **Comment/Reply**: Threaded discussions on posts
 - **Activity**: Notification system
 - **Follow**: User relationships

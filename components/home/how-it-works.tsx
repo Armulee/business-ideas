@@ -6,20 +6,20 @@ import { Zap } from "lucide-react"
 const items = [
     {
         step: "Step 1",
-        title: "Share Your Idea",
-        description: "Post your business idea to the community.",
+        title: "Submit Your Business",
+        description: "Business owners submit their business information and marketing goals.",
     },
     {
         step: "Step 2",
-        title: "Collect Insights",
+        title: "Partners Amplify",
         description:
-            "Receive honest feedback and valuable insights from others.",
+            "Marketing partners choose businesses to promote using their preferred methods.",
     },
     {
         step: "Step 3",
-        title: "Refine Your Idea",
+        title: "Track & Earn",
         description:
-            "Use community feedback to enhance and tailor your business concept.",
+            "Monitor lead generation and earn commissions for successful conversions.",
     },
 ]
 const HowItWorks = () => {

@@ -28,27 +28,27 @@ const itemVariants = {
 const features = [
     {
         icon: Lightbulb,
-        title: "Share Your Idea",
+        title: "Submit Your Business",
         description:
-            "Post your business ideas and see how they resonate with a global audience.",
+            "Share your business information and let our community of marketing partners amplify your reach.",
     },
     {
         icon: MessageCircle,
-        title: "Gather Valuable Feedback",
+        title: "Partner Marketing",
         description:
-            "Discover what people truly think about your idea to refine and improve it.",
+            "Join as a marketing partner and earn commissions for generating qualified leads for businesses.",
     },
     {
         icon: TrendingUp,
-        title: "Explore Trending Concepts",
+        title: "Lead Generation",
         description:
-            "Find out which ideas are gaining traction and identify promising opportunities.",
+            "Track performance and conversions with our comprehensive lead tracking and analytics system.",
     },
     {
         icon: StickyNote,
-        title: "Recognition and Validation",
+        title: "Revenue Sharing",
         description:
-            "Gain visibility and validation as your ideas resonate with the community.",
+            "Fair commission structure ensures both businesses and partners benefit from successful collaborations.",
     },
 ]
 
@@ -69,13 +69,12 @@ const About = () => {
                         BizHub
                     </h2>
                     <p className='text-lg text-white/80 max-w-3xl mx-auto'>
-                        Our platform is designed to give entrepreneurs,
-                        creators, and visionaries a space to
+                        Our platform connects business owners with marketing partners who help
                         <span className='font-semibold text-white'>
                             {" "}
-                            share, discuss, validate and refine{" "}
+                            amplify reach, generate leads, and earn commissions{" "}
                         </span>
-                        their startup concepts with a like-minded community.
+                        through community-driven marketing efforts.
                     </p>
                 </motion.div>
 

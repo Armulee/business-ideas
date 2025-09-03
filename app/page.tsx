@@ -14,20 +14,20 @@ import CTA from "@/components/home/cta"
 import PostsSection from "@/components/home/posts-section"
 
 export const metadata: Metadata = createBaseMetadata({
-    title: "BlueBizHub - Share & Refine Business Ideas",
+    title: "BlueBizHub - Business Advertising & Lead Generation Platform",
     description:
-        "Connect with entrepreneurs worldwide to share, discuss, and refine innovative business ideas. Join our community of visionaries building the future of business.",
+        "Connect your business with marketing partners who amplify your reach and earn commissions for generating leads. Join our community-driven advertising platform.",
     path: "/",
     image: getDefaultOGImage(),
     keywords: [
-        "business ideas",
-        "startup community",
-        "entrepreneur platform",
-        "innovation sharing",
+        "business advertising",
+        "lead generation",
+        "marketing partners",
+        "commission marketing",
+        "business promotion",
+        "affiliate marketing",
         "business networking",
-        "startup validation",
-        "entrepreneurship",
-        "business development",
+        "marketing platform",
     ],
 })
 

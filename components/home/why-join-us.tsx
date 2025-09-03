@@ -5,19 +5,19 @@ import { Check } from "lucide-react"
 
 const items = [
     {
-        title: "Get Inspired",
+        title: "Earn Commissions",
         description:
-            "Discover fresh perspectives and innovative ideas from our vibrant community.",
+            "Generate income by promoting businesses and earning commissions for qualified leads.",
     },
     {
-        title: "Gain Honest Feedback",
+        title: "Flexible Marketing",
         description:
-            "Understand the true potential of your idea before you invest.",
+            "Choose your preferred marketing methods and work with businesses that match your expertise.",
     },
     {
-        title: "Validate Your Concept",
+        title: "Track Performance",
         description:
-            "See if your business idea truly resonates with the audience you aim to serve.",
+            "Monitor your marketing efforts with real-time analytics and performance tracking.",
     },
 ]
 
