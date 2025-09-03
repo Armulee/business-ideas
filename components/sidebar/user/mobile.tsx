@@ -21,6 +21,7 @@ import { ScrollArea } from "../../ui/scroll-area"
 import { Logo } from "../../logo"
 import { LoadingLink } from "../../loading-link"
 import { FeedbackDialog } from "../feedback-dialog"
+import { useDynamicViewportHeight } from "@/hooks/use-ios-height"
 
 const MobileSidebar = ({
     setOpen,
@@ -30,6 +31,7 @@ const MobileSidebar = ({
     const pathname = usePathname()
     const { data: session } = useSession()
     const [feedbackOpen, setFeedbackOpen] = useState(false)
+    const sidebarHeight = useDynamicViewportHeight()
     const collapsibleMenus = useCollapsibleMenus()
 
     const filteredCollapsibleMenus = collapsibleMenus
@@ -56,10 +58,11 @@ const MobileSidebar = ({
         <>
             <SheetContent
                 side='left'
-                className='w-[300px] sm:w-[400px] p-0 glassmorphism bg-blue-900/50 !rounded-none h-full border-0'
+                className='w-[300px] sm:w-[400px] p-0 glassmorphism bg-blue-900/50 !rounded-none border-0 sidebar-full-height'
+                style={{ height: sidebarHeight }}
             >
                 <Logo className='text-2xl absolute top-8 w-fit ml-10' />
-                <div className='w-full h-3/4 mt-20 relative'>
+                <div className='w-full h-full mt-20 relative'>
                     <ScrollArea className='w-full h-full flex flex-col justify-center items-center'>
                         <SheetHeader className='hidden'>
                             <SheetTitle>BlueBizHub</SheetTitle>

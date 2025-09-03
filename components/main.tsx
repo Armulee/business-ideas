@@ -18,8 +18,8 @@ const Main = ({ children }: { children: React.ReactNode }) => {
                     isMobile || hide
                         ? "w-full"
                         : open
-                        ? "w-[calc(100%-13rem)]"
-                        : "w-[calc(100%-47px)]"
+                        ? "w-[calc(100%-13rem)] ml-52"
+                        : "w-[calc(100%-47px)] ml-12"
                 } ${hide ? "h-screen" : "h-full"}`}
             >
                 {children}

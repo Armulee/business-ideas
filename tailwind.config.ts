@@ -66,6 +66,14 @@ export default {
     			md: 'calc(var(--radius) - 2px)',
     			sm: 'calc(var(--radius) - 4px)'
     		},
+    		height: {
+    			'screen-ios': 'calc(var(--vh, 1vh) * 100)',
+    			'screen-dynamic': '100dvh',
+    		},
+    		minHeight: {
+    			'screen-ios': 'calc(var(--vh, 1vh) * 100)',
+    			'screen-dynamic': '100dvh',
+    		},
     		keyframes: {
     			'accordion-down': {
     				from: {

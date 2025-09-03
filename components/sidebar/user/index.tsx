@@ -21,11 +21,13 @@ import { ChevronDown } from "lucide-react"
 import { menus, useCollapsibleMenus } from "./menus"
 import { ScrollArea } from "../../ui/scroll-area"
 import { FeedbackDialog } from "../feedback-dialog"
+import { useDynamicViewportHeight } from "@/hooks/use-ios-height"
 
 export default function UserSidebar() {
     const pathname = usePathname()
     const { data: session } = useSession()
     const [feedbackOpen, setFeedbackOpen] = useState(false)
+    const sidebarHeight = useDynamicViewportHeight()
     const collapsibleMenus = useCollapsibleMenus()
 
     const filteredCollapsibleMenus = collapsibleMenus
@@ -52,13 +54,16 @@ export default function UserSidebar() {
     return (
         <>
             {hide ? null : (
-                <aside className='sticky top-0 self-start max-w-52 glassmorphism'>
+                <aside 
+                    className='sidebar-fixed w-52 glassmorphism sidebar-full-height'
+                    style={{ height: sidebarHeight }}
+                >
                     <Sidebar
-                        className='mt-[58px] w-52 border-white/20'
+                        className='w-52 border-white/20 h-full'
                         collapsible='icon'
                     >
-                        <SidebarContent>
-                            <ScrollArea className='pt-2 pb-20'>
+                        <SidebarContent className='h-full'>
+                            <ScrollArea className='pt-2 pb-20 h-full'>
                                 {/* Main menu */}
                                 <SidebarGroup>
                                     <SidebarGroupContent>
