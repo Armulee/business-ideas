@@ -11,6 +11,7 @@ import { Plus, Save, Loader2, GripVertical, X } from "lucide-react"
 import { toast } from "sonner"
 import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
 import axios from "axios"
+import AdminLoading from "@/components/admin/loading"
 import {
     DndContext,
     closestCenter,
@@ -301,11 +302,7 @@ export default function AdminPoliciesPage() {
     }
 
     if (isLoading) {
-        return (
-            <div className='flex items-center justify-center min-h-96'>
-                <Loader2 className='w-8 h-8 animate-spin' />
-            </div>
-        )
+        return <AdminLoading size='lg' />
     }
 
     return (

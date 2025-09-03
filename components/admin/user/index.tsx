@@ -3,6 +3,7 @@
 import { useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSession } from "next-auth/react"
+import AdminLoading from "@/components/admin/loading"
 import Stats from "./stats"
 import { SearchFilters } from "./search"
 import { PaginationHandler } from "./pagination-handler"
@@ -203,6 +204,11 @@ export default function UserManagement() {
             ...reasonDialog,
             customReason: value,
         })
+    }
+
+    // Show loading while fetching users
+    if (loading && users.length === 0) {
+        return <AdminLoading size='lg' />
     }
 
     return (

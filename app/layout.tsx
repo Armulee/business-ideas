@@ -182,6 +182,7 @@ export default function RootLayout({
                     </LoadingProvider>
                 </Provider>
                 <Analytics />
+                
                 {/* </div> */}
             </body>
         </html>

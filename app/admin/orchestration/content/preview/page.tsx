@@ -1,50 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import axios from "axios"
-import { FaLinkedin, FaMeta, FaXTwitter } from "react-icons/fa6"
-import {
-    Flame,
-    ArrowLeft,
-    Calendar,
-    Clock,
-    Send,
-    Trash2,
-    SendHorizontal,
-    Upload,
-    X,
-    ImageIcon,
-    RefreshCw,
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
-import AutoHeightTextarea from "@/components/ui/auto-height-textarea"
-
-interface GeneratedContent {
-    main?: string
-    linkedin?: string
-    linkedinImage?: string
-    linkedinImageId?: string
-    x?: string
-    xImage?: string
-    xImageId?: string
-    meta?: string
-    metaImage?: string
-    metaImageId?: string
-    generatedAt?: string
-    sharedImage?: string
-    sharedImageId?: string
-    mainImagePrompt?: string
-    linkedinImagePrompt?: string
-    xImagePrompt?: string
-    metaImagePrompt?: string
-}
+import PreviewHeader from "@/components/admin/orchestration/content/preview/preview-header"
+import PreviewActionButtons from "@/components/admin/orchestration/content/preview/preview-action-buttons"
+import MainContentCard from "@/components/admin/orchestration/content/preview/main-content-card"
+import PlatformContentCard from "@/components/admin/orchestration/content/preview/platform-content-card"
+import SharedImageManagement from "@/components/admin/orchestration/content/preview/shared-image-management"
+import ErrorState from "@/components/admin/orchestration/content/preview/error-state"
+import AdminLoading from "@/components/admin/loading"
+import RegenerateDialog from "@/components/admin/orchestration/content/preview/regenerate-dialog"
+import { GeneratedContent } from "@/components/admin/orchestration/content/types"
 
 export default function OrchestrationPreviewPage() {
     const router = useRouter()
@@ -67,7 +35,11 @@ export default function OrchestrationPreviewPage() {
     const [platformDeleting, setPlatformDeleting] = useState<
         Record<string, boolean>
     >({})
-    const [draggedOver, setDraggedOver] = useState<string | null>(null)
+    const [regenerating, setRegenerating] = useState<Record<string, boolean>>(
+        {}
+    )
+    const [regeneratingAll, setRegeneratingAll] = useState(false)
+    const [regenerateDialogOpen, setRegenerateDialogOpen] = useState(false)
 
     useEffect(() => {
         fetchGeneratedContent()
@@ -96,10 +68,6 @@ export default function OrchestrationPreviewPage() {
         }
     }
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString()
-    }
-
     const handleContentChange = (platform: string, newContent: string) => {
         setContent((prevContent) => {
             if (!prevContent) return null
@@ -123,8 +91,7 @@ export default function OrchestrationPreviewPage() {
 
             return updatedContent
         })
-        
-        // Mark as having unsaved changes
+
         setHasUnsavedChanges(true)
     }
 
@@ -146,8 +113,7 @@ export default function OrchestrationPreviewPage() {
                 xImagePrompt: content.xImagePrompt,
                 metaImagePrompt: content.metaImagePrompt,
             })
-            
-            // Update original content and reset unsaved changes
+
             setOriginalContent(content)
             setHasUnsavedChanges(false)
             toast.success("Content saved successfully!")
@@ -203,7 +169,6 @@ export default function OrchestrationPreviewPage() {
                     throw new Error("Invalid platform")
             }
 
-            // Make API call to post to the platform
             const response = await axios.post(
                 "/api/orchestration/content/generated/post-to-media",
                 {
@@ -452,18 +417,6 @@ export default function OrchestrationPreviewPage() {
         }
     }
 
-    const handleFileInputChange = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-        platform: string = "shared"
-    ) => {
-        const file = event.target.files?.[0]
-        if (file) {
-            await handleImageUpload(file, platform)
-            // Reset input value
-            event.target.value = ""
-        }
-    }
-
     const handleImageDelete = async (platform: string = "shared") => {
         if (
             !confirm(
@@ -566,31 +519,6 @@ export default function OrchestrationPreviewPage() {
         }
     }
 
-    // Drag and drop handlers
-    const handleDragOver = (e: React.DragEvent, platform: string) => {
-        e.preventDefault()
-        setDraggedOver(platform)
-    }
-
-    const handleDragLeave = (e: React.DragEvent) => {
-        e.preventDefault()
-        setDraggedOver(null)
-    }
-
-    const handleDrop = async (e: React.DragEvent, platform: string) => {
-        e.preventDefault()
-        setDraggedOver(null)
-
-        const files = Array.from(e.dataTransfer.files)
-        const imageFile = files.find((file) => file.type.startsWith("image/"))
-
-        if (imageFile) {
-            await handleImageUpload(imageFile, platform)
-        } else {
-            toast.error("Please drop an image file")
-        }
-    }
-
     // Get the image to use for posting (shared image or platform-specific image)
     const getImageForPosting = (platform: string): string => {
         switch (platform) {
@@ -605,615 +533,197 @@ export default function OrchestrationPreviewPage() {
         }
     }
 
-    // Component for individual platform image management
-    const PlatformImageSection = ({
-        platform,
-        image,
-        platformName,
-        icon: Icon,
-        iconColor,
-    }: {
-        platform: string
-        image?: string
-        platformName: string
-        icon: React.ComponentType<{ className?: string }>
-        iconColor: string
-    }) => (
-        <div className='space-y-3 pt-4 border-t border-gray-600'>
-            <div className='flex items-center gap-2'>
-                <Icon className={`w-4 h-4 ${iconColor}`} />
-                <Label className='text-white text-sm font-medium'>
-                    {platformName} Image
-                </Label>
-            </div>
+    // Handle content regeneration with AI
+    const handleRegenerate = async (platform: string, prompt: string) => {
+        try {
+            setRegenerating((prev) => ({ ...prev, [platform]: true }))
 
-            {/* Image display or dropzone */}
-            <div
-                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
-                    draggedOver === platform
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-gray-600 hover:border-gray-500"
-                }`}
-                onDragOver={(e) => handleDragOver(e, platform)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, platform)}
-            >
-                {image ? (
-                    <div className='relative group'>
-                        <Image
-                            src={image}
-                            alt={`${platformName} image`}
-                            width={300}
-                            height={300}
-                            className='w-full max-w-48 mx-auto rounded border border-gray-600'
-                        />
-                        <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center gap-2'>
-                            <Button
-                                onClick={() =>
-                                    document
-                                        .getElementById(
-                                            `image-upload-${platform}`
-                                        )
-                                        ?.click()
-                                }
-                                disabled={platformUploading[platform]}
-                                className='button'
-                                size='sm'
-                            >
-                                <Upload className='w-3 h-3 mr-1' />
-                                {platformUploading[platform] ? "Uploading..." : "Replace"}
-                            </Button>
-                            <Button
-                                onClick={() => handleImageDelete(platform)}
-                                disabled={platformDeleting[platform]}
-                                variant='destructive'
-                                size='sm'
-                            >
-                                <X className='w-3 h-3 mr-1' />
-                                {platformDeleting[platform] ? "Deleting..." : "Delete"}
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className='p-6 text-center'>
-                        <div className='flex flex-col items-center gap-3'>
-                            <div className='w-12 h-12 rounded-full bg-gray-800/50 flex items-center justify-center'>
-                                <Icon className={`w-6 h-6 ${iconColor}`} />
-                            </div>
-                            <div className='space-y-1'>
-                                <p className='text-white/60 text-sm'>
-                                    No {platformName.toLowerCase()} image
-                                </p>
-                                <p className='text-white/40 text-xs'>
-                                    Drag & drop or click to upload
-                                </p>
-                            </div>
-                            <Button
-                                onClick={() =>
-                                    document
-                                        .getElementById(`image-upload-${platform}`)
-                                        ?.click()
-                                }
-                                disabled={platformUploading[platform]}
-                                className='button'
-                                size='sm'
-                            >
-                                <Upload className='w-3 h-3 mr-1' />
-                                {platformUploading[platform] ? "Uploading..." : "Upload"}
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
+            // Call the AI API to regenerate content
+            const response = await axios.post(
+                "/api/orchestration/content/regenerate",
+                {
+                    platform,
+                    prompt,
+                    mainContent: content?.main || "",
+                    currentContent:
+                        content?.[platform as keyof GeneratedContent] || "",
+                }
+            )
 
-            {/* Hidden file input */}
-            <Input
-                id={`image-upload-${platform}`}
-                type='file'
-                accept='image/*'
-                onChange={(e) => handleFileInputChange(e, platform)}
-                className='hidden'
-            />
-        </div>
-    )
+            if (response.data.success) {
+                // Update the content with the new generated content
+                setContent((prevContent) => {
+                    if (!prevContent) return null
+                    return {
+                        ...prevContent,
+                        [platform]: response.data.content,
+                    }
+                })
 
-    if (loading) {
-        return (
-            <div className='py-8 space-y-6'>
-                <div className='max-w-4xl mx-auto'>
-                    <div className='flex items-center gap-4 mb-8'>
-                        <Link href='/admin/orchestration/content'>
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                className='glassmorphism border-white/20'
-                            >
-                                <ArrowLeft className='w-4 h-4 mr-2' />
-                                Back to Orchestration
-                            </Button>
-                        </Link>
-                        <h1 className='text-white text-2xl font-bold'>
-                            Generated Content Preview
-                        </h1>
-                    </div>
+                toast.success(`${platform} content regenerated successfully!`)
+            } else {
+                throw new Error(
+                    response.data.message || "Failed to regenerate content"
+                )
+            }
+        } catch (error) {
+            console.error(`Failed to regenerate ${platform} content:`, error)
+            toast.error(`Failed to regenerate ${platform} content`)
+        } finally {
+            setRegenerating((prev) => ({ ...prev, [platform]: false }))
+        }
+    }
 
-                    <div className='flex items-center justify-center min-h-96'>
-                        <div className='text-white text-lg'>
-                            Loading generated content...
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )
+    const handleRegenerateAll = async () => {
+        try {
+            setRegeneratingAll(true)
+            setRegenerateDialogOpen(false)
+
+            // Show toast with status
+            toast.info(
+                "Starting content regeneration... This may take a few minutes."
+            )
+
+            // Call the regenerate API
+            const response = await axios.post(
+                "/api/orchestration/content/regenerate/all"
+            )
+
+            if (response.data.success) {
+                toast.success("Content regenerated successfully! Refreshing...")
+
+                // Wait a moment then refresh the content
+                setTimeout(() => {
+                    fetchGeneratedContent()
+                }, 2000)
+            } else {
+                throw new Error(
+                    response.data.message || "Failed to regenerate content"
+                )
+            }
+        } catch (error) {
+            console.error("Failed to regenerate all content:", error)
+            toast.error("Failed to regenerate content")
+        } finally {
+            setRegeneratingAll(false)
+        }
+    }
+
+    if (loading || regeneratingAll) {
+        return <AdminLoading size='lg' />
     }
 
     if (error || !content) {
-        return (
-            <div className='py-8 space-y-6'>
-                <div className='max-w-4xl mx-auto'>
-                    <div className='flex items-start gap-4 mb-8'>
-                        <Link href='/admin/orchestration/content'>
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                className='button'
-                            >
-                                <ArrowLeft className='w-4 h-4 mr-2' />
-                                Back to Orchestration
-                            </Button>
-                        </Link>
-                        <h1 className='text-white text-2xl font-bold'>
-                            Generated Content Preview
-                        </h1>
-                    </div>
-
-                    <Card className='glassmorphism bg-red-900/20 border-red-500/30'>
-                        <CardContent className='p-8 text-center'>
-                            <div className='text-red-400 text-lg mb-4'>
-                                {error || "No content available"}
-                            </div>
-                            <p className='text-white/60 mb-6'>
-                                Content may have expired or hasn&apos;t been
-                                generated yet. Please generate new content from
-                                the orchestration page.
-                            </p>
-                            <Link href='/admin/orchestration/content'>
-                                <Button className='bg-blue-600 hover:bg-blue-700'>
-                                    Go to Orchestration
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        )
+        return <ErrorState error={error} />
     }
 
     return (
         <div className='py-8 space-y-6'>
             <div className='max-w-4xl mx-auto'>
                 {/* Header */}
-                <div className='flex flex-col gap-4 mb-8'>
-                    <div className='flex items-center justify-between'>
-                        <Link href='/admin/orchestration/content'>
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                className='button'
-                            >
-                                <ArrowLeft className='w-4 h-4 mr-2' />
-                                Back to Orchestration
-                            </Button>
-                        </Link>
-                        <button
-                            onClick={fetchGeneratedContent}
-                            className='flex items-center gap-2 text-white/60 hover:text-white transition-colors'
-                        >
-                            <RefreshCw className='w-4 h-4' />
-                            <span className='text-sm'>Refresh</span>
-                        </button>
-                    </div>
-                    <div className='w-full text-center'>
-                        <h1 className='text-white text-2xl font-bold'>
-                            Generated Content Preview
-                        </h1>
-                        {content.generatedAt && (
-                            <div className='w-full flex flex-col gap-1 justify-center items-center text-white/60 text-sm mt-2'>
-                                <div className='flex items-center gap-1 mb-1'>
-                                    <Calendar className='w-4 h-4' />
-                                    Generated on{" "}
-                                    {formatDate(content.generatedAt)}
-                                </div>
-                                <div className='flex items-center gap-1'>
-                                    <Clock className='w-4 h-4' />
-                                    Expires at 8:00 PM today
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <PreviewHeader
+                    onRegenerate={() => setRegenerateDialogOpen(true)}
+                    regenerating={regeneratingAll}
+                    generatedAt={content.generatedAt}
+                />
 
                 {/* Action Buttons */}
-                <div className='flex justify-center gap-4 mb-6'>
-                    <Button
-                        onClick={hasUnsavedChanges ? handleSave : handlePostAll}
-                        disabled={saving || postingAll || deletingContent}
-                        className={hasUnsavedChanges 
-                            ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed'
-                            : 'bg-green-600 hover:bg-green-700'
-                        }
-                    >
-                        {hasUnsavedChanges ? (
-                            <>
-                                <Send className='w-4 h-4 mr-2' />
-                                {saving ? "Saving..." : "Save Changes"}
-                            </>
-                        ) : (
-                            <>
-                                <SendHorizontal className='w-4 h-4 mr-2' />
-                                {postingAll ? "Posting to All..." : "Post All"}
-                            </>
-                        )}
-                    </Button>
-                    <Button
-                        onClick={handleDeleteContent}
-                        disabled={deletingContent || postingAll || saving}
-                        variant='destructive'
-                        className='bg-red-600 hover:bg-red-700'
-                    >
-                        <Trash2 className='w-4 h-4 mr-2' />
-                        {deletingContent ? "Deleting..." : "Delete Content"}
-                    </Button>
-                </div>
+                <PreviewActionButtons
+                    hasUnsavedChanges={hasUnsavedChanges}
+                    saving={saving}
+                    postingAll={postingAll}
+                    deletingContent={deletingContent}
+                    onSave={handleSave}
+                    onPostAll={handlePostAll}
+                    onDeleteContent={handleDeleteContent}
+                />
 
                 <div className='space-y-6'>
                     {/* Main Content */}
                     {content.main && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <CardTitle className='text-white flex items-center gap-2'>
-                                    <Flame className='w-5 h-5 text-orange-500' />
-                                    Main Platform Content
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <AutoHeightTextarea
-                                    value={content.main || ""}
-                                    onChange={(e) =>
-                                        handleContentChange(
-                                            "main",
-                                            e.target.value
-                                        )
-                                    }
-                                    className='input'
-                                    placeholder='Main content...'
-                                />
-                            </CardContent>
-                        </Card>
+                        <MainContentCard
+                            content={content.main}
+                            onContentChange={(newContent) =>
+                                handleContentChange("main", newContent)
+                            }
+                        />
                     )}
 
                     {/* LinkedIn Content */}
                     {content.linkedin && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <div className='flex items-center justify-between'>
-                                    <CardTitle className='text-white flex items-center gap-2'>
-                                        <FaLinkedin className='w-5 h-5 text-blue-500' />
-                                        LinkedIn Content
-                                    </CardTitle>
-                                    <Button
-                                        onClick={() =>
-                                            handlePostToPlatform("linkedin")
-                                        }
-                                        disabled={postingStates.linkedin}
-                                        className='bg-blue-600 hover:bg-blue-700'
-                                        size='sm'
-                                    >
-                                        <Send className='w-4 h-4 mr-2' />
-                                        {postingStates.linkedin
-                                            ? "Posting..."
-                                            : "Post to LinkedIn"}
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <AutoHeightTextarea
-                                    value={content.linkedin || ""}
-                                    onChange={(e) =>
-                                        handleContentChange(
-                                            "linkedin",
-                                            e.target.value
-                                        )
-                                    }
-                                    className='input'
-                                    placeholder='LinkedIn content...'
-                                />
-                                <PlatformImageSection
-                                    platform='linkedin'
-                                    image={content.linkedinImage}
-                                    platformName='LinkedIn'
-                                    icon={FaLinkedin}
-                                    iconColor='text-blue-500'
-                                />
-                            </CardContent>
-                        </Card>
+                        <PlatformContentCard
+                            platform='linkedin'
+                            content={content.linkedin}
+                            image={content.linkedinImage}
+                            postingState={postingStates.linkedin}
+                            onContentChange={handleContentChange}
+                            onPostToPlatform={handlePostToPlatform}
+                            onImageUpload={handleImageUpload}
+                            onImageDelete={handleImageDelete}
+                            uploading={platformUploading.linkedin || false}
+                            deleting={platformDeleting.linkedin || false}
+                            mainContent={content.main}
+                            onRegenerate={handleRegenerate}
+                            regenerating={regenerating.linkedin || false}
+                        />
                     )}
 
                     {/* X (Twitter) Content */}
                     {content.x && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <div className='flex items-center justify-between'>
-                                    <CardTitle className='text-white flex items-center gap-2'>
-                                        <FaXTwitter className='w-5 h-5 text-white' />
-                                        X (Twitter) Content
-                                    </CardTitle>
-                                    <Button
-                                        onClick={() =>
-                                            handlePostToPlatform("x")
-                                        }
-                                        disabled={postingStates.x}
-                                        className='bg-blue-600 hover:bg-blue-700'
-                                        size='sm'
-                                    >
-                                        <Send className='w-4 h-4 mr-2' />
-                                        {postingStates.x
-                                            ? "Posting..."
-                                            : "Post to X"}
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <AutoHeightTextarea
-                                    value={content.x || ""}
-                                    onChange={(e) =>
-                                        handleContentChange("x", e.target.value)
-                                    }
-                                    className='input'
-                                    placeholder='X (Twitter) content...'
-                                />
-                                <PlatformImageSection
-                                    platform='x'
-                                    image={content.xImage}
-                                    platformName='X (Twitter)'
-                                    icon={FaXTwitter}
-                                    iconColor='text-white'
-                                />
-                            </CardContent>
-                        </Card>
+                        <PlatformContentCard
+                            platform='x'
+                            content={content.x}
+                            image={content.xImage}
+                            postingState={postingStates.x}
+                            onContentChange={handleContentChange}
+                            onPostToPlatform={handlePostToPlatform}
+                            onImageUpload={handleImageUpload}
+                            onImageDelete={handleImageDelete}
+                            uploading={platformUploading.x || false}
+                            deleting={platformDeleting.x || false}
+                            mainContent={content.main}
+                            onRegenerate={handleRegenerate}
+                            regenerating={regenerating.x || false}
+                        />
                     )}
 
                     {/* Meta Content */}
                     {content.meta && (
-                        <Card className='glassmorphism bg-gray-900/50 border-gray-700'>
-                            <CardHeader>
-                                <div className='flex items-center justify-between'>
-                                    <CardTitle className='text-white flex items-center gap-2'>
-                                        <FaMeta className='w-5 h-5 text-blue-500' />
-                                        Meta (Facebook) Content
-                                    </CardTitle>
-                                    <Button
-                                        onClick={() =>
-                                            handlePostToPlatform("meta")
-                                        }
-                                        disabled={postingStates.meta}
-                                        className='bg-blue-600 hover:bg-blue-700'
-                                        size='sm'
-                                    >
-                                        <Send className='w-4 h-4 mr-2' />
-                                        {postingStates.meta
-                                            ? "Posting..."
-                                            : "Post to Meta"}
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className='space-y-4'>
-                                <AutoHeightTextarea
-                                    value={content.meta || ""}
-                                    onChange={(e) =>
-                                        handleContentChange(
-                                            "meta",
-                                            e.target.value
-                                        )
-                                    }
-                                    className='input'
-                                    placeholder='Meta content...'
-                                />
-                                <PlatformImageSection
-                                    platform='meta'
-                                    image={content.metaImage}
-                                    platformName='Meta (Facebook)'
-                                    icon={FaMeta}
-                                    iconColor='text-blue-500'
-                                />
-                            </CardContent>
-                        </Card>
+                        <PlatformContentCard
+                            platform='meta'
+                            content={content.meta}
+                            image={content.metaImage}
+                            postingState={postingStates.meta}
+                            onContentChange={handleContentChange}
+                            onPostToPlatform={handlePostToPlatform}
+                            onImageUpload={handleImageUpload}
+                            onImageDelete={handleImageDelete}
+                            uploading={platformUploading.meta || false}
+                            deleting={platformDeleting.meta || false}
+                            mainContent={content.main}
+                            onRegenerate={handleRegenerate}
+                            regenerating={regenerating.meta || false}
+                        />
                     )}
                 </div>
 
                 {/* Shared Image Management */}
-                <Card className='glassmorphism bg-gray-900/50 border-gray-700 mt-6'>
-                    <CardHeader>
-                        <CardTitle className='text-white flex items-center gap-2'>
-                            <ImageIcon className='w-5 h-5 text-purple-500' />
-                            Shared Image for All Platforms
-                        </CardTitle>
-                        <p className='text-white/60 text-sm'>
-                            Upload an image to use across all social media
-                            platforms. This will override platform-specific
-                            images.
-                        </p>
-                    </CardHeader>
-                    <CardContent className='space-y-4'>
-                        {/* Display current image */}
-                        <div
-                            className={`border-2 border-dashed rounded-lg transition-all duration-200 ${
-                                draggedOver === "shared"
-                                    ? "border-purple-500 bg-purple-500/10"
-                                    : "border-gray-600 hover:border-gray-500"
-                            }`}
-                            onDragOver={(e) => handleDragOver(e, "shared")}
-                            onDragLeave={handleDragLeave}
-                            onDrop={(e) => handleDrop(e, "shared")}
-                        >
-                            {content?.sharedImage ? (
-                                <div className='space-y-4 p-4'>
-                                    <Label className='text-white text-sm font-medium'>
-                                        Current Shared Image:
-                                    </Label>
-                                    <div className='relative group'>
-                                        <Image
-                                            src={content.sharedImage}
-                                            alt='Shared image for all platforms'
-                                            width={400}
-                                            height={400}
-                                            className='w-full max-w-md mx-auto rounded-lg border border-gray-600'
-                                        />
-                                        <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2'>
-                                            <Button
-                                                onClick={() =>
-                                                    document
-                                                        .getElementById(
-                                                            "image-upload"
-                                                        )
-                                                        ?.click()
-                                                }
-                                                disabled={uploadingImage}
-                                                className='button'
-                                                size='sm'
-                                            >
-                                                <Upload className='w-4 h-4 mr-2' />
-                                                {uploadingImage ? "Uploading..." : "Replace"}
-                                            </Button>
-                                            <Button
-                                                onClick={() =>
-                                                    handleImageDelete("shared")
-                                                }
-                                                disabled={deletingImage}
-                                                variant='destructive'
-                                                size='sm'
-                                            >
-                                                <X className='w-4 h-4 mr-2' />
-                                                {deletingImage ? "Deleting..." : "Delete"}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div className='text-center text-white/60 text-sm'>
-                                        This image will be used for all social
-                                        media platforms
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className='text-center py-8'>
-                                    <div className='flex flex-col items-center gap-4'>
-                                        <div className='w-16 h-16 rounded-full bg-gray-800/50 flex items-center justify-center'>
-                                            <ImageIcon className='w-8 h-8 text-gray-400' />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <p className='text-white/60 text-sm'>
-                                                No shared image uploaded
-                                            </p>
-                                            <p className='text-white/40 text-xs'>
-                                                Drag & drop or click to upload
-                                            </p>
-                                        </div>
-                                        <Button
-                                            onClick={() =>
-                                                document
-                                                    .getElementById(
-                                                        "image-upload"
-                                                    )
-                                                    ?.click()
-                                            }
-                                            disabled={uploadingImage}
-                                            className='button'
-                                        >
-                                            <Upload className='w-4 h-4 mr-2' />
-                                            {uploadingImage
-                                                ? "Uploading..."
-                                                : "Upload Image"}
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Hidden file input */}
-                        <Input
-                            id='image-upload'
-                            type='file'
-                            accept='image/*'
-                            onChange={(e) => handleFileInputChange(e, "shared")}
-                            className='hidden'
-                        />
-
-                        {/* Show current platform-specific images if available */}
-                        {(content?.linkedinImage ||
-                            content?.xImage ||
-                            content?.metaImage) && (
-                            <div className='space-y-3 pt-4 border-t border-gray-600'>
-                                <Label className='text-white/60 text-sm'>
-                                    Platform-specific images (will be overridden
-                                    by shared image):
-                                </Label>
-                                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                                    {content.linkedinImage && (
-                                        <div className='space-y-2'>
-                                            <div className='flex items-center gap-2'>
-                                                <FaLinkedin className='w-4 h-4 text-blue-500' />
-                                                <span className='text-white/60 text-xs'>
-                                                    LinkedIn
-                                                </span>
-                                            </div>
-                                            <Image
-                                                src={content.linkedinImage}
-                                                alt='LinkedIn image'
-                                                width={200}
-                                                height={200}
-                                                className='w-full max-w-32 rounded border border-gray-600 opacity-60'
-                                            />
-                                        </div>
-                                    )}
-                                    {content.xImage && (
-                                        <div className='space-y-2'>
-                                            <div className='flex items-center gap-2'>
-                                                <FaXTwitter className='w-4 h-4 text-white' />
-                                                <span className='text-white/60 text-xs'>
-                                                    X (Twitter)
-                                                </span>
-                                            </div>
-                                            <Image
-                                                src={content.xImage}
-                                                alt='X image'
-                                                width={200}
-                                                height={200}
-                                                className='w-full max-w-32 rounded border border-gray-600 opacity-60'
-                                            />
-                                        </div>
-                                    )}
-                                    {content.metaImage && (
-                                        <div className='space-y-2'>
-                                            <div className='flex items-center gap-2'>
-                                                <FaMeta className='w-4 h-4 text-blue-500' />
-                                                <span className='text-white/60 text-xs'>
-                                                    Meta
-                                                </span>
-                                            </div>
-                                            <Image
-                                                src={content.metaImage}
-                                                alt='Meta image'
-                                                width={200}
-                                                height={200}
-                                                className='w-full max-w-32 rounded border border-gray-600 opacity-60'
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                <SharedImageManagement
+                    sharedImage={content.sharedImage}
+                    uploading={uploadingImage}
+                    deleting={deletingImage}
+                    onImageUpload={handleImageUpload}
+                    onImageDelete={handleImageDelete}
+                />
             </div>
+
+            {/* Regenerate Dialog */}
+            <RegenerateDialog
+                open={regenerateDialogOpen}
+                onOpenChange={setRegenerateDialogOpen}
+                onConfirm={handleRegenerateAll}
+                loading={regeneratingAll}
+            />
         </div>
     )
 }

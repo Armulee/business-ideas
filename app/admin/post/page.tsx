@@ -22,6 +22,7 @@ import { CalendarIcon } from "lucide-react"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import Link from "next/link"
 import { format } from "date-fns"
+import AdminLoading from "@/components/admin/loading"
 
 interface Author {
     _id: string
@@ -101,27 +102,30 @@ export default function AdminPostsPage() {
     const matchesExactKeyword = (text: string, searchTerm: string): boolean => {
         const normalizedText = text.toLowerCase().trim()
         const normalizedSearch = searchTerm.toLowerCase().trim()
-        
+
         if (!normalizedSearch) return false
-        
+
         // Check if the text starts with the search term (as a phrase)
         return normalizedText.startsWith(normalizedSearch)
     }
 
     // Helper function to format input with automatic slashes
-    const formatDateInput = (value: string, previousValue: string = ''): string => {
+    const formatDateInput = (
+        value: string,
+        previousValue: string = ""
+    ): string => {
         // Check if user is backspacing (deleting)
         const isDeleting = value.length < previousValue.length
-        
+
         // If deleting and the last character was a slash, remove the digit before it too
-        if (isDeleting && previousValue.endsWith('/')) {
+        if (isDeleting && previousValue.endsWith("/")) {
             const withoutSlash = previousValue.slice(0, -1)
             return withoutSlash.slice(0, -1)
         }
-        
+
         // Remove all non-numeric characters
-        const numericOnly = value.replace(/\D/g, '')
-        
+        const numericOnly = value.replace(/\D/g, "")
+
         // Add slashes automatically - show slash immediately after 2 digits
         if (numericOnly.length <= 1) {
             return numericOnly
@@ -140,22 +144,22 @@ export default function AdminPostsPage() {
     // Helper function to parse date from DD/MM/YY or DD/MM/YYYY format
     const parseDate = (dateStr: string): Date | null => {
         if (!dateStr.trim()) return null
-        
-        const parts = dateStr.split('/')
+
+        const parts = dateStr.split("/")
         if (parts.length !== 3) return null
-        
+
         const day = parseInt(parts[0])
         const month = parseInt(parts[1]) - 1 // Month is 0-indexed
         let year = parseInt(parts[2])
-        
+
         // Handle 2-digit years
         if (year < 100) {
             year += year < 50 ? 2000 : 1900
         }
-        
+
         const date = new Date(year, month, day)
         if (isNaN(date.getTime())) return null
-        
+
         return date
     }
 
@@ -175,7 +179,7 @@ export default function AdminPostsPage() {
         if (searchTarget === "date" && (startDate || endDate)) {
             const filtered = allPosts.filter((post) => {
                 const postDate = new Date(post.createdAt)
-                
+
                 if (startDate && endDate) {
                     return postDate >= startDate && postDate <= endDate
                 } else if (startDate) {
@@ -243,11 +247,7 @@ export default function AdminPostsPage() {
     }, [handleScroll])
 
     if (loading) {
-        return (
-            <div className='flex items-center justify-center min-h-96'>
-                <Loader2 className='w-8 h-8 animate-spin' />
-            </div>
-        )
+        return <AdminLoading size='lg' />
     }
 
     return (
@@ -269,7 +269,11 @@ export default function AdminPostsPage() {
                                             placeholder='Start date (DD/MM/YY)'
                                             value={startDateInput}
                                             onChange={(e) => {
-                                                const formatted = formatDateInput(e.target.value, startDateInput)
+                                                const formatted =
+                                                    formatDateInput(
+                                                        e.target.value,
+                                                        startDateInput
+                                                    )
                                                 setStartDateInput(formatted)
                                             }}
                                             className='flex-1 input border-white/20 bg-white/5 focus:border-purple-500/50 pr-10'
@@ -278,13 +282,19 @@ export default function AdminPostsPage() {
                                                 e.currentTarget.focus()
                                                 // Also trigger popover
                                                 setTimeout(() => {
-                                                    const trigger = document.querySelector('[data-start-date-trigger]') as HTMLButtonElement
+                                                    const trigger =
+                                                        document.querySelector(
+                                                            "[data-start-date-trigger]"
+                                                        ) as HTMLButtonElement
                                                     if (trigger) trigger.click()
                                                 }, 0)
                                             }}
                                             onFocus={() => {
                                                 // Show popover when input gets focus
-                                                const trigger = document.querySelector('[data-start-date-trigger]') as HTMLButtonElement
+                                                const trigger =
+                                                    document.querySelector(
+                                                        "[data-start-date-trigger]"
+                                                    ) as HTMLButtonElement
                                                 if (trigger) trigger.click()
                                             }}
                                             maxLength={8}
@@ -304,10 +314,17 @@ export default function AdminPostsPage() {
                                                 onSelect={(date) => {
                                                     setStartDate(date)
                                                     if (date) {
-                                                        setStartDateInput(format(date, "dd/MM/yy"))
+                                                        setStartDateInput(
+                                                            format(
+                                                                date,
+                                                                "dd/MM/yy"
+                                                            )
+                                                        )
                                                     }
                                                 }}
-                                                defaultMonth={startDate || new Date()}
+                                                defaultMonth={
+                                                    startDate || new Date()
+                                                }
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -318,7 +335,11 @@ export default function AdminPostsPage() {
                                             placeholder='End date (DD/MM/YY)'
                                             value={endDateInput}
                                             onChange={(e) => {
-                                                const formatted = formatDateInput(e.target.value, endDateInput)
+                                                const formatted =
+                                                    formatDateInput(
+                                                        e.target.value,
+                                                        endDateInput
+                                                    )
                                                 setEndDateInput(formatted)
                                             }}
                                             className='flex-1 input border-white/20 bg-white/5 focus:border-purple-500/50 pr-10'
@@ -327,13 +348,19 @@ export default function AdminPostsPage() {
                                                 e.currentTarget.focus()
                                                 // Also trigger popover
                                                 setTimeout(() => {
-                                                    const trigger = document.querySelector('[data-end-date-trigger]') as HTMLButtonElement
+                                                    const trigger =
+                                                        document.querySelector(
+                                                            "[data-end-date-trigger]"
+                                                        ) as HTMLButtonElement
                                                     if (trigger) trigger.click()
                                                 }, 0)
                                             }}
                                             onFocus={() => {
                                                 // Show popover when input gets focus
-                                                const trigger = document.querySelector('[data-end-date-trigger]') as HTMLButtonElement
+                                                const trigger =
+                                                    document.querySelector(
+                                                        "[data-end-date-trigger]"
+                                                    ) as HTMLButtonElement
                                                 if (trigger) trigger.click()
                                             }}
                                             maxLength={8}
@@ -353,10 +380,17 @@ export default function AdminPostsPage() {
                                                 onSelect={(date) => {
                                                     setEndDate(date)
                                                     if (date) {
-                                                        setEndDateInput(format(date, "dd/MM/yy"))
+                                                        setEndDateInput(
+                                                            format(
+                                                                date,
+                                                                "dd/MM/yy"
+                                                            )
+                                                        )
                                                     }
                                                 }}
-                                                defaultMonth={endDate || new Date()}
+                                                defaultMonth={
+                                                    endDate || new Date()
+                                                }
                                             />
                                         </PopoverContent>
                                     </Popover>

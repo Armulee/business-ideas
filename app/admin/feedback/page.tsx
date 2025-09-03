@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star, User, Calendar, MessageSquare, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+import AdminLoading from "@/components/admin/loading"
 
 interface FeedbackItem {
     _id: string
@@ -102,7 +103,10 @@ export default function AdminFeedbackPage() {
         return average.toFixed(1)
     }
 
-    const handleDelete = async (feedbackId: string, event: React.MouseEvent) => {
+    const handleDelete = async (
+        feedbackId: string,
+        event: React.MouseEvent
+    ) => {
         event.preventDefault() // Prevent navigation from Link
         event.stopPropagation()
 
@@ -114,7 +118,7 @@ export default function AdminFeedbackPage() {
             await axios.delete(`/api/feedback/${feedbackId}`)
             toast.success("Feedback deleted successfully")
             // Remove the feedback from local state
-            setFeedbacks(feedbacks.filter(f => f._id !== feedbackId))
+            setFeedbacks(feedbacks.filter((f) => f._id !== feedbackId))
         } catch (error) {
             console.error("Error deleting feedback:", error)
             toast.error("Failed to delete feedback")
@@ -126,19 +130,11 @@ export default function AdminFeedbackPage() {
         !session?.user ||
         session.user.role !== "admin"
     ) {
-        return (
-            <div className='flex items-center justify-center min-h-screen'>
-                Loading...
-            </div>
-        )
+        return <AdminLoading size='lg' />
     }
 
     if (loading) {
-        return (
-            <div className='flex items-center justify-center min-h-screen'>
-                Loading feedbacks...
-            </div>
-        )
+        return <AdminLoading size='lg' />
     }
 
     return (
@@ -162,8 +158,14 @@ export default function AdminFeedbackPage() {
                     </>
                 ) : (
                     feedbacks.map((feedback) => (
-                        <div key={feedback._id} className='glassmorphism bg-transparent hover:bg-blue-600/20 p-4 border-white/20 relative'>
-                            <Link href={`/admin/feedback/${feedback._id}`} className='block'>
+                        <div
+                            key={feedback._id}
+                            className='glassmorphism bg-transparent hover:bg-blue-600/20 p-4 border-white/20 relative'
+                        >
+                            <Link
+                                href={`/admin/feedback/${feedback._id}`}
+                                className='block'
+                            >
                                 <div className='flex items-center space-x-4'>
                                     <Avatar>
                                         <AvatarImage
@@ -208,8 +210,8 @@ export default function AdminFeedbackPage() {
                                 </div>
                             </Link>
                             <Button
-                                variant="ghost"
-                                size="sm"
+                                variant='ghost'
+                                size='sm'
                                 className='absolute top-4 right-4 text-red-400 hover:text-red-300 hover:bg-red-500/10'
                                 onClick={(e) => handleDelete(feedback._id, e)}
                             >
