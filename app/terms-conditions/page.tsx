@@ -20,7 +20,7 @@ const schemaInformation = {
     "@type": "WebPage",
     name: "Terms & Conditions",
     description:
-        "Terms and conditions for BlueBizHub platform - rules and guidelines for using our services.",
+        "Terms and conditions for BlueBizHub business advertising platform - rules and guidelines for using our services.",
     url: "https://bluebizhub.com/terms-conditions",
     publisher: {
         "@type": "Organization",
@@ -31,7 +31,7 @@ const schemaInformation = {
 export const metadata: Metadata = {
     title: "Terms & Conditions | BlueBizHub",
     description:
-        "Terms and conditions for BlueBizHub platform - rules and guidelines for using our services.",
+        "Terms and conditions for BlueBizHub business advertising platform - rules and guidelines for using our services.",
 }
 
 export default async function TermsConditionsPage() {

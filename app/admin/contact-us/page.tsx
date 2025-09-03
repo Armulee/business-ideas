@@ -28,9 +28,9 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import axios from "axios"
 import { format } from "date-fns"
+import AdminLoading from "@/components/admin/loading"
 import ReplyButton, { Contact } from "@/components/admin/contact-us/reply"
 
 interface TruncatedMessageProps {
@@ -155,29 +155,7 @@ export default function AdminContactsPage() {
     ]
 
     if (loading && contacts.length === 0) {
-        return (
-            <div className='space-y-6'>
-                <div className='flex justify-between items-center'>
-                    <h1 className='text-3xl font-bold text-white'>
-                        Contact Submissions
-                    </h1>
-                </div>
-
-                <div className='grid gap-4'>
-                    {[...Array(5)].map((_, i) => (
-                        <Card key={i} className='glassmorphism border-white/10'>
-                            <CardHeader>
-                                <Skeleton className='h-6 w-1/3 bg-white/20' />
-                                <Skeleton className='h-4 w-1/2 bg-white/10' />
-                            </CardHeader>
-                            <CardContent>
-                                <Skeleton className='h-20 w-full bg-white/10' />
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-        )
+        return <AdminLoading size='lg' />
     }
 
     return (

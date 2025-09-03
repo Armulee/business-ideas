@@ -1,25 +1,24 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next"
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bluebizhub.com'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://bluebizhub.com"
 
-  return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/api/auth/',
-          '/_next/',
-          '/tmp/',
-          '/*.json$',
-          '/*?*utm_*',
-          '/*?*fbclid*',
-          '/*?*gclid*'
+    return {
+        rules: [
+            {
+                userAgent: "*",
+                allow: "/",
+                disallow: [
+                    "/api/auth/",
+                    "/tmp/",
+                    "/*.json$",
+                    "/*?*utm_*",
+                    "/*?*fbclid*",
+                    "/*?*gclid*",
+                ],
+            },
         ],
-      }
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl
-  }
+        sitemap: `${baseUrl}/sitemap.xml`,
+        host: baseUrl,
+    }
 }

@@ -5,14 +5,14 @@ import { Metadata } from "next"
 export const metadata: Metadata = {
     title: "Community Guidelines | BlueBizHub",
     description:
-        "Our community guidelines to keep BlueBizHub a supportive, constructive place for entrepreneurs.",
+        "Our community guidelines to keep BlueBizHub a supportive, constructive place for business advertising and marketing partnerships.",
 }
 
 const guidelines = [
     {
         topic: "Relevance of Content",
         description:
-            "Discussions must focus solely on topics related to business, entrepreneurship, innovation, and market validation.",
+            "Discussions must focus solely on topics related to business advertising, marketing partnerships, lead generation, and business growth strategies.",
         action: "Relocation or deletion of off-topic content and reduced visibility for persistent violations.",
     },
     {
@@ -76,7 +76,7 @@ export default function GuidelinesPage() {
         <Card className='max-w-3xl mx-auto mt-20 mb-28 border-0 bg-transparent shadow-none'>
             <CardHeader className='text-center'>
                 <CardTitle className='text-blue-200 flex items-center justify-center space-x-2 text-2xl font-semibold'>
-                    <ShieldCheck className='w-6 h-6' />
+                    <ShieldCheck className='w-6 w-6' />
                     <h2>Community Guidelines</h2>
                 </CardTitle>
             </CardHeader>
@@ -87,26 +87,27 @@ export default function GuidelinesPage() {
                         <span className='text-blue-400'>Blue</span>
                         BizHub
                     </strong>
-                    , the vibrant community dedicated to fostering innovation,
-                    entrepreneurship, and collaboration.
+                    , the vibrant community dedicated to fostering business
+                    growth, marketing partnerships, and collaborative
+                    advertising.
                 </p>
                 <p className='indent-4'>
                     Our goal is to provide a safe, respectful, and productive
-                    environment where users can openly share, discuss, refine,
-                    and validate their business concepts. To ensure our
-                    community remains valuable, inclusive, and supportive for
-                    all members, we have established a clear set of community
-                    guidelines.
+                    environment where businesses can connect with marketing
+                    partners, share growth strategies, and collaborate on
+                    advertising campaigns. To ensure our community remains
+                    valuable, inclusive, and supportive for all members, we have
+                    established a clear set of community guidelines.
                 </p>
 
                 <p className='indent-4'>
-                    These guidelines are designed to support productive
-                    interactions, protect member privacy and intellectual
+                    These guidelines are designed to support productive business
+                    partnerships, protect member privacy and intellectual
                     property, and maintain a positive atmosphere that enables
-                    all members to share, learn, and grow together. Adhering to
-                    these guidelines helps us collectively build a thriving
-                    ecosystem where ideas flourish, relationships strengthen,
-                    and innovation drives meaningful progress.
+                    all members to grow, collaborate, and succeed together.
+                    Adhering to these guidelines helps us collectively build a
+                    thriving ecosystem where businesses flourish, partnerships
+                    strengthen, and growth drives meaningful progress.
                 </p>
 
                 <p>
@@ -137,8 +138,8 @@ export default function GuidelinesPage() {
                         BizHub
                     </strong>{" "}
                     remains a supportive, dynamic, and effective community
-                    dedicated to nurturing innovative business ideas and
-                    meaningful collaboration.
+                    dedicated to nurturing business growth and meaningful
+                    marketing partnerships.
                 </p>
 
                 <p>

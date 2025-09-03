@@ -32,7 +32,7 @@ export const collapsibleMenus = [
     {
         section: "Content Management",
         items: [
-            { href: "/admin/posts", name: "Posts", icon: FileText },
+            { href: "/admin/post", name: "Posts", icon: FileText },
             { href: "/admin/comments", name: "Comments", icon: MessageSquare },
             { href: "/admin/reports", name: "Reports", icon: Flag },
         ],

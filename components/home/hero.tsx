@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { ArrowUp, Compass, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
 import Link from "next/link"
@@ -8,6 +7,7 @@ import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useTypewriter } from "react-simple-typewriter"
+import ScrollAnimator from "./scroll-animator"
 
 export default function Hero() {
     const router = useRouter()
@@ -17,7 +17,8 @@ export default function Hero() {
         if (!session?.user) {
             alert.show({
                 title: "Authentication Required",
-                description: "Please log in to create new post.",
+                description:
+                    "Please log in to submit your business for promotion.",
                 cancel: "Cancel",
                 action: "Log in",
                 onAction: () => {
@@ -29,14 +30,15 @@ export default function Hero() {
         }
     }
 
-    // Here headline
+    // Updated headlines for business owners focus
     const [text] = useTypewriter({
         words: [
-            "Amplify Your Business with Community Marketing",
-            "Earn Money by Promoting Amazing Businesses",
-            "Connect Businesses with Marketing Partners",
-            "Turn Your Network into a Revenue Stream",
-            "Business Advertising Powered by Community",
+            "Grow Your Business with Community Marketing",
+            "Amplify Your Business Reach & Awareness",
+            "Let Our Partners Promote Your Business",
+            "Submit Your Business, Get More Customers",
+            "Business Growth Powered by Community",
+            "Expand Your Business Network Today",
         ],
         loop: true,
         typeSpeed: 50,
@@ -45,60 +47,62 @@ export default function Hero() {
     })
 
     return (
-        <motion.div
-            className='relative z-10 flex flex-col justify-center items-center'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-        >
+        <ScrollAnimator className='relative z-10 flex flex-col justify-center items-center scroll-animate-scale'>
             <div className='w-full max-w-4xl mx-auto px-4 text-center'>
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className='inline-block mb-4'
-                >
-                    <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm text-white'>
-                        <Sparkles className='h-4 w-4 mr-2' />
-                        Advertise, Amplify, Earn
+                <ScrollAnimator className='inline-block mb-4 expand-from-left'>
+                    <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm text-white relative'>
+                        {/* Main sparkle with enhanced animation */}
+                        <Sparkles className='h-4 w-4 mr-2 sparkle-animate' />
+
+                        {/* Additional floating sparkles for extra effect */}
+                        <div className='absolute -top-1 -right-1 w-2 h-2'>
+                            <div
+                                className='w-full h-full bg-yellow-300 rounded-full sparkle-pulse'
+                                style={{ animationDelay: "0.5s" }}
+                            ></div>
+                        </div>
+                        <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5'>
+                            <div
+                                className='w-full h-full bg-blue-300 rounded-full sparkle-pulse'
+                                style={{ animationDelay: "1s" }}
+                            ></div>
+                        </div>
+
+                        <span>Submit, Amplify, Grow</span>
                     </span>
-                </motion.div>
+                </ScrollAnimator>
 
                 <h2 className='text-4xl sm:text-5xl md:text-6xl font-extrabold text-white min-h-[180px] flex justify-center items-center mb-6 leading-tight'>
                     {text}
                 </h2>
 
-                <motion.p
-                    className='text-sm sm:text-md text-white/80 max-w-2xl mx-auto mb-8'
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                >
-                    Submit your business or join as a marketing partner. Earn commissions for generating leads while helping businesses grow.
-                </motion.p>
+                <ScrollAnimator className='scroll-animate' threshold={0.3}>
+                    <p className='text-sm sm:text-md text-white/80 max-w-2xl mx-auto mb-8'>
+                        Submit your business information and let our community
+                        partners promote you to gain more awareness, reach new
+                        customers, and grow your business.
+                    </p>
+                </ScrollAnimator>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.5 }}
-                    className='flex sm:flex-row flex-col justify-center items-center gap-2'
-                >
-                    <Link href='/post'>
-                        <Button size='lg' className='button !px-8'>
-                            Explore Businesses
-                            <Compass className='h-5 w-5' />
+                <ScrollAnimator className='scroll-animate' threshold={0.4}>
+                    <div className='flex sm:flex-row flex-col justify-center items-center gap-2'>
+                        <Link href='/partner'>
+                            <Button size='lg' className='button !px-8'>
+                                Become Our Partner
+                                <Compass className='h-5 w-5' />
+                            </Button>
+                        </Link>
+                        <Button
+                            size='lg'
+                            onClick={handleNewPost}
+                            className='button !px-8'
+                        >
+                            Submit Your Business
+                            <ArrowUp className='h-5 w-5' />
                         </Button>
-                    </Link>
-                    <Button
-                        size='lg'
-                        onClick={handleNewPost}
-                        className='button !px-8'
-                    >
-                        Submit Your Business
-                        <ArrowUp className='h-5 w-5' />
-                    </Button>
-                </motion.div>
+                    </div>
+                </ScrollAnimator>
             </div>
-        </motion.div>
+        </ScrollAnimator>
     )
 }

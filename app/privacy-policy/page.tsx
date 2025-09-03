@@ -20,7 +20,7 @@ const schemaInformation = {
     "@type": "WebPage",
     name: "Privacy Policy",
     description:
-        "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
+        "Privacy policy for BlueBizHub business advertising platform - how we collect, use, and protect your information.",
     url: "https://bluebizhub.com/privacy-policy",
     publisher: {
         "@type": "Organization",
@@ -31,7 +31,7 @@ const schemaInformation = {
 export const metadata: Metadata = {
     title: "Privacy Policy | BlueBizHub",
     description:
-        "Privacy policy for BlueBizHub platform - how we collect, use, and protect your information.",
+        "Privacy policy for BlueBizHub business advertising platform - how we collect, use, and protect your information.",
 }
 
 export default async function PrivacyPolicyPage() {

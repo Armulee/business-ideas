@@ -25,7 +25,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import axios from "axios"
-import { AdminSkeleton } from "@/components/skeletons"
+import AdminLoading from "@/components/admin/loading"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Register Chart.js components
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
     }, [])
 
     if (!stats || !chartData) {
-        return <AdminSkeleton />
+        return <AdminLoading size='lg' />
     }
 
     // Chart data generators

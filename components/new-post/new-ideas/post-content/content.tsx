@@ -25,14 +25,15 @@ const Content = ({
                 <FormItem>
                     <FormControl>
                         <RichTextEditor
-                            placeholder='Enter your description...'
+                            placeholder='Describe your business, services, and marketing goals...'
                             onChange={field.onChange}
                             media={media}
                         />
                     </FormControl>
                     <FormDescription className='text-white/60'>
-                        Explain the problem your idea solves, target audience,
-                        and potential business model
+                        Explain your business, target audience, services
+                        offered, and what you hope to achieve through marketing
+                        partnerships
                     </FormDescription>
                     <FormMessage />
                 </FormItem>

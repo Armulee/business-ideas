@@ -1,7 +1,11 @@
 {
   "crons": [
     {
-      "path": "/api/orchestration/content",
+      "path": "/api/orchestration/content/cron/generate",
+      "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/orchestration/content/cron/post",
       "schedule": "0 20 * * *"
     }
   ]

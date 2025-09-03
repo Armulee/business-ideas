@@ -12,7 +12,7 @@ import ContactForm from "@/components/contact-us/form"
 export const metadata: Metadata = {
     title: "Contact Us - BlueBizHub",
     description:
-        "Get in touch with BlueBizHub. We're here to help with questions, feedback, and partnership opportunities.",
+        "Get in touch with BlueBizHub. We're here to help with business advertising, marketing partnerships, and growth opportunities.",
 }
 
 const infos = [
@@ -35,9 +35,9 @@ export default function ContactUsPage() {
                         Get in Touch
                     </h1>
                     <p className='text-lg text-white/80 max-w-2xl mx-auto'>
-                        Have questions about BlueBizHub? Want to share feedback
-                        or explore partnership opportunities? We&apos;d love to
-                        hear from you!
+                        Have questions about business advertising on BlueBizHub?
+                        Want to explore marketing partnerships or discuss growth
+                        opportunities? We&apos;d love to hear from you!
                     </p>
                 </div>
 
@@ -51,9 +51,9 @@ export default function ContactUsPage() {
                             <p className='text-sm text-white/70 mb-8'>
                                 We&apos;re here to help you make the most of
                                 BlueBizHub. Whether you&apos;re looking for
-                                support, have suggestions, or want to explore
-                                collaboration opportunities, our team is ready
-                                to assist.
+                                business advertising support, marketing
+                                partnerships, or want to explore collaboration
+                                opportunities, our team is ready to assist.
                             </p>
                         </div>
 

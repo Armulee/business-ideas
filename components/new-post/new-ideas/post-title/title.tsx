@@ -19,7 +19,7 @@ const Title = ({ control }: { control: Control<NewPostSchema> }) => {
                 <FormItem>
                     <FormControl>
                         <Textarea
-                            placeholder='Enter your title...'
+                            placeholder='Enter your business name or title...'
                             className='text-2xl font-bold md:text-2xl text-white placeholder:text-white/50 w-[90%] h-[50px] min-h-[50px] input mb-3 outline-none resize-none overflow-hidden'
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -39,7 +39,8 @@ const Title = ({ control }: { control: Control<NewPostSchema> }) => {
                         />
                     </FormControl>
                     <FormDescription className='text-white/60'>
-                        A clear, concise title will attract more attention
+                        A clear, compelling business title will attract more
+                        marketing partners
                     </FormDescription>
                     <FormMessage />
                 </FormItem>
