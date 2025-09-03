@@ -46,7 +46,7 @@ export default function UserNavbar() {
             {hide ? null : (
                 <Sheet open={open} onOpenChange={setOpen}>
                     <header
-                        className={`fixed top-0 left-0 right-0 z-50 transition duration-500 bg-transparent backdrop-blur-sm border-y border-y-white/30 px-4 md:px-0`}
+                        className={`fixed top-0 left-0 right-0 z-50 transition duration-500 glassmorphism mx-4 md:mx-0 mt-2`}
                     >
                         <nav className='py-3 px-2'>
                             <div className='w-full flex justify-between items-center'>
