@@ -11,7 +11,7 @@ import { default as signInCallback } from "./callbacks/signIn"
 import session from "./callbacks/session"
 import Google from "./providers/google"
 
-export const authOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
     experimental: {
         enableWebAuthn: true,
@@ -42,6 +42,4 @@ export const authOptions = {
         },
         session,
     },
-}
-
-export const { auth, handlers, signIn, signOut } = NextAuth(authOptions)
+})
