@@ -4,7 +4,7 @@ import crypto from "crypto"
 import { Resend } from "resend"
 import { ForgetPasswordEmailTemplate } from "@/lib/email-template"
 
-const resend = new Resend(process.env.AUTH_RESEND_KEY)
+const resend = process.env.AUTH_RESEND_KEY ? new Resend(process.env.AUTH_RESEND_KEY) : null
 
 export async function POST(req: Request) {
     try {
@@ -50,18 +50,23 @@ export async function POST(req: Request) {
 
         // send email
         const resetUrl = `${process.env.AUTH_URL}/auth/reset-password/${token}`
-        const { data, error } = await resend.emails.send({
-            from: "BlueBizHub Service <no-reply@bluebizhub.com>",
-            to: [email],
-            subject: "Reset Password Request",
-            react: ForgetPasswordEmailTemplate({ name: user.name, resetUrl }),
-        })
+        if (resend) {
+            const { data, error } = await resend.emails.send({
+                from: "BlueBizHub Service <no-reply@bluebizhub.com>",
+                to: [email],
+                subject: "Reset Password Request",
+                react: ForgetPasswordEmailTemplate({ name: user.name, resetUrl }),
+            })
 
-        if (error) {
-            return NextResponse.json({ error }, { status: 500 })
+            if (error) {
+                return NextResponse.json({ error }, { status: 500 })
+            }
+
+            return NextResponse.json({ data }, { status: 200 })
+        } else {
+            console.warn("Resend API key not configured, skipping email send")
+            return NextResponse.json({ message: "Email service not configured" }, { status: 200 })
         }
-
-        return NextResponse.json({ data }, { status: 200 })
     } catch (err) {
         console.error(err)
         return NextResponse.json(

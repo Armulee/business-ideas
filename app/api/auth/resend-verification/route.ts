@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { Resend } from "resend"
 import { VerifyEmailTemplate } from "@/lib/email-template"
 
-const resend = new Resend(process.env.AUTH_RESEND_KEY)
+const resend = process.env.AUTH_RESEND_KEY ? new Resend(process.env.AUTH_RESEND_KEY) : null
 
 export async function POST(request: NextRequest) {
     try {
@@ -34,15 +34,19 @@ export async function POST(request: NextRequest) {
         // Send verification email
         const verificationUrl = `${process.env.AUTH_URL}/auth/setup-account/${verificationToken}`
 
-        await resend.emails.send({
-            from: "BlueBizHub Service <no-reply@bluebizhub.com>",
-            to: email,
-            subject: "Verify your email",
-            react: VerifyEmailTemplate({
-                name: user.name,
-                verifyUrl: verificationUrl,
-            }),
-        })
+        if (resend) {
+            await resend.emails.send({
+                from: "BlueBizHub Service <no-reply@bluebizhub.com>",
+                to: email,
+                subject: "Verify your email",
+                react: VerifyEmailTemplate({
+                    name: user.name,
+                    verifyUrl: verificationUrl,
+                }),
+            })
+        } else {
+            console.warn("Resend API key not configured, skipping email send")
+        }
 
         return NextResponse.json({ success: true })
     } catch (error) {

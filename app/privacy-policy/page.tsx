@@ -214,7 +214,7 @@ async function getPrivacyPolicy(): Promise<Policy | null> {
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/privacy`,
             {
-                cache: "no-store", // Always fetch fresh data
+                next: { revalidate: 3600 }, // Revalidate every hour
             }
         )
 

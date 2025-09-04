@@ -220,7 +220,7 @@ async function getTermsConditions(): Promise<Policy | null> {
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || "https://bluebizhub.com/api"}/policies/terms`,
             {
-                cache: "no-store", // Always fetch fresh data
+                next: { revalidate: 3600 }, // Revalidate every hour
             }
         )
 

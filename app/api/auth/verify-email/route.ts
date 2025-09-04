@@ -5,7 +5,7 @@ import { Resend } from "resend"
 import crypto from "crypto"
 import { VerifyEmailTemplate } from "@/lib/email-template"
 
-const resend = new Resend(process.env.AUTH_RESEND_KEY)
+const resend = process.env.AUTH_RESEND_KEY ? new Resend(process.env.AUTH_RESEND_KEY) : null
 export async function POST(req: Request) {
     try {
         await connectDB()
@@ -62,18 +62,23 @@ export async function POST(req: Request) {
         const verifyUrl = `${process.env.AUTH_URL}/auth/setup-account/${token}`
 
         // Send verification email
-        const { data, error } = await resend.emails.send({
-            from: "BlueBizHub Service <no-reply@bluebizhub.com>",
-            to: [email],
-            subject: "Verify Your Email",
-            react: VerifyEmailTemplate({ name: username, verifyUrl }),
-        })
+        if (resend) {
+            const { data, error } = await resend.emails.send({
+                from: "BlueBizHub Service <no-reply@bluebizhub.com>",
+                to: [email],
+                subject: "Verify Your Email",
+                react: VerifyEmailTemplate({ name: username, verifyUrl }),
+            })
 
-        if (error) {
-            return NextResponse.json({ error }, { status: 201 })
+            if (error) {
+                return NextResponse.json({ error }, { status: 201 })
+            }
+
+            return NextResponse.json({ data }, { status: 201 })
+        } else {
+            console.warn("Resend API key not configured, skipping email send")
+            return NextResponse.json({ message: "Email service not configured" }, { status: 201 })
         }
-
-        return NextResponse.json({ data }, { status: 201 })
     } catch (err) {
         console.error(err)
         return NextResponse.json(

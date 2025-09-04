@@ -15,7 +15,6 @@ import "swiper/css/navigation"
 import "quill/dist/quill.snow.css"
 
 import Provider from "@/components/provider"
-import { Session } from "next-auth"
 import Navbar from "@/components/navbar"
 import Main from "@/components/main"
 import { LoadingProvider } from "@/components/loading-provider"
@@ -131,10 +130,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
     children,
-    session,
 }: Readonly<{
     children: React.ReactNode
-    session: Session
 }>) {
     const organizationSchema = createOrganizationSchema()
     const websiteSchema = createWebSiteSchema()
@@ -170,7 +167,7 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden relative h-full`}
             >
                 {/* <div className='moving-gradient'> */}
-                <Provider session={session}>
+                <Provider>
                     <LoadingProvider>
                         {/* <GoogleOneTap /> */}
                         <Suspense>
@@ -183,7 +180,9 @@ export default function RootLayout({
                     </LoadingProvider>
                 </Provider>
                 <Analytics />
-                <JoinlistWrapper />
+                <Suspense fallback={null}>
+                    <JoinlistWrapper />
+                </Suspense>
                 
                 {/* </div> */}
             </body>
