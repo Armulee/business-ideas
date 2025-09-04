@@ -13,6 +13,7 @@ import {
     Mail,
     Megaphone,
     ScrollText,
+    List,
 } from "lucide-react"
 
 // Main menu items (non-collapsible)
@@ -51,6 +52,16 @@ export const collapsibleMenus = [
                 href: "/admin/orchestration/content",
                 name: "Content",
                 icon: Megaphone,
+            },
+        ],
+    },
+    {
+        section: "Campaign",
+        items: [
+            {
+                href: "/admin/joinlist",
+                name: "Joinlist",
+                icon: List,
             },
         ],
     },

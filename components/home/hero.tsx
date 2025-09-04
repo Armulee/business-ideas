@@ -3,30 +3,26 @@
 import { ArrowUp, Compass, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
 import Link from "next/link"
-import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useTypewriter } from "react-simple-typewriter"
 import ScrollAnimator from "./scroll-animator"
+import { useState } from "react"
+import AuthDialog from "../auth/auth-dialog"
 
 export default function Hero() {
     const router = useRouter()
     const { data: session } = useSession()
-    const alert = useAlert()
-    const handleNewPost = () => {
+    const [authDialogOpen, setAuthDialogOpen] = useState(false)
+
+    const handleJoinlist = () => {
         if (!session?.user) {
-            alert.show({
-                title: "Authentication Required",
-                description:
-                    "Please log in to submit your business for promotion.",
-                cancel: "Cancel",
-                action: "Log in",
-                onAction: () => {
-                    router.push("/auth/signin?callbackUrl=/new-post/new-ideas")
-                },
-            })
+            setAuthDialogOpen(true)
         } else {
-            router.push("/new-post/new-ideas")
+            // User is authenticated, add joinlist param to URL
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('joinlist', 'business')
+            router.push(currentUrl.pathname + currentUrl.search)
         }
     }
 
@@ -47,62 +43,71 @@ export default function Hero() {
     })
 
     return (
-        <ScrollAnimator className='relative z-10 flex flex-col justify-center items-center scroll-animate-scale'>
-            <div className='w-full max-w-4xl mx-auto px-4 text-center'>
-                <ScrollAnimator className='inline-block mb-4 expand-from-left'>
-                    <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm text-white relative'>
-                        {/* Main sparkle with enhanced animation */}
-                        <Sparkles className='h-4 w-4 mr-2 sparkle-animate' />
+        <>
+            <ScrollAnimator className='relative z-10 flex flex-col justify-center items-center scroll-animate-scale'>
+                <div className='w-full max-w-4xl mx-auto px-4 text-center'>
+                    <ScrollAnimator className='inline-block mb-4 expand-from-left'>
+                        <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm text-white relative'>
+                            {/* Main sparkle with enhanced animation */}
+                            <Sparkles className='h-4 w-4 mr-2 sparkle-animate' />
 
-                        {/* Additional floating sparkles for extra effect */}
-                        <div className='absolute -top-1 -right-1 w-2 h-2'>
-                            <div
-                                className='w-full h-full bg-yellow-300 rounded-full sparkle-pulse'
-                                style={{ animationDelay: "0.5s" }}
-                            ></div>
-                        </div>
-                        <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5'>
-                            <div
-                                className='w-full h-full bg-blue-300 rounded-full sparkle-pulse'
-                                style={{ animationDelay: "1s" }}
-                            ></div>
-                        </div>
+                            {/* Additional floating sparkles for extra effect */}
+                            <div className='absolute -top-1 -right-1 w-2 h-2'>
+                                <div
+                                    className='w-full h-full bg-yellow-300 rounded-full sparkle-pulse'
+                                    style={{ animationDelay: "0.5s" }}
+                                ></div>
+                            </div>
+                            <div className='absolute -bottom-1 -left-1 w-1.5 h-1.5'>
+                                <div
+                                    className='w-full h-full bg-blue-300 rounded-full sparkle-pulse'
+                                    style={{ animationDelay: "1s" }}
+                                ></div>
+                            </div>
 
-                        <span>Submit, Amplify, Grow</span>
-                    </span>
-                </ScrollAnimator>
+                            <span>Submit, Amplify, Grow</span>
+                        </span>
+                    </ScrollAnimator>
 
-                <h2 className='text-4xl sm:text-5xl md:text-6xl font-extrabold text-white min-h-[180px] flex justify-center items-center mb-6 leading-tight'>
-                    {text}
-                </h2>
+                    <h2 className='text-4xl sm:text-5xl md:text-6xl font-extrabold text-white min-h-[180px] flex justify-center items-center mb-6 leading-tight'>
+                        {text}
+                    </h2>
 
-                <ScrollAnimator className='scroll-animate' threshold={0.3}>
-                    <p className='text-sm sm:text-md text-white/80 max-w-2xl mx-auto mb-8'>
-                        Submit your business information and let our community
-                        partners promote you to gain more awareness, reach new
-                        customers, and grow your business.
-                    </p>
-                </ScrollAnimator>
+                    <ScrollAnimator className='scroll-animate' threshold={0.3}>
+                        <p className='text-sm sm:text-md text-white/80 max-w-2xl mx-auto mb-8'>
+                            Submit your business information and let our community
+                            partners promote you to gain more awareness, reach new
+                            customers, and grow your business.
+                        </p>
+                    </ScrollAnimator>
 
-                <ScrollAnimator className='scroll-animate' threshold={0.4}>
-                    <div className='flex sm:flex-row flex-col justify-center items-center gap-2'>
-                        <Link href='/partner'>
-                            <Button size='lg' className='button !px-8'>
-                                Become Our Partner
-                                <Compass className='h-5 w-5' />
-                            </Button>
-                        </Link>
-                        <Button
+                    <ScrollAnimator className='scroll-animate' threshold={0.4}>
+                        <div className='flex sm:flex-row flex-col justify-center items-center gap-2'>
+                            <Link href='/partner'>
+                                <Button size='lg' className='button !px-8'>
+                                    Become Our Partner
+                                    <Compass className='h-5 w-5' />
+                                </Button>
+                            </Link>
+                                                    <Button
                             size='lg'
-                            onClick={handleNewPost}
-                            className='button !px-8'
+                            onClick={handleJoinlist}
+                            className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0'
                         >
-                            Submit Your Business
-                            <ArrowUp className='h-5 w-5' />
+                            Join A Waitlist
+                            <ArrowUp className='h-5 w-5 ml-2' />
                         </Button>
-                    </div>
-                </ScrollAnimator>
-            </div>
-        </ScrollAnimator>
+                        </div>
+                    </ScrollAnimator>
+                </div>
+            </ScrollAnimator>
+
+            <AuthDialog
+                open={authDialogOpen}
+                onOpenChange={setAuthDialogOpen}
+                title="Join Our Business List"
+                description="Sign in to join our exclusive business list and get promoted by our community partners"
+            />
+        </>
     )
 }
