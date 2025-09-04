@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,7 @@ export default function AdminJoinlistPage() {
     const [typeFilter, setTypeFilter] = useState<string>("all")
     const [currentPage, setCurrentPage] = useState(1)
 
-    const fetchJoinlistData = async () => {
+    const fetchJoinlistData = useCallback(async () => {
         try {
             setLoading(true)
             const params = new URLSearchParams({
@@ -57,11 +57,11 @@ export default function AdminJoinlistPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [currentPage, typeFilter])
 
     useEffect(() => {
         fetchJoinlistData()
-    }, [currentPage, typeFilter])
+    }, [fetchJoinlistData])
 
     const handleExport = () => {
         if (!joinlistData?.data) return

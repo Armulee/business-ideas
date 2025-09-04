@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import axios, { AxiosError } from "axios"
 import { formSchema, FormValues } from "./signup/types"
 import { useForm } from "react-hook-form"
@@ -22,7 +21,6 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import FormSignIn from "./signin/form"
-import SignUpLink from "./signin/signup-link"
 import ThirdParties from "./signin/third-parties"
 import { useMagicLink } from "./signin/magic-link/context"
 import MagicLinkMessage from "./signin/magic-link/message"
@@ -145,16 +143,16 @@ const AuthDialog = ({
 
                 <FormSignIn />
                 <div className='mt-4 text-center'>
-                    <p className='text-sm text-gray-200'>
-                        Don't have an account?{" "}
-                        <button
-                            type='button'
-                            onClick={() => setActiveTab("signup")}
-                            className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
-                        >
-                            Sign up
-                        </button>
-                    </p>
+                                            <p className='text-sm text-gray-200'>
+                            Don&apos;t have an account?{" "}
+                            <button
+                                type='button'
+                                onClick={() => setActiveTab("signup")}
+                                className='font-medium text-white hover:text-blue-200 underline underline-offset-4'
+                            >
+                                Sign up
+                            </button>
+                        </p>
                 </div>
             </>
         )

@@ -3,9 +3,8 @@
 import { ArrowUp, Compass, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
 import Link from "next/link"
-import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useTypewriter } from "react-simple-typewriter"
 import ScrollAnimator from "./scroll-animator"
 import { useState } from "react"
@@ -13,9 +12,7 @@ import AuthDialog from "../auth/auth-dialog"
 
 export default function Hero() {
     const router = useRouter()
-    const searchParams = useSearchParams()
     const { data: session } = useSession()
-    const alert = useAlert()
     const [authDialogOpen, setAuthDialogOpen] = useState(false)
 
     const handleJoinlist = () => {
