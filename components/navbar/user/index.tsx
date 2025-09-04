@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation"
 import { SidebarTrigger, useSidebar } from "../../ui/sidebar"
 import { Sheet, SheetTrigger } from "../../ui/sheet"
 import Notification from "./notification"
-import NewPostButton from "./new-post-button"
 import { NewPostActions } from "./new-post-actions"
 import { Logo } from "../../logo"
 import { Skeleton } from "../../ui/skeleton"
@@ -72,10 +71,8 @@ export default function UserNavbar() {
                                 </div>
 
                                 <div className='md:w-[65%] w-[calc(100%-10rem)] flex justify-center items-center gap-2'>
-                                    {isNewPostRoute && newPostData ? (
+                                    {isNewPostRoute && newPostData && (
                                         <NewPostActions {...newPostData} />
-                                    ) : (
-                                        <NewPostButton />
                                     )}
                                 </div>
 
