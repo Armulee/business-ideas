@@ -37,7 +37,7 @@ const Joinlist = ({ type }: JoinlistProps) => {
     }, [searchParams, session, type])
 
     const handleProceed = async () => {
-        if (!session?.user?.profileId) {
+        if (!session?.user?.id) {
             console.error('No profile ID found')
             return
         }
@@ -46,7 +46,7 @@ const Joinlist = ({ type }: JoinlistProps) => {
             setIsLoading(true)
             
             const response = await axios.post('/api/joinlist', {
-                profile: session.user.profileId,
+                profile: session.user.id,
                 type,
                 marketing
             })
