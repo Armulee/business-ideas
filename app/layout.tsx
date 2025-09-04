@@ -23,6 +23,7 @@ import { LoadingProvider } from "@/components/loading-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
 import { Analytics } from "@vercel/analytics/next"
+import JoinlistWrapper from "@/components/joinlist/joinlist-wrapper"
 // import GoogleOneTap from "@/auth/google-one-tap"
 import {
     createOrganizationSchema,
@@ -182,6 +183,7 @@ export default function RootLayout({
                     </LoadingProvider>
                 </Provider>
                 <Analytics />
+                <JoinlistWrapper />
                 
                 {/* </div> */}
             </body>

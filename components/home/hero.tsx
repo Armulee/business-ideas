@@ -3,31 +3,31 @@
 import { ArrowUp, Compass, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
 import Link from "next/link"
-import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useTypewriter } from "react-simple-typewriter"
 import ScrollAnimator from "./scroll-animator"
+import AuthDialog from "../auth/auth-dialog"
+import { useState } from "react"
 
 export default function Hero() {
     const router = useRouter()
     const { data: session } = useSession()
-    const alert = useAlert()
-    const handleNewPost = () => {
+    const [showAuthDialog, setShowAuthDialog] = useState(false)
+    
+    const handleJoinlist = () => {
         if (!session?.user) {
-            alert.show({
-                title: "Authentication Required",
-                description:
-                    "Please log in to submit your business for promotion.",
-                cancel: "Cancel",
-                action: "Log in",
-                onAction: () => {
-                    router.push("/auth/signin?callbackUrl=/new-post/new-ideas")
-                },
-            })
+            setShowAuthDialog(true)
         } else {
-            router.push("/new-post/new-ideas")
+            // User is authenticated, redirect to joinlist with auth param
+            const currentUrl = window.location.href
+            router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl + '?joinlist_auth=true')}`)
         }
+    }
+
+    const handleAuthAction = () => {
+        const currentUrl = window.location.href
+        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentUrl + '?joinlist_auth=true')}`)
     }
 
     // Updated headlines for business owners focus
@@ -94,15 +94,24 @@ export default function Hero() {
                         </Link>
                         <Button
                             size='lg'
-                            onClick={handleNewPost}
+                            onClick={handleJoinlist}
                             className='button !px-8'
                         >
-                            Submit Your Business
+                            Joinlist
                             <ArrowUp className='h-5 w-5' />
                         </Button>
                     </div>
                 </ScrollAnimator>
             </div>
+            
+            <AuthDialog
+                open={showAuthDialog}
+                onOpenChange={setShowAuthDialog}
+                title="Authentication Required"
+                description="You need to login first before joining the joinlist. Please sign in to continue."
+                onAction={handleAuthAction}
+                closable={true}
+            />
         </ScrollAnimator>
     )
 }
