@@ -5,7 +5,7 @@ import connectDB from "@/database"
 import { Resend } from "resend"
 import { PostRestrictionEmailTemplate } from "@/lib/email-templates"
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+const resend = process.env.AUTH_RESEND_KEY ? new Resend(process.env.AUTH_RESEND_KEY) : null
 
 export async function PATCH(
     request: NextRequest,

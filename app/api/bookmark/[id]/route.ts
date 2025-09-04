@@ -4,11 +4,11 @@ import { NextResponse } from "next/server"
 
 export async function GET(
     req: Request,
-    { params }: { params: Promise<{ id: Schema.Types.ObjectId }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params
-        const profile = await Profile.findById(id)
+        const profile = await Profile.findById(new Schema.Types.ObjectId(id))
 
         if (!profile) {
             return NextResponse.json(
