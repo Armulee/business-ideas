@@ -23,6 +23,7 @@ import { LoadingProvider } from "@/components/loading-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
 import { Analytics } from "@vercel/analytics/next"
+import Joinlist from "@/components/joinlist"
 // import GoogleOneTap from "@/auth/google-one-tap"
 import {
     createOrganizationSchema,
@@ -175,6 +176,7 @@ export default function RootLayout({
                         <Suspense>
                             <Navbar />
                             <Main>{children}</Main>
+                            <Joinlist type="business" />
                         </Suspense>
                         <Toaster className='bg-black' />
                         <CookiesConsent />

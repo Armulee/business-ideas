@@ -5,28 +5,27 @@ import { Button } from "../ui/button"
 import Link from "next/link"
 import { useAlert } from "../provider/alert"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useTypewriter } from "react-simple-typewriter"
 import ScrollAnimator from "./scroll-animator"
+import { useState } from "react"
+import AuthDialog from "../auth/auth-dialog"
 
 export default function Hero() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { data: session } = useSession()
     const alert = useAlert()
-    const handleNewPost = () => {
+    const [authDialogOpen, setAuthDialogOpen] = useState(false)
+
+    const handleJoinlist = () => {
         if (!session?.user) {
-            alert.show({
-                title: "Authentication Required",
-                description:
-                    "Please log in to submit your business for promotion.",
-                cancel: "Cancel",
-                action: "Log in",
-                onAction: () => {
-                    router.push("/auth/signin?callbackUrl=/new-post/new-ideas")
-                },
-            })
+            setAuthDialogOpen(true)
         } else {
-            router.push("/new-post/new-ideas")
+            // User is authenticated, add joinlist param to URL
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('joinlist', 'business')
+            router.push(currentUrl.pathname + currentUrl.search)
         }
     }
 
@@ -94,15 +93,23 @@ export default function Hero() {
                         </Link>
                         <Button
                             size='lg'
-                            onClick={handleNewPost}
+                            onClick={handleJoinlist}
                             className='button !px-8'
                         >
-                            Submit Your Business
+                            Joinlist
                             <ArrowUp className='h-5 w-5' />
                         </Button>
                     </div>
                 </ScrollAnimator>
             </div>
         </ScrollAnimator>
+
+        <AuthDialog
+            open={authDialogOpen}
+            onOpenChange={setAuthDialogOpen}
+            title="Join Our Business List"
+            description="Sign in to join our exclusive business list and get promoted by our community partners"
+            callbackUrl={window.location.pathname + window.location.search}
+        />
     )
 }
