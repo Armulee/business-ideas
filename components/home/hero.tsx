@@ -109,7 +109,6 @@ export default function Hero() {
             onOpenChange={setAuthDialogOpen}
             title="Join Our Business List"
             description="Sign in to join our exclusive business list and get promoted by our community partners"
-            callbackUrl={window.location.pathname + window.location.search}
         />
     )
 }
