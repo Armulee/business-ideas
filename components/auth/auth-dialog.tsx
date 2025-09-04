@@ -106,13 +106,6 @@ const AuthDialogContent = ({
         }, 2000)
     }
 
-    // Reset form state when component unmounts or changes
-    const resetForm = () => {
-        setStep("form")
-        setSubmittedEmail("")
-        setError("")
-        form.reset()
-    }
 
     const renderSignInContent = () => {
         if (sentMagicLink) {
