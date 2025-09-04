@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import FormSignIn from "./signin/form"
 import ThirdParties from "./signin/third-parties"
-import { useMagicLink } from "./signin/magic-link/context"
+import { useMagicLink, MagicLinkProvider } from "./signin/magic-link/context"
 import MagicLinkMessage from "./signin/magic-link/message"
 
 interface AuthDialogProps {
@@ -223,36 +223,38 @@ const AuthDialog = ({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className='mt-6'>
-                    {/* Tab Navigation */}
-                    <div className='flex mb-6 border-b border-gray-600'>
-                        <button
-                            type='button'
-                            onClick={() => setActiveTab("signin")}
-                            className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
-                                activeTab === "signin"
-                                    ? "border-blue-500 text-blue-400"
-                                    : "border-transparent text-gray-400 hover:text-gray-300"
-                            }`}
-                        >
-                            Sign In
-                        </button>
-                        <button
-                            type='button'
-                            onClick={() => setActiveTab("signup")}
-                            className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
-                                activeTab === "signup"
-                                    ? "border-blue-500 text-blue-400"
-                                    : "border-transparent text-gray-400 hover:text-gray-300"
-                            }`}
-                        >
-                            Sign Up
-                        </button>
-                    </div>
+                <MagicLinkProvider>
+                    <div className='mt-6'>
+                        {/* Tab Navigation */}
+                        <div className='flex mb-6 border-b border-gray-600'>
+                            <button
+                                type='button'
+                                onClick={() => setActiveTab("signin")}
+                                className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                                    activeTab === "signin"
+                                        ? "border-blue-500 text-blue-400"
+                                        : "border-transparent text-gray-400 hover:text-gray-300"
+                                }`}
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                type='button'
+                                onClick={() => setActiveTab("signup")}
+                                className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                                    activeTab === "signup"
+                                        ? "border-blue-500 text-blue-400"
+                                        : "border-transparent text-gray-400 hover:text-gray-300"
+                                }`}
+                            >
+                                Sign Up
+                            </button>
+                        </div>
 
-                    {/* Content */}
-                    {activeTab === "signin" ? renderSignInContent() : renderSignUpContent()}
-                </div>
+                        {/* Content */}
+                        {activeTab === "signin" ? renderSignInContent() : renderSignUpContent()}
+                    </div>
+                </MagicLinkProvider>
             </DialogContent>
         </Dialog>
     )
