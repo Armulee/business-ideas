@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import FormSignIn from "./signin/form"
 import ThirdParties from "./signin/third-parties"
-import { useMagicLink, MagicLinkProvider } from "./signin/magic-link/context"
+import { MagicLinkProvider, useMagicLink } from "./signin/magic-link/context"
 import MagicLinkMessage from "./signin/magic-link/message"
 
 interface AuthDialogProps {
@@ -34,14 +34,20 @@ interface AuthDialogProps {
     callbackUrl?: string
 }
 
-const AuthDialog = ({
-    open,
-    onOpenChange,
-    title = "Welcome Back",
-    description = "Sign in quickly and securely with your favorite provider",
-    defaultTab = "signin",
-    callbackUrl = "/",
-}: AuthDialogProps) => {
+// Separate component that uses the useMagicLink hook
+const AuthDialogContent = ({
+    title,
+    description,
+    defaultTab,
+    callbackUrl,
+    onClose,
+}: {
+    title: string
+    description: string
+    defaultTab: "signin" | "signup"
+    callbackUrl: string
+    onClose: () => void
+}) => {
     const searchParams = useSearchParams()
     const finalCallbackUrl = callbackUrl || searchParams.get("callbackUrl") || "/"
     const [activeTab, setActiveTab] = useState<"signin" | "signup">(defaultTab)
@@ -208,52 +214,72 @@ const AuthDialog = ({
     }
 
     return (
+        <div className='mt-6'>
+            {/* Tab Navigation */}
+            <div className='flex mb-6 border-b border-gray-600'>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab("signin")}
+                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === "signin"
+                            ? "border-blue-500 text-blue-400"
+                            : "border-transparent text-gray-400 hover:text-gray-300"
+                    }`}
+                >
+                    Sign In
+                </button>
+                <button
+                    type='button'
+                    onClick={() => setActiveTab("signup")}
+                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === "signup"
+                            ? "border-blue-500 text-blue-400"
+                            : "border-transparent text-gray-400 hover:text-gray-300"
+                    }`}
+                >
+                    Sign Up
+                </button>
+            </div>
+
+            {/* Content */}
+            {activeTab === "signin" ? renderSignInContent() : renderSignUpContent()}
+        </div>
+    )
+}
+
+const AuthDialog = ({
+    open,
+    onOpenChange,
+    title = "Welcome Back",
+    description = "Sign in quickly and securely with your favorite provider",
+    defaultTab = "signin",
+    callbackUrl = "/",
+}: AuthDialogProps) => {
+    const handleClose = () => {
+        onOpenChange(false)
+    }
+
+    return (
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className='max-w-md mx-auto bg-gray-800 border-gray-700 text-white'>
                 <DialogHeader>
                     <Logo className='w-fit mx-auto text-center' />
                     <DialogTitle className='text-center text-3xl font-extrabold text-white'>
-                        {activeTab === "signin" ? title : "Welcome to Future of Innovation"}
+                        {title}
                     </DialogTitle>
                     <DialogDescription className='text-center text-sm text-gray-200'>
-                        {activeTab === "signin" 
-                            ? description 
-                            : "Create an account and start sharing or exploring the fascinating ideas today!"
-                        }
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
 
                 <MagicLinkProvider>
-                    <div className='mt-6'>
-                        {/* Tab Navigation */}
-                        <div className='flex mb-6 border-b border-gray-600'>
-                            <button
-                                type='button'
-                                onClick={() => setActiveTab("signin")}
-                                className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
-                                    activeTab === "signin"
-                                        ? "border-blue-500 text-blue-400"
-                                        : "border-transparent text-gray-400 hover:text-gray-300"
-                                }`}
-                            >
-                                Sign In
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() => setActiveTab("signup")}
-                                className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
-                                    activeTab === "signup"
-                                        ? "border-blue-500 text-blue-400"
-                                        : "border-transparent text-gray-400 hover:text-gray-300"
-                                }`}
-                            >
-                                Sign Up
-                            </button>
-                        </div>
-
-                        {/* Content */}
-                        {activeTab === "signin" ? renderSignInContent() : renderSignUpContent()}
-                    </div>
+                    <AuthDialogContent
+                        title={title}
+                        description={description}
+                        defaultTab={defaultTab}
+                        callbackUrl={callbackUrl}
+                        onClose={handleClose}
+                    />
                 </MagicLinkProvider>
             </DialogContent>
         </Dialog>
