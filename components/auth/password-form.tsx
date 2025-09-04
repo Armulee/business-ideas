@@ -132,26 +132,26 @@ const PasswordForm = ({ onBack, activeTab, onTabChange, callbackUrl }: PasswordF
     }
 
     return (
-        <>
+        <div className='space-y-6'>
             <Button
                 type='button'
                 onClick={onBack}
                 variant="ghost"
-                className='mb-4 text-gray-400 hover:text-white p-2'
+                className='mb-2 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700/50 transition-all duration-200'
             >
                 <ArrowLeft className='h-4 w-4 mr-2' />
-                Back to Auth Providers
+                Back
             </Button>
 
             {/* Tab Navigation */}
-            <div className='flex mb-6 border-b border-gray-600'>
+            <div className='flex bg-gray-700/30 rounded-xl p-1 border border-gray-600/50'>
                 <button
                     type='button'
                     onClick={() => onTabChange("signin")}
-                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all duration-200 ${
                         activeTab === "signin"
-                            ? "border-blue-500 text-blue-400"
-                            : "border-transparent text-gray-400 hover:text-gray-300"
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                            : "text-gray-400 hover:text-white hover:bg-gray-600/50"
                     }`}
                 >
                     Sign In
@@ -159,10 +159,10 @@ const PasswordForm = ({ onBack, activeTab, onTabChange, callbackUrl }: PasswordF
                 <button
                     type='button'
                     onClick={() => onTabChange("signup")}
-                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all duration-200 ${
                         activeTab === "signup"
-                            ? "border-blue-500 text-blue-400"
-                            : "border-transparent text-gray-400 hover:text-gray-300"
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                            : "text-gray-400 hover:text-white hover:bg-gray-600/50"
                     }`}
                 >
                     Sign Up
@@ -171,7 +171,7 @@ const PasswordForm = ({ onBack, activeTab, onTabChange, callbackUrl }: PasswordF
 
             {/* Content */}
             {activeTab === "signin" ? renderSignInContent() : renderSignUpContent()}
-        </>
+        </div>
     )
 }
 

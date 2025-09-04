@@ -16,6 +16,7 @@ import { Logo } from "../../logo"
 import { Skeleton } from "../../ui/skeleton"
 import MobileSidebar from "@/components/sidebar/user/mobile"
 import { useNewPostContext } from "@/components/new-post/context"
+import AuthDialog from "@/components/auth/auth-dialog"
 
 export default function UserNavbar() {
     const { newPostData } = useNewPostContext()
@@ -37,6 +38,9 @@ export default function UserNavbar() {
 
     // mobile sidebar
     const [open, setOpen] = useState<boolean>(false)
+    
+    // auth dialog state
+    const [authDialogOpen, setAuthDialogOpen] = useState<boolean>(false)
 
     // navSearch
     // const [navSearchOpen, setNavSearchOpen] = useState<boolean>(false)
@@ -95,14 +99,10 @@ export default function UserNavbar() {
                                 ) : status === "unauthenticated" ? (
                                     <Button
                                         size='sm'
+                                        onClick={() => setAuthDialogOpen(true)}
                                         className='bg-white text-blue-500 rounded-full px-4 hover:bg-blue-900 hover:text-white transition duration-500'
                                     >
-                                        <Link
-                                            className='text-sm'
-                                            href={`/auth/signin?callbackUrl=${previousPath}`}
-                                        >
-                                            Log in
-                                        </Link>
+                                        <span className='text-sm'>Log in</span>
                                     </Button>
                                 ) : (
                                     <Skeleton className='rounded-full w-[64px] h-[35px] glassmorphism' />
@@ -114,6 +114,14 @@ export default function UserNavbar() {
                     <MobileSidebar setOpen={setOpen} />
                 </Sheet>
             )}
+            
+            <AuthDialog
+                open={authDialogOpen}
+                onOpenChange={setAuthDialogOpen}
+                title="Welcome Back"
+                description="Sign in to access your account and continue your journey"
+                callbackUrl={previousPath || "/"}
+            />
         </>
     )
 }
