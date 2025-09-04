@@ -90,13 +90,3 @@ model Authenticator {
 
   @@id([userId, credentialID])
 }
-
-model Joinlist {
-  id        String   @id @default(cuid())
-  profile   String   // Reference to MongoDB Profile._id
-  type      String   // "business" or "partner"
-  marketing Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("joinlist")
-}

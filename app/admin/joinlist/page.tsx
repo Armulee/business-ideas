@@ -12,7 +12,7 @@ import { format } from "date-fns"
 import axios from "axios"
 
 interface JoinlistEntry {
-    id: string
+    _id: string
     profile: string
     type: string
     marketing: boolean
@@ -69,7 +69,7 @@ export default function AdminJoinlistPage() {
         const csvContent = [
             ["ID", "Profile ID", "Type", "Marketing", "Created At"],
             ...joinlistData.data.map(entry => [
-                entry.id,
+                entry._id,
                 entry.profile,
                 entry.type,
                 entry.marketing ? "Yes" : "No",
@@ -245,7 +245,7 @@ export default function AdminJoinlistPage() {
                             </TableHeader>
                             <TableBody>
                                 {filteredData.map((entry) => (
-                                    <TableRow key={entry.id} className="border-gray-700">
+                                    <TableRow key={entry._id} className="border-gray-700">
                                         <TableCell className="text-white font-mono text-sm">
                                             {entry.profile}
                                         </TableCell>

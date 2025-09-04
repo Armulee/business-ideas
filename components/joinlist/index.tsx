@@ -45,11 +45,13 @@ const Joinlist = ({ type }: JoinlistProps) => {
         try {
             setIsLoading(true)
             
-            await axios.post('/api/joinlist', {
+            const response = await axios.post('/api/joinlist', {
                 profile: session.user.profileId,
                 type,
                 marketing
             })
+            
+            console.log('Joinlist entry created:', response.data)
 
             // Remove joinlist param from URL
             const currentUrl = new URL(window.location.href)
