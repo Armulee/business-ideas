@@ -36,17 +36,11 @@ interface AuthDialogProps {
 
 // Separate component that uses the useMagicLink hook
 const AuthDialogContent = ({
-    title,
-    description,
     defaultTab,
     callbackUrl,
-    onClose,
 }: {
-    title: string
-    description: string
     defaultTab: "signin" | "signup"
     callbackUrl: string
-    onClose: () => void
 }) => {
     const searchParams = useSearchParams()
     const finalCallbackUrl = callbackUrl || searchParams.get("callbackUrl") || "/"
@@ -112,9 +106,8 @@ const AuthDialogContent = ({
         }, 2000)
     }
 
-    const handleClose = () => {
-        onOpenChange(false)
-        // Reset form state when closing
+    // Reset form state when component unmounts or changes
+    const resetForm = () => {
         setStep("form")
         setSubmittedEmail("")
         setError("")
@@ -274,11 +267,8 @@ const AuthDialog = ({
 
                 <MagicLinkProvider>
                     <AuthDialogContent
-                        title={title}
-                        description={description}
                         defaultTab={defaultTab}
                         callbackUrl={callbackUrl}
-                        onClose={handleClose}
                     />
                 </MagicLinkProvider>
             </DialogContent>
