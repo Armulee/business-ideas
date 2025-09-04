@@ -177,7 +177,7 @@ export default async function Homepage() {
                                         />
                                     </div>
                                     <h3 className='text-xl font-semibold text-white mb-2'>
-                                        Joinlist
+                                        Join A Waitlist
                                     </h3>
                                     <p className='text-white/70 text-sm'>
                                         Share your business information and
@@ -321,7 +321,7 @@ export default async function Homepage() {
                                         Step 1
                                     </span>
                                     <h4 className='text-lg font-semibold text-white mt-1'>
-                                        Joinlist
+                                        Join A Waitlist
                                     </h4>
                                     <p className='text-white/70 mt-1'>
                                         Business owners submit their business

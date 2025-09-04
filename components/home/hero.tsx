@@ -89,14 +89,14 @@ export default function Hero() {
                                     <Compass className='h-5 w-5' />
                                 </Button>
                             </Link>
-                            <Button
-                                size='lg'
-                                onClick={handleJoinlist}
-                                className='button !px-8'
-                            >
-                                Joinlist
-                                <ArrowUp className='h-5 w-5' />
-                            </Button>
+                                                    <Button
+                            size='lg'
+                            onClick={handleJoinlist}
+                            className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0'
+                        >
+                            Join A Waitlist
+                            <ArrowUp className='h-5 w-5 ml-2' />
+                        </Button>
                         </div>
                     </ScrollAnimator>
                 </div>
