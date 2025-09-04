@@ -137,21 +137,21 @@ const PasswordForm = ({ onBack, activeTab, onTabChange, callbackUrl }: PasswordF
                 type='button'
                 onClick={onBack}
                 variant="ghost"
-                className='mb-2 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700/50 transition-all duration-200'
+                className='mb-2 text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700/50 transition-all duration-200'
             >
                 <ArrowLeft className='h-4 w-4 mr-2' />
                 Back
             </Button>
 
             {/* Tab Navigation */}
-            <div className='flex bg-gray-700/30 rounded-xl p-1 border border-gray-600/50'>
+            <div className='flex bg-slate-800 rounded-lg p-1 border border-slate-600'>
                 <button
                     type='button'
                     onClick={() => onTabChange("signin")}
-                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-all duration-200 ${
                         activeTab === "signin"
-                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                            : "text-gray-400 hover:text-white hover:bg-gray-600/50"
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-slate-400 hover:text-white hover:bg-slate-700/50"
                     }`}
                 >
                     Sign In
@@ -159,10 +159,10 @@ const PasswordForm = ({ onBack, activeTab, onTabChange, callbackUrl }: PasswordF
                 <button
                     type='button'
                     onClick={() => onTabChange("signup")}
-                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-all duration-200 ${
                         activeTab === "signup"
-                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                            : "text-gray-400 hover:text-white hover:bg-gray-600/50"
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-slate-400 hover:text-white hover:bg-slate-700/50"
                     }`}
                 >
                     Sign Up

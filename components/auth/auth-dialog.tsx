@@ -56,23 +56,19 @@ const AuthDialog = ({
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className='max-w-md mx-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-600/50 text-white shadow-2xl'>
-                <DialogHeader className='space-y-4'>
-                    <div className='flex justify-center'>
-                        <div className='p-3 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30'>
-                            <Logo className='w-8 h-8 text-white' />
-                        </div>
-                    </div>
-                    <DialogTitle className='text-center text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent'>
+            <DialogContent className='max-w-md mx-auto bg-slate-900 border border-slate-700 text-white shadow-2xl'>
+                <DialogHeader className='space-y-6 text-center'>
+                    <Logo className='w-12 h-12 text-white mx-auto' />
+                    <DialogTitle className='text-2xl font-bold text-white'>
                         {title}
                     </DialogTitle>
-                    <DialogDescription className='text-center text-sm text-gray-300 leading-relaxed'>
+                    <DialogDescription className='text-sm text-slate-300 leading-relaxed'>
                         {description}
                     </DialogDescription>
                 </DialogHeader>
 
                 <MagicLinkProvider>
-                    <div className='mt-8'>
+                    <div className='mt-6'>
                         {showPasswordForm ? (
                             <PasswordForm
                                 onBack={handleBackToProviders}

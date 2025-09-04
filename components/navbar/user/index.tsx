@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Menu, Search } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LoadingLink as Link } from "@/components/loading-link"
 import { useSession } from "next-auth/react"
@@ -76,18 +76,7 @@ export default function UserNavbar() {
                                     {isNewPostRoute && newPostData ? (
                                         <NewPostActions {...newPostData} />
                                     ) : (
-                                        <>
-                                            <Link
-                                                href='/post?search'
-                                                className='w-full'
-                                            >
-                                                <Button className='w-full flex justify-start items-center gap-2 button'>
-                                                    <Search />
-                                                    Search
-                                                </Button>
-                                            </Link>
-                                            <NewPostButton />
-                                        </>
+                                        <NewPostButton />
                                     )}
                                 </div>
 

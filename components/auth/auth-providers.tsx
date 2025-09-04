@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Lock } from "lucide-react"
 import ThirdParties from "./signin/third-parties"
 
 interface AuthProvidersProps {
@@ -9,14 +10,15 @@ interface AuthProvidersProps {
 
 const AuthProviders = ({ onContinueWithPassword }: AuthProvidersProps) => {
     return (
-        <div className='space-y-6'>
+        <div className='space-y-4'>
             <ThirdParties />
 
             <Button
                 type='button'
                 onClick={onContinueWithPassword}
-                className='w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white border border-gray-500/50 rounded-xl py-3 font-medium transition-all duration-200 shadow-lg hover:shadow-xl'
+                className='w-full flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-lg py-3 font-medium transition-all duration-200'
             >
+                <Lock className='h-5 w-5' />
                 Continue with Password
             </Button>
         </div>
